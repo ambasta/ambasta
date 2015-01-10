@@ -1,0 +1,939 @@
+diff -urN itstool-2.0.2/itstool.in new/itstool.in
+--- itstool-2.0.2/itstool.in	2013-12-17 01:07:23.000000000 +0530
++++ new/itstool.in	2015-01-07 20:43:42.690765318 +0530
+@@ -1,4 +1,4 @@
+-#!@PYTHON@ -s
++#!/usr/bin/python3.4 -s
+ #
+ # Copyright (c) 2010-2013 Shaun McCance <shaunm@gnome.org>
+ #
+@@ -17,8 +17,8 @@
+ # Place, Suite 330, Boston, MA  0211-1307  USA.
+ #
+ 
+-VERSION="@VERSION@"
+-DATADIR="@DATADIR@"
++VERSION = "@VERSION@"
++DATADIR = "@DATADIR@"
+ 
+ import gettext
+ import hashlib
+@@ -36,6 +36,7 @@
+ NS_XLINK = 'http://www.w3.org/1999/xlink'
+ NS_XML = 'http://www.w3.org/XML/1998/namespace'
+ 
++
+ class NoneTranslations:
+     def gettext(self, message):
+         return None
+@@ -49,21 +50,18 @@
+     def lngettext(self, msgid1, msgid2, n):
+         return None
+ 
+-    def ugettext(self, message):
+-        return None
+-
+     def ungettext(self, msgid1, msgid2, n):
+         return None
+ 
+ 
+-class MessageList (object):
+-    def __init__ (self):
++class MessageList(object):
++    def __init__(self):
+         self._messages = []
+         self._by_node = {}
+         self._has_credits = False
+ 
+-    def add_message (self, message, node):
+-        self._messages.append (message)
++    def add_message(self, message, node):
++        self._messages.append(message)
+         if node is not None:
+             self._by_node[node] = message
+ 
+@@ -73,22 +71,24 @@
+         msg = Message()
+         msg.set_context('_')
+         msg.add_text('translator-credits')
+-        msg.add_comment(Comment('Put one translator per line, in the form NAME <EMAIL>, YEAR1, YEAR2'))
++        msg.add_comment(Comment(
++            'Put one translator per line, in the form '
++            'NAME <EMAIL>, YEAR1, YEAR2'))
+         self._messages.append(msg)
+         self._has_credits = True
+ 
+-    def get_message_by_node (self, node):
++    def get_message_by_node(self, node):
+         return self._by_node.get(node, None)
+ 
+-    def get_nodes_with_messages (self):
++    def get_nodes_with_messages(self):
+         return self._by_node.keys()
+ 
+-    def output (self, out):
++    def output(self, out):
+         msgs = []
+         msgdict = {}
+         for msg in self._messages:
+             key = (msg.get_context(), msg.get_string())
+-            if msgdict.has_key(key):
++            if key in msgdict:
+                 for source in msg.get_sources():
+                     msgdict[key].add_source(source)
+                 for marker in msg.get_markers():
+@@ -102,17 +102,19 @@
+                 if msg.get_locale_filter() is not None:
+                     locale = msgdict[key].get_locale_filter()
+                     if locale is not None:
+-                        msgdict[key].set_locale_filter('%s, %s' % (locale, msg.get_locale_filter()))
++                        msgdict[key].set_locale_filter('%s, %s' % (
++                            locale, msg.get_locale_filter()))
+                     else:
+                         msgdict[key].set_locale_filter(msg.get_locale_filter())
+-                
++
+             else:
+                 msgs.append(msg)
+                 msgdict[key] = msg
+         out.write('msgid ""\n')
+         out.write('msgstr ""\n')
+         out.write('"Project-Id-Version: PACKAGE VERSION\\n"\n')
+-        out.write('"POT-Creation-Date: %s\\n"\n' % time.strftime("%Y-%m-%d %H:%M%z"))
++        out.write('"POT-Creation-Date: %s\\n"\n' % time.strftime(
++            "%Y-%m-%d %H:%M%z"))
+         out.write('"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\\n"\n')
+         out.write('"Last-Translator: FULL NAME <EMAIL@ADDRESS>\\n"\n')
+         out.write('"Language-Team: LANGUAGE <LL@li.org>\\n"\n')
+@@ -125,27 +127,27 @@
+             out.write('\n')
+ 
+ 
+-class Comment (object):
+-    def __init__ (self, text):
++class Comment(object):
++    def __init__(self, text):
+         self._text = str(text)
+         assert(text is not None)
+         self._markers = []
+ 
+-    def add_marker (self, marker):
++    def add_marker(self, marker):
+         self._markers.append(marker)
+ 
+-    def get_markers (self):
++    def get_markers(self):
+         return self._markers
+ 
+-    def get_text (self):
++    def get_text(self):
+         return self._text
+ 
+-    def format (self):
+-        ret = u''
++    def format(self):
++        ret = ''
+         markers = {}
+         for marker in self._markers:
+-            if not markers.has_key(marker):
+-                ret += '#. (itstool) comment: ' + marker + '\n'
++            if marker in markers:
++                ret += '#.(itstool) comment: ' + marker + '\n'
+                 markers[marker] = marker
+         if '\n' in self._text:
+             doadd = False
+@@ -154,7 +156,7 @@
+                     doadd = True
+                 if not doadd:
+                     continue
+-                ret += u'#. %s\n' % line
++                ret += '#. %s\n' % line
+         else:
+             text = self._text
+             while len(text) > 72:
+@@ -163,14 +165,14 @@
+                     j = text.find(' ')
+                 if j == -1:
+                     break
+-                ret += u'#. %s\n' % text[:j]
++                ret += '#. %s\n' % text[:j]
+                 text = text[j+1:]
+             ret += '#. %s\n' % text
+         return ret
+ 
+ 
+-class Message (object):
+-    def __init__ (self):
++class Message(object):
++    def __init__(self):
+         self._message = []
+         self._empty = True
+         self._ctxt = None
+@@ -187,93 +189,100 @@
+             return "Empty message"
+         return self.get_string()
+ 
+-    class Placeholder (object):
+-        def __init__ (self, node):
++    class Placeholder(object):
++        def __init__(self, node):
+             self.node = node
+-            self.name = unicode(node.name, 'utf-8')
++            self.name = str(node.name)
+ 
+-    def escape (self, text):
+-        return text.replace('\\','\\\\').replace('"', "\\\"").replace("\n","\\n").replace("\t","\\t")
++    def escape(self, text):
++        return text.replace('\\', '\\\\').replace('"', "\\\"").replace(
++            "\n", "\\n").replace("\t", "\\t")
+ 
+-    def add_text (self, text):
+-        if len(self._message) == 0 or not(isinstance(self._message[-1], basestring)):
++    def add_text(self, text):
++        if len(self._message) == 0 or not(isinstance(self._message[-1], str)):
+             self._message.append('')
+-        if not isinstance(text, unicode):
+-            text = unicode(text, 'utf-8')
+-        self._message[-1] += text.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
++        if not isinstance(text, str):
++            text = str(text, 'utf-8')
++        self._message[-1] += text.replace('&', '&amp;').replace(
++            '<', '&lt;').replace('>', '&gt;')
+         if re.sub('\s+', ' ', text).strip() != '':
+             self._empty = False
+ 
+-    def add_entity_ref (self, name):
++    def add_entity_ref(self, name):
+         self._message.append('&' + name + ';')
+         self._empty = False
+ 
+-    def add_placeholder (self, node):
++    def add_placeholder(self, node):
+         holder = Message.Placeholder(node)
+         self._placeholders.append(holder)
+         self._message.append(holder)
+ 
+-    def get_placeholder (self, name):
++    def get_placeholder(self, name):
+         placeholder = 1
+         for holder in self._placeholders:
+-            holdername = u'%s-%i' % (holder.name, placeholder)
+-            if holdername == unicode(name, 'utf-8'):
++            holdername = '%s-%i' % (holder.name, placeholder)
++            if holdername == str(name):
+                 return holder
+             placeholder += 1
+ 
+-    def add_start_tag (self, node):
+-        if len(self._message) == 0 or not(isinstance(self._message[-1], basestring)):
++    def add_start_tag(self, node):
++        if len(self._message) == 0 or not(isinstance(self._message[-1], str)):
+             self._message.append('')
+         if node.ns() is not None and node.ns().name is not None:
+-            self._message[-1] += (u'<%s:%s' % (unicode(node.ns().name, 'utf-8'), unicode(node.name, 'utf-8')))
++            self._message[-1] += ('<%s:%s' % (
++                str(node.ns().name), str(node.name)))
+         else:
+-            self._message[-1] += (u'<%s' % unicode(node.name, 'utf-8'))
++            self._message[-1] += ('<%s' % str(node.name))
+         for prop in xml_attr_iter(node):
+             name = prop.name
+             if prop.ns() is not None:
+                 name = prop.ns().name + ':' + name
+             atval = prop.content
+-            if not isinstance(atval, unicode):
+-                atval = unicode(atval, 'utf-8')
+-            atval = atval.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;').replace('"', '&quot;')
++            if not isinstance(atval, str):
++                atval = str(atval)
++            atval = atval.replace('&', '&amp;').replace('<', '&lt;').replace(
++                '>', '&gt;').replace('"', '&quot;')
+             self._message += " %s=\"%s\"" % (name, atval)
+         if node.children is not None:
+             self._message[-1] += '>'
+         else:
+             self._message[-1] += '/>'
+ 
+-    def add_end_tag (self, node):
++    def add_end_tag(self, node):
+         if node.children is not None:
+-            if len(self._message) == 0 or not(isinstance(self._message[-1], basestring)):
++            if len(self._message) == 0 or not(
++                    isinstance(self._message[-1], str)):
+                 self._message.append('')
+             if node.ns() is not None and node.ns().name is not None:
+-                self._message[-1] += (u'</%s:%s>' % (unicode(node.ns().name, 'utf-8'), unicode(node.name, 'utf-8')))
++                self._message[-1] += ('</%s:%s>' % (
++                    str(node.ns().name),
++                    str(node.name)))
+             else:
+-                self._message[-1] += (u'</%s>' % unicode(node.name, 'utf-8'))
++                self._message[-1] += ('</%s>' % str(node.name))
+ 
+-    def is_empty (self):
++    def is_empty(self):
+         return self._empty
+ 
+-    def get_context (self):
++    def get_context(self):
+         return self._ctxt
+ 
+-    def set_context (self, ctxt):
++    def set_context(self, ctxt):
+         self._ctxt = ctxt
+ 
+-    def add_source (self, source):
+-        if not isinstance(source, unicode):
+-            source = unicode(source, 'utf-8')
++    def add_source(self, source):
++        if not isinstance(source, str):
++            source = str(source)
+         self._sources.append(source)
+ 
+-    def get_sources (self):
++    def get_sources(self):
+         return self._sources
+ 
+-    def add_marker (self, marker):
+-        if not isinstance(marker, unicode):
+-            marker = unicode(marker, 'utf-8')
++    def add_marker(self, marker):
++        if not isinstance(marker, str):
++            marker = str(marker)
+         self._markers.append(marker)
+ 
+-    def get_markers (self):
++    def get_markers(self):
+         return self._markers
+ 
+     def add_id_value(self, id_value):
+@@ -282,30 +291,30 @@
+     def get_id_values(self):
+         return self._id_values
+ 
+-    def add_comment (self, comment):
++    def add_comment(self, comment):
+         if comment is not None:
+             self._comments.append(comment)
+ 
+-    def get_comments (self):
++    def get_comments(self):
+         return self._comments
+ 
+-    def get_string (self):
+-        message = u''
++    def get_string(self):
++        message = ''
+         placeholder = 1
+         for msg in self._message:
+-            if isinstance(msg, basestring):
++            if isinstance(msg, str):
+                 message += msg
+             elif isinstance(msg, Message.Placeholder):
+-                message += u'<_:%s-%i/>' % (msg.name, placeholder)
++                message += '<_:%s-%i/>' % (msg.name, placeholder)
+                 placeholder += 1
+         if not self._preserve:
+             message = re.sub('\s+', ' ', message).strip()
+         return message
+ 
+-    def get_preserve_space (self):
++    def get_preserve_space(self):
+         return self._preserve
+ 
+-    def set_preserve_space (self, preserve=True):
++    def set_preserve_space(self, preserve=True):
+         self._preserve = preserve
+ 
+     def get_locale_filter(self):
+@@ -314,22 +323,24 @@
+     def set_locale_filter(self, locale):
+         self._locale_filter = locale
+ 
+-    def format (self):
+-        ret = u''
++    def format(self):
++        ret = ''
+         markers = {}
+         for marker in self._markers:
+-            if not markers.has_key(marker):
+-                ret += '#. (itstool) path: ' + marker + '\n'
++            if marker not in markers:
++                ret += '#.(itstool) path: ' + marker + '\n'
+                 markers[marker] = marker
+         for idvalue in self._id_values:
+-            ret += '#. (itstool) id: ' + idvalue + '\n'
++            ret += '#.(itstool) id: ' + idvalue + '\n'
+         if self._locale_filter is not None:
+-            ret += '#. (itstool) ' + self._locale_filter[1] + ' locale: ' + self._locale_filter[0] + '\n'
++            ret += (
++                '#.(itstool) ' + self._locale_filter[1] +
++                ' locale: ' + self._locale_filter[0] + '\n')
+         comments = []
+         commentsdict = {}
+         for comment in self._comments:
+             key = comment.get_text()
+-            if commentsdict.has_key(key):
++            if key in commentsdict:
+                 for marker in comment.get_markers():
+                     commentsdict[key].add_marker(marker)
+             else:
+@@ -340,42 +351,47 @@
+                 ret += '#.\n'
+             ret += comments[i].format()
+         for source in self._sources:
+-            ret += u'#: %s\n' % source
++            ret += '#: %s\n' % source
+         if self._preserve:
+-            ret += u'#, no-wrap\n'
++            ret += '#, no-wrap\n'
+         if self._ctxt is not None:
+-            ret += u'msgctxt "%s"\n' % self._ctxt
++            ret += 'msgctxt "%s"\n' % self._ctxt
+         message = self.get_string()
+         if self._preserve:
+-            ret += u'msgid ""\n'
++            ret += 'msgid ""\n'
+             lines = message.split('\n')
+             for line, no in zip(lines, range(len(lines))):
+                 if no == len(lines) - 1:
+-                    ret += u'"%s"\n' % self.escape(line)
++                    ret += '"%s"\n' % self.escape(line)
+                 else:
+-                    ret += u'"%s\\n"\n' % self.escape(line)
++                    ret += '"%s\\n"\n' % self.escape(line)
+         else:
+-            ret += u'msgid "%s"\n' % self.escape(message)
+-        ret += u'msgstr ""\n'
++            ret += 'msgid "%s"\n' % self.escape(message)
++        ret += 'msgstr ""\n'
+         return ret
+ 
+ 
+-def xml_child_iter (node):
++def xml_child_iter(node):
+     child = node.children
+     while child is not None:
+         yield child
+         child = child.next
+ 
+-def xml_attr_iter (node):
++
++def xml_attr_iter(node):
+     attr = node.get_properties()
+     while attr is not None:
+         yield attr
+         attr = attr.next
+ 
+-def xml_is_ns_name (node, ns, name):
++
++def xml_is_ns_name(node, ns, name):
+     if node.type != 'element':
+         return False
+-    return node.name == name and node.ns() is not None and node.ns().content == ns
++    return (
++        node.name == name and node.ns() is not None
++        and node.ns().content == ns)
++
+ 
+ def xml_get_node_path(node):
+     # The built-in nodePath() method only does numeric indexes
+@@ -405,15 +421,17 @@
+         name = xml_get_node_path(node.parent) + name
+     return name
+ 
++
+ def xml_error_catcher(doc, error):
+     doc._xml_err += " %s" % error
+ 
+-def fix_node_ns (node, nsdefs):
++
++def fix_node_ns(node, nsdefs):
+     childnsdefs = nsdefs.copy()
+     nsdef = node.nsDefs()
+     while nsdef is not None:
+         nextnsdef = nsdef.next
+-        if nsdefs.has_key(nsdef.name) and nsdefs[nsdef.name] == nsdef.content:
++        if nsdef.name in nsdefs and nsdefs[nsdef.name] == nsdef.content:
+             node.removeNsDef(nsdef.content)
+         else:
+             childnsdefs[nsdef.name] = nsdef.content
+@@ -423,14 +441,16 @@
+             fix_node_ns(child, childnsdefs)
+ 
+ 
+-class LocNote (object):
+-    def __init__(self, locnote=None, locnoteref=None, locnotetype=None, space=False):
++class LocNote(object):
++    def __init__(
++            self, locnote=None, locnoteref=None,
++            locnotetype=None, space=False):
+         self.locnote = locnote
+         self.locnoteref = locnoteref
+         self.locnotetype = locnotetype
+         if self.locnotetype != 'alert':
+             self.locnotetype = 'description'
+-        self._preserve_space=space
++        self._preserve_space = space
+ 
+     def __repr__(self):
+         if self.locnote is not None:
+@@ -439,12 +459,15 @@
+             else:
+                 return re.sub('\s+', ' ', self.locnote).strip()
+         elif self.locnoteref is not None:
+-            return '(itstool) link: ' + re.sub('\s+', ' ', self.locnoteref).strip()
++            return '(itstool) link: ' + re.sub(
++                '\s+', ' ', self.locnoteref).strip()
+         return ''
+ 
+ 
+-class Document (object):
+-    def __init__ (self, filename, messages, load_dtd=False, keep_entities=False):
++class Document(object):
++    def __init__(
++            self, filename, messages, load_dtd=False,
++            keep_entities=False):
+         self._xml_err = ''
+         libxml2.registerErrorHandler(xml_error_catcher, self)
+         try:
+@@ -465,9 +488,11 @@
+         self._filename = filename
+         self._doc = ctxt.doc()
+         self._localrules = []
+-        def pre_process (node):
++
++        def pre_process(node):
+             for child in xml_child_iter(node):
+-                if xml_is_ns_name(child, 'http://www.w3.org/2001/XInclude', 'include'):
++                if xml_is_ns_name(
++                        child, 'http://www.w3.org/2001/XInclude', 'include'):
+                     if child.nsProp('parse', None) == 'text':
+                         child.xincludeProcessTree()
+                 elif xml_is_ns_name(child, NS_ITS, 'rules'):
+@@ -482,11 +507,17 @@
+                         if root.hasNsProp('version', None):
+                             version = root.nsProp('version', None)
+                         else:
+-                            sys.stderr.write('Warning: ITS file %s missing version attribute\n' %
+-                                             os.path.basename(href))
+-                        if version is not None and version not in ('1.0', '2.0'):
+-                            sys.stderr.write('Warning: Skipping ITS file %s with unknown version %s\n' %
+-                                             (os.path.basename(href), root.nsProp('version', None)))
++                            sys.stderr.write(
++                                'Warning: ITS file %s missing version'
++                                ' attribute\n' %
++                                os.path.basename(href))
++                        if version is not None and version not in(
++                                '1.0', '2.0'):
++                            sys.stderr.write(
++                                'Warning: Skipping ITS file %s with '
++                                'unknown version %s\n' % (
++                                    os.path.basename(href),
++                                    root.nsProp('version', None)))
+                         else:
+                             self._localrules.append(root)
+                     version = None
+@@ -497,8 +528,10 @@
+                         if root.hasNsProp('version', NS_ITS):
+                             version = root.nsProp('version', NS_ITS)
+                         else:
+-                            sys.stderr.write('Warning: Local ITS rules missing version attribute\n')
+-                    if version is not None and version not in ('1.0', '2.0'):
++                            sys.stderr.write(
++                                'Warning: Local ITS rules missing '
++                                'version attribute\n')
++                    if version is not None and version not in('1.0', '2.0'):
+                         sys.stderr.write('Warning: Skipping local ITS rules with unknown version %s\n' %
+                                          version)
+                     else:
+@@ -532,7 +565,7 @@
+         for child in xml_child_iter(rules):
+             if xml_is_ns_name(child, NS_ITS, 'param'):
+                 name = child.nsProp('name', None)
+-                if params.has_key(name):
++                if name in params:
+                     value = params[name]
+                 else:
+                     value = child.getContent()
+@@ -570,7 +603,7 @@
+                 else:
+                     typ = 'include'
+                 for node in self._try_xpath_eval(xpath, rule.nsProp('selector', None)):
+-                    self._its_locale_filters[node] = (lst, typ)
++                    self._its_locale_filters[node] =(lst, typ)
+         elif xml_is_ns_name(rule, NS_ITST, 'dropRule'):
+             if rule.nsProp('selector', None) is not None:
+                 for node in self._try_xpath_eval(xpath, rule.nsProp('selector', None)):
+@@ -586,7 +619,7 @@
+                         oldnode = None
+                     xpath.setContextNode(node)
+                     idvalue = self._try_xpath_eval(xpath, idv)
+-                    if isinstance(idvalue, basestring):
++                    if isinstance(idvalue, str):
+                         self._its_id_values[node] = idvalue
+                     else:
+                         for val in idvalue:
+@@ -606,7 +639,7 @@
+                             oldnode = None
+                         xpath.setContextNode(node)
+                         ctxt = self._try_xpath_eval(xpath, rule.nsProp('contextPointer', None))
+-                        if isinstance(ctxt, basestring):
++                        if isinstance(ctxt, str):
+                             self._itst_contexts[node] = ctxt
+                         else:
+                             for ctxt in ctxt:
+@@ -642,7 +675,7 @@
+                             oldnode = None
+                         xpath.setContextNode(node)
+                         note = self._try_xpath_eval(xpath, sel)
+-                        if isinstance(note, basestring):
++                        if isinstance(note, str):
+                             if ref:
+                                 nodenote = LocNote(locnoteref=note, locnotetype=notetype)
+                             else:
+@@ -679,9 +712,9 @@
+         elif xml_is_ns_name(rule, NS_ITST, 'credits'):
+             if rule.nsProp('appendTo', None) is not None:
+                 for node in self._try_xpath_eval(xpath, rule.nsProp('appendTo', None)):
+-                    self._itst_credits = (node, rule)
++                    self._itst_credits =(node, rule)
+                     break
+-        elif (xml_is_ns_name(rule, NS_ITS, 'externalResourceRefRule') or
++        elif(xml_is_ns_name(rule, NS_ITS, 'externalResourceRefRule') or
+               xml_is_ns_name(rule, NS_ITST, 'externalRefRule')):
+             sel = rule.nsProp('selector', None)
+             if xml_is_ns_name(rule, NS_ITS, 'externalResourceRefRule'):
+@@ -709,7 +742,7 @@
+             dirs.append(ddir)
+             ddir = os.getenv('XDG_DATA_DIRS', '')
+             if ddir == '':
+-                if DATADIR not in ('/usr/local/share', '/usr/share'):
++                if DATADIR not in('/usr/local/share', '/usr/share'):
+                     ddir += DATADIR + ':'
+                 ddir += '/usr/local/share:/usr/share'
+             dirs.extend(ddir.split(':'))
+@@ -736,9 +769,9 @@
+         else:
+             sys.stderr.write('Warning: ITS file %s missing version attribute\n' %
+                              os.path.basename(filename))
+-        if version is not None and version not in ('1.0', '2.0'):
++        if version is not None and version not in('1.0', '2.0'):
+             sys.stderr.write('Warning: Skipping ITS file %s with unknown version %s\n' %
+-                             (os.path.basename(filename), root.nsProp('version', None)))
++                            (os.path.basename(filename), root.nsProp('version', None)))
+             return
+         matched = True
+         for match in xml_child_iter(root):
+@@ -751,7 +784,7 @@
+                     nsdef = par.nsDefs()
+                     while nsdef is not None:
+                         if nsdef.name is not None:
+-                            if not nss.has_key(nsdef.name):
++                            if nsdef.name not in nss:
+                                 nss[nsdef.name] = nsdef.content
+                                 xpath.xpathRegisterNs(nsdef.name, nsdef.content)
+                         nsdef = nsdef.next
+@@ -770,7 +803,7 @@
+                 nsdef = par.nsDefs()
+                 while nsdef is not None:
+                     if nsdef.name is not None:
+-                        if not nss.has_key(nsdef.name):
++                        if nsdef.name not in nss:
+                             nss[nsdef.name] = nsdef.content
+                             xpath.xpathRegisterNs(nsdef.name, nsdef.content)
+                     nsdef = nsdef.next
+@@ -808,7 +841,7 @@
+             if select == 'years':
+                 for year in trdata[2].split(','):
+                     for child in xml_child_iter(node):
+-                        self._append_credits(parent, child, trdata + (year.strip(),))
++                        self._append_credits(parent, child, trdata +(year.strip(),))
+         elif xml_is_ns_name(node, NS_ITST, 'value-of'):
+             select = node.nsProp('select', None)
+             val = None
+@@ -822,7 +855,7 @@
+                 val = trdata[3]
+             if val is not None:
+                 val = val.encode('utf-8')
+-                parent.addContent(val)
++                parent.addContent(str(val))
+         else:
+             newnode = node.copyNode(2)
+             parent.addChild(newnode)
+@@ -835,10 +868,10 @@
+         # Dear Python, please implement pgettext.
+         # http://bugs.python.org/issue2504
+         # Sincerely, Shaun
+-        trans = translations.ugettext('_\x04translator-credits')
++        trans = translations.gettext('_\x04translator-credits')
+         if trans is None or trans == 'translator-credits':
+             return
+-        regex = re.compile('(.*) \<(.*)\>, (.*)')
++        regex = re.compile('(.*) \<(.*)\>,(.*)')
+         for credit in trans.split('\n'):
+             match = regex.match(credit)
+             if not match:
+@@ -878,7 +911,7 @@
+             for lang in sorted(translations.keys(), reverse=True):
+                 locale = self.get_its_locale_filter(node)
+                 lmatch = match_locale_list(locale[0], lang)
+-                if (locale[1] == 'include' and not lmatch) or (locale[1] == 'exclude' and lmatch):
++                if(locale[1] == 'include' and not lmatch) or(locale[1] == 'exclude' and lmatch):
+                     continue
+                 newnode = self.get_translated(node, translations[lang], strict=strict, lang=lang)
+                 if newnode != node:
+@@ -964,11 +997,11 @@
+     def translate_attrs(self, oldnode, newnode):
+         trans_attrs = [attr for attr in xml_attr_iter(oldnode) if self._its_translate_nodes.get(attr, 'no') == 'yes']
+         for attr in trans_attrs:
+-            newcontent = translations.ugettext(attr.get_content())
++            newcontent = translations.gettext(attr.get_content())
+             if newcontent:
+-                newnode.setProp(attr.name, translations.ugettext(attr.get_content()))
++                newnode.setProp(attr.name, translations.gettext(attr.get_content()))
+ 
+-    def get_translated (self, node, translations, strict=False, lang=None):
++    def get_translated(self, node, translations, strict=False, lang=None):
+         msg = self._msgs.get_message_by_node(node)
+         if msg is None:
+             return node
+@@ -978,7 +1011,7 @@
+         # Sincerely, Shaun
+         if msg.get_context() is not None:
+             msgstr = msg.get_context() + '\x04' + msgstr
+-        trans = translations.ugettext(msgstr)
++        trans = translations.gettext(msgstr)
+         if trans is None:
+             return node
+         nss = {}
+@@ -1014,8 +1047,8 @@
+             if strict:
+                 raise
+             else:
+-                sys.stderr.write('Warning: Could not merge %stranslation for msgid:\n%s\n' % (
+-                        (lang + ' ') if lang is not None else '',
++                sys.stderr.write('Warning: 1Could not merge %stranslation for msgid:\n%s\n' % (
++                       (lang + ' ') if lang is not None else '',
+                         msgstr.encode('utf-8')))
+                 self._xml_err = ''
+                 return node
+@@ -1047,8 +1080,8 @@
+                 self.generate_message(child, None, comments=comments)
+                 break
+ 
+-    def generate_message (self, node, msg, comments=True, path=None):
+-        if node.type in ('text', 'cdata') and msg is not None:
++    def generate_message(self, node, msg, comments=True, path=None):
++        if node.type in('text', 'cdata') and msg is not None:
+             msg.add_text(node.content)
+             return
+         if node.type == 'entity_ref':
+@@ -1060,7 +1093,7 @@
+         if self._itst_drop_nodes.get(node, 'no') == 'yes':
+             return
+         locfil = self.get_its_locale_filter(node)
+-        if locfil == ('', 'include') or locfil == ('*', 'exclude'):
++        if locfil ==('', 'include') or locfil ==('*', 'exclude'):
+             return
+         if path is None:
+             path = ''
+@@ -1090,7 +1123,7 @@
+                     msg.add_id_value(basename + '#' + idvalue)
+                 if self.get_preserve_space(node):
+                     msg.set_preserve_space()
+-                if self.get_its_locale_filter(node) != ('*', 'include'):
++                if self.get_its_locale_filter(node) !=('*', 'include'):
+                     msg.set_locale_filter(self.get_its_locale_filter(node))
+                 msg.add_source('%s:%i' % (self._doc.name, node.lineNo()))
+                 msg.add_marker('%s/%s' % (node.parent.name, node.name))
+@@ -1109,7 +1142,7 @@
+                     if comments:
+                         for locnote in self.get_its_loc_notes(attr):
+                             comment = Comment(locnote)
+-                            comment.add_marker ('%s/%s@%s' % (
++                            comment.add_marker('%s/%s@%s' % (
+                                     node.parent.name, node.name, attr.name))
+                             attr_msg.add_comment(comment)
+                     self._msgs.add_message(attr_msg, attr)
+@@ -1148,7 +1181,7 @@
+                 msg.add_end_tag(node)
+ 
+     def generate_external_resource_message(self, node):
+-        if not self._its_externals.has_key(node):
++        if node not in self._its_externals:
+             return
+         resref = self._its_externals[node]
+         if node.type == 'element':
+@@ -1179,18 +1212,18 @@
+                                 ' once you have updated your copy of the file.'))
+         self._msgs.add_message(msg, None)
+ 
+-    def is_translation_unit (self, node):
++    def is_translation_unit(self, node):
+         return self.get_its_within_text(node) != 'yes'
+ 
+     def has_child_elements(self, node):
+         return len([child for child in xml_child_iter(node) if child.type=='element'])
+ 
+-    def get_preserve_space (self, node):
+-        while node.type in ('attribute', 'element'):
++    def get_preserve_space(self, node):
++        while node.type in('attribute', 'element'):
+             if node.getSpacePreserve() == 1:
+                 return True
+-            if self._its_preserve_space_nodes.has_key(node):
+-                return (self._its_preserve_space_nodes[node] == 'preserve')
++            if node in self._its_preserve_space_nodes:
++                return(self._its_preserve_space_nodes[node] == 'preserve')
+             node = node.parent
+         return False
+ 
+@@ -1200,7 +1233,7 @@
+             val = node.nsProp('translate', NS_ITS)
+         elif xml_is_ns_name(node, NS_ITS, 'span') and node.hasNsProp('translate', None):
+             val = node.nsProp('translate', None)
+-        elif self._its_translate_nodes.has_key(node):
++        elif node in self._its_translate_nodes:
+             val = self._its_translate_nodes[node]
+         if val is not None:
+             return val
+@@ -1217,7 +1250,7 @@
+             val = node.nsProp('withinText', None)
+         else:
+             return self._its_within_text_nodes.get(node, 'no')
+-        if val in ('yes', 'nested'):
++        if val in('yes', 'nested'):
+             return val
+         return 'no'
+ 
+@@ -1231,9 +1264,9 @@
+                 typ = node.nsProp('localeFilterType', NS_ITS)
+             else:
+                 typ = 'include'
+-            return (lst, typ)
+-        if (xml_is_ns_name(node, NS_ITS, 'span') and 
+-            (node.hasNsProp('localeFilterList', None) or node.hasNsProp('localeFilterType', None))):
++            return(lst, typ)
++        if(xml_is_ns_name(node, NS_ITS, 'span') and
++           (node.hasNsProp('localeFilterList', None) or node.hasNsProp('localeFilterType', None))):
+             if node.hasNsProp('localeFilterList', None):
+                 lst = node.nsProp('localeFilterList', None)
+             else:
+@@ -1242,12 +1275,12 @@
+                 typ = node.nsProp('localeFilterType', None)
+             else:
+                 typ = 'include'
+-            return (lst, typ)
+-        if self._its_locale_filters.has_key(node):
++            return(lst, typ)
++        if node in self._its_locale_filters:
+             return self._its_locale_filters[node]
+         if node.parent.type == 'element':
+             return self.get_its_locale_filter(node.parent)
+-        return ('*', 'include')
++        return('*', 'include')
+ 
+     def get_itst_drop(self, node):
+         if node.hasNsProp('drop', NS_ITST) and node.nsProp('drop', NS_ITST) == 'yes':
+@@ -1278,7 +1311,7 @@
+                     ret.append(LocNote(locnoteref=node.nsProp('locNoteRef', None), locnotetype=notetype))
+         for locnote in reversed(self._its_loc_notes.get(node, [])):
+             ret.append(locnote)
+-        if (len(ret) == 0 and inherit and
++        if(len(ret) == 0 and inherit and
+             node.type != 'attribute' and node.parent is not None and node.parent.type == 'element'):
+             return self.get_its_loc_notes(node.parent)
+         return ret
+@@ -1328,7 +1361,7 @@
+                 self.output_test_data(category, out, child)
+ 
+     @staticmethod
+-    def _try_xpath_eval (xpath, expr):
++    def _try_xpath_eval(xpath, expr):
+         try:
+             return xpath.xpathEval(expr)
+         except:
+@@ -1349,7 +1382,7 @@
+     # http://tools.ietf.org/html/rfc4647#section-3.3.2
+     rangelist = [x.lower() for x in extrange.split('-')]
+     localelist = [x.lower() for x in locale.split('-')]
+-    if rangelist[0] not in ('*', localelist[0]):
++    if rangelist[0] not in('*', localelist[0]):
+         return False
+     rangei = localei = 0
+     while rangei < len(rangelist):
+@@ -1358,7 +1391,7 @@
+             continue
+         if localei >= len(localelist):
+             return False
+-        if rangelist[rangei] in ('*', localelist[localei]):
++        if rangelist[rangei] in('*', localelist[localei]):
+             rangei += 1
+             localei += 1
+             continue
+@@ -1368,7 +1401,7 @@
+     return True
+ 
+ _locale_pattern = re.compile('([a-zA-Z0-9-]+)(_[A-Za-z0-9]+)?(@[A-Za-z0-9]+)?(\.[A-Za-z0-9]+)?')
+-def convert_locale (locale):
++def convert_locale(locale):
+     # Automatically convert POSIX-style locales to BCP47
+     match = _locale_pattern.match(locale)
+     if match is None:
+@@ -1401,7 +1434,7 @@
+                        action='append',
+                        dest='itsfile',
+                        metavar='ITS',
+-                       help='Load the ITS rules in the file ITS (can specify multiple times)')
++                       help='Load the ITS rules in the file ITS(can specify multiple times)')
+     options.add_option('-l', '--lang',
+                        dest='lang',
+                        default=None,
+@@ -1446,7 +1479,7 @@
+                        default=[],
+                        nargs=2,
+                        metavar='NAME VALUE',
+-                       help='Define the ITS parameter NAME to the value VALUE (can specify multiple times)')
++                       help='Define the ITS parameter NAME to the value VALUE(can specify multiple times)')
+     options.add_option('-t', '--test',
+                        dest='test',
+                        default=None,
+@@ -1457,7 +1490,7 @@
+                        dest='version',
+                        default=False,
+                        help='Print itstool version and exit')
+-    (opts, args) = options.parse_args(sys.argv)
++    opts, args = options.parse_args(sys.argv)
+ 
+     if opts.version:
+         print('itstool %s' % VERSION)
+@@ -1520,11 +1553,13 @@
+             try:
+                 doc.merge_translations(translations, opts.lang, strict=opts.strict)
+             except Exception as e:
+-                sys.stderr.write('Error: Could not merge translations:\n%s\n' % str(e))
++                sys.stderr.write('Error: 2Could not merge translations:\n%s\n' % str(e))
++                import traceback
++                traceback.print_exc(file=sys.stdout)
+                 sys.exit(1)
+             fout = out
+-            if isinstance(fout, basestring):
+-                fout = file(os.path.join(fout, os.path.basename(filename)), 'w')
++            if isinstance(fout, str):
++                fout = open(os.path.join(fout, os.path.basename(filename)), 'w')
+             fout.write(doc._doc.serialize('utf-8'))
+     elif opts.join is not None:
+         translations = {}
+@@ -1555,9 +1590,9 @@
+             try:
+                 doc.merge_translations(translations, opts.lang, strict=opts.strict)
+             except Exception as e:
+-                sys.stderr.write('Error: Could not merge translations:\n%s\n' % str(e))
++                sys.stderr.write('Error: 3Could not merge translations:\n%s\n' % str(e))
+                 sys.exit(1)
+             fout = out
+-            if isinstance(fout, basestring):
++            if isinstance(fout, str):
+                 fout = file(os.path.join(fout, os.path.basename(filename)), 'w')
+             fout.write(doc._doc.serialize('utf-8'))

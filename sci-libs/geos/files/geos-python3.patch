@@ -1,0 +1,842 @@
+diff -urN geos_new/configure geos_old/configure
+--- geos_new/configure	2013-08-25 20:40:47.000000000 +0530
++++ geos_old/configure	2014-12-23 19:49:07.675945734 +0530
+@@ -16862,7 +16862,7 @@
+ if test "${am_cv_python_version+set}" = set; then :
+   $as_echo_n "(cached) " >&6
+ else
+-  am_cv_python_version=`$PYTHON -c "import sys; print sys.version[:3]"`
++  am_cv_python_version=`$PYTHON -c "import sys; print(sys.version[:3])"`
+ fi
+ { $as_echo "$as_me:${as_lineno-$LINENO}: result: $am_cv_python_version" >&5
+ $as_echo "$am_cv_python_version" >&6; }
+@@ -16881,7 +16881,7 @@
+ if test "${am_cv_python_platform+set}" = set; then :
+   $as_echo_n "(cached) " >&6
+ else
+-  am_cv_python_platform=`$PYTHON -c "import sys; print sys.platform"`
++  am_cv_python_platform=`$PYTHON -c "import sys; print(sys.platform)"`
+ fi
+ { $as_echo "$as_me:${as_lineno-$LINENO}: result: $am_cv_python_platform" >&5
+ $as_echo "$am_cv_python_platform" >&6; }
+@@ -16895,7 +16895,7 @@
+ if test "${am_cv_python_pythondir+set}" = set; then :
+   $as_echo_n "(cached) " >&6
+ else
+-  am_cv_python_pythondir=`$PYTHON -c "from distutils import sysconfig; print sysconfig.get_python_lib(0,0,prefix='$PYTHON_PREFIX')" 2>/dev/null ||
++  am_cv_python_pythondir=`$PYTHON -c "from distutils import sysconfig; print(sysconfig.get_python_lib(0,0,prefix='$PYTHON_PREFIX'))" 2>/dev/null ||
+      echo "$PYTHON_PREFIX/lib/python$PYTHON_VERSION/site-packages"`
+ fi
+ { $as_echo "$as_me:${as_lineno-$LINENO}: result: $am_cv_python_pythondir" >&5
+@@ -16912,7 +16912,7 @@
+ if test "${am_cv_python_pyexecdir+set}" = set; then :
+   $as_echo_n "(cached) " >&6
+ else
+-  am_cv_python_pyexecdir=`$PYTHON -c "from distutils import sysconfig; print sysconfig.get_python_lib(1,0,prefix='$PYTHON_EXEC_PREFIX')" 2>/dev/null ||
++  am_cv_python_pyexecdir=`$PYTHON -c "from distutils import sysconfig; print(sysconfig.get_python_lib(1,0,prefix='$PYTHON_EXEC_PREFIX'))" 2>/dev/null ||
+      echo "${PYTHON_EXEC_PREFIX}/lib/python${PYTHON_VERSION}/site-packages"`
+ fi
+ { $as_echo "$as_me:${as_lineno-$LINENO}: result: $am_cv_python_pyexecdir" >&5
+@@ -17006,7 +17006,7 @@
+ $as_echo_n "checking python extra libraries... " >&6; }
+         PYTHON_EXTRA_LIBS=`$PYTHON -c "import distutils.sysconfig; \
+                 conf = distutils.sysconfig.get_config_var; \
+-                print (conf('LOCALMODLIBS') or '')+' '+(conf('LIBS') or '')"
++                print ((conf('LOCALMODLIBS') or '')+' '+(conf('LIBS') or ''))"
+         { $as_echo "$as_me:${as_lineno-$LINENO}: result: $PYTHON_EXTRA_LIBS" >&5
+ $as_echo "$PYTHON_EXTRA_LIBS" >&6; }`
+ 
+diff -urN geos_new/macros/python.m4 geos_old/macros/python.m4
+--- geos_new/macros/python.m4	2013-08-25 20:40:32.000000000 +0530
++++ geos_old/macros/python.m4	2014-12-23 19:50:31.943241237 +0530
+@@ -87,7 +87,7 @@
+   dnl library.
+ 
+   AC_CACHE_CHECK([for $am_display_PYTHON version], [am_cv_python_version],
+-    [am_cv_python_version=`$PYTHON -c "import sys; print sys.version[[:3]]"`])
++    [am_cv_python_version=`$PYTHON -c "import sys; print(sys.version[[:3]])"`])
+   AC_SUBST([PYTHON_VERSION], [$am_cv_python_version])
+ 
+   dnl Use the values of $prefix and $exec_prefix for the corresponding
+@@ -102,7 +102,7 @@
+   dnl to know which OS platform Python thinks this is.
+ 
+   AC_CACHE_CHECK([for $am_display_PYTHON platform], [am_cv_python_platform],
+-    [am_cv_python_platform=`$PYTHON -c "import sys; print sys.platform"`])
++    [am_cv_python_platform=`$PYTHON -c "import sys; print(sys.platform)"`])
+   AC_SUBST([PYTHON_PLATFORM], [$am_cv_python_platform])
+ 
+ 
+@@ -117,7 +117,7 @@
+   dnl doesn't work.
+   AC_CACHE_CHECK([for $am_display_PYTHON script directory],
+     [am_cv_python_pythondir],
+-    [am_cv_python_pythondir=`$PYTHON -c "from distutils import sysconfig; print sysconfig.get_python_lib(0,0,prefix='$PYTHON_PREFIX')" 2>/dev/null ||
++    [am_cv_python_pythondir=`$PYTHON -c "from distutils import sysconfig; print(sysconfig.get_python_lib(0,0,prefix='$PYTHON_PREFIX'))" 2>/dev/null ||
+      echo "$PYTHON_PREFIX/lib/python$PYTHON_VERSION/site-packages"`])
+   AC_SUBST([pythondir], [$am_cv_python_pythondir])
+ 
+@@ -134,7 +134,7 @@
+   dnl doesn't work.
+   AC_CACHE_CHECK([for $am_display_PYTHON extension module directory],
+     [am_cv_python_pyexecdir],
+-    [am_cv_python_pyexecdir=`$PYTHON -c "from distutils import sysconfig; print sysconfig.get_python_lib(1,0,prefix='$PYTHON_EXEC_PREFIX')" 2>/dev/null ||
++    [am_cv_python_pyexecdir=`$PYTHON -c "from distutils import sysconfig; print(sysconfig.get_python_lib(1,0,prefix='$PYTHON_EXEC_PREFIX'))" 2>/dev/null ||
+      echo "${PYTHON_EXEC_PREFIX}/lib/python${PYTHON_VERSION}/site-packages"`])
+   AC_SUBST([pyexecdir], [$am_cv_python_pyexecdir])
+ 
+diff -urN geos_new/swig/python/tests/example.py geos_old/swig/python/tests/example.py
+--- geos_new/swig/python/tests/example.py	2013-08-25 20:40:32.000000000 +0530
++++ geos_old/swig/python/tests/example.py	2014-12-23 19:49:07.676945737 +0530
+@@ -11,7 +11,7 @@
+ # import geos from the local build directory
+ import geos
+ 
+-pm = geos.PrecisionModel(2.0,0,0)
++pm = geos.PrecisionModel(2.0, 0, 0)
+ global_factory = geos.GeometryFactory(pm,-1)
+ 
+ def wkt_print_geoms(geoms):
+@@ -19,7 +19,7 @@
+     size = len(geoms)
+     for i in range(size):
+         tmp = wkt.write(geoms[i])
+-        print "[%d]" % i, tmp
++        print("[%d]" % i, tmp)
+ 
+ def create_point(x,y):
+     c = geos.Coordinate(x,y)
+@@ -114,7 +114,7 @@
+     # The upper-right quarter of a vertical ellipse
+     geoms.append(create_arc(0, 0, 10, 20, 0, math.pi/2))
+ 
+-    print "--------HERE ARE THE BASE GEOMS ----------"
++    print("--------HERE ARE THE BASE GEOMS ----------")
+     wkt_print_geoms(geoms)
+ 
+ 
+@@ -130,7 +130,7 @@
+     for i in range(len(geoms)):
+         newgeoms.append(geoms[i].getCentroid())
+ 
+-    print "\n","------- AND HERE ARE THEIR CENTROIDS -----"
++    print("\n","------- AND HERE ARE THEIR CENTROIDS -----")
+     wkt_print_geoms(newgeoms)
+ 
+     ################
+@@ -142,9 +142,9 @@
+             newgeoms.append(geoms[i].buffer(10))
+         except geos.GEOSException():
+             exc = geos.GEOSException()
+-            print "GEOS Exception: geometry ",geoms[i],"->buffer(10): ",exc.toString()
++            print("GEOS Exception: geometry ",geoms[i],"->buffer(10): ",exc.toString())
+ 
+-    print "\n","--------HERE COMES THE BUFFERED GEOMS ----------"
++    print("\n","--------HERE COMES THE BUFFERED GEOMS ----------")
+     wkt_print_geoms(newgeoms)
+ 
+     ################
+@@ -154,16 +154,16 @@
+     for i in range(len(geoms)):
+         newgeoms.append(geoms[i].convexHull())
+ 
+-    print "\n","--------HERE COMES THE HULLS----------"
++    print("\n","--------HERE COMES THE HULLS----------")
+     wkt_print_geoms(newgeoms)
+ 
+ ####################
+ # RELATIONAL OPERATORS        #
+ ####################
+ 
+-    print "-------------------------------------------------------------------------------"
+-    print "RELATIONAL OPERATORS"
+-    print "-------------------------------------------------------------------------------"
++    print("-------------------------------------------------------------------------------")
++    print("RELATIONAL OPERATORS")
++    print("-------------------------------------------------------------------------------")
+ 
+     size = len(geoms)
+     ################
+@@ -171,21 +171,21 @@
+     ################
+ 
+     print
+-    print "\t".join(["   DISJOINT   "]+["[%d]" % i for i in range(size)])
++    print("\t".join(["   DISJOINT   "]+["[%d]" % i for i in range(size)]))
+ 
+     for i in range(size):
+-        print "      [%d]\t" % i,
++        print("      [%d]\t" % i),
+         for j in range(size):
+             try:
+                 if geoms[i].disjoint(geoms[j]):
+-                    print " 1\t",
++                    print(" 1\t"),
+                 else:
+-                    print " 0\t",
++                    print(" 0\t"),
+             except geos.GEOSException():
+                 exc = geos.GEOSException()
+-                print exc.toString()
++                print(exc.toString())
+             except:
+-                print " X\t",
++                print(" X\t"),
+         print
+ 
+     ################
+@@ -193,21 +193,21 @@
+     ################
+ 
+     print
+-    print "\t".join(["    TOUCHES   "]+["[%d]" % i for i in range(size)])
++    print("\t".join(["    TOUCHES   "]+["[%d]" % i for i in range(size)]))
+ 
+     for i in range(size):
+-        print "      [%d]\t" % i,
++        print("      [%d]\t" % i),
+         for j in range(size):
+             try:
+                 if geoms[i].touches(geoms[j]):
+-                    print " 1\t",
++                    print(" 1\t"),
+                 else:
+-                    print " 0\t",
++                    print(" 0\t"),
+             except geos.GEOSException():
+                 exc = geos.GEOSException()
+-                print exc.toString()
++                print(exc.toString())
+             except:
+-                print " X\t",
++                print(" X\t"),
+         print
+ 
+     ################
+@@ -215,21 +215,21 @@
+     ################
+ 
+     print
+-    print "\t".join([" INTERSECTS   "]+["[%d]" % i for i in range(size)])
++    print("\t".join([" INTERSECTS   "]+["[%d]" % i for i in range(size)]))
+ 
+     for i in range(size):
+-        print "      [%d]\t" % i,
++        print("      [%d]\t" % i),
+         for j in range(size):
+             try:
+                 if geoms[i].intersects(geoms[j]):
+-                    print " 1\t",
++                    print(" 1\t"),
+                 else:
+-                    print " 0\t",
++                    print(" 0\t"),
+             except geos.GEOSException():
+                 exc = geos.GEOSException()
+-                print exc.toString()
++                print(exc.toString())
+             except:
+-                print " X\t",
++                print(" X\t"),
+         print
+ 
+     ################
+@@ -237,21 +237,21 @@
+     ################
+ 
+     print
+-    print "\t".join(["    CROSSES   "]+["[%d]" % i for i in range(size)])
++    print("\t".join(["    CROSSES   "]+["[%d]" % i for i in range(size)]))
+ 
+     for i in range(size):
+-        print "      [%d]\t" % i,
++        print("      [%d]\t" % i),
+         for j in range(size):
+             try:
+                 if geoms[i].crosses(geoms[j]):
+-                    print " 1\t",
++                    print(" 1\t"),
+                 else:
+-                    print " 0\t",
++                    print(" 0\t"),
+             except geos.GEOSException():
+                 exc = geos.GEOSException()
+-                print exc.toString()
++                print(exc.toString())
+             except:
+-                print " X\t",
++                print(" X\t"),
+         print
+ 
+     ################
+@@ -259,21 +259,21 @@
+     ################
+ 
+     print
+-    print "\t".join(["     WITHIN   "]+["[%d]" % i for i in range(size)])
++    print("\t".join(["     WITHIN   "]+["[%d]" % i for i in range(size)]))
+ 
+     for i in range(size):
+-        print "      [%d]\t" % i,
++        print("      [%d]\t" % i),
+         for j in range(size):
+             try:
+                 if geoms[i].within(geoms[j]):
+-                    print " 1\t",
++                    print(" 1\t"),
+                 else:
+-                    print " 0\t",
++                    print(" 0\t"),
+             except geos.GEOSException():
+                 exc = geos.GEOSException()
+-                print exc.toString()
++                print(exc.toString())
+             except:
+-                print " X\t",
++                print(" X\t"),
+         print
+ 
+     ################
+@@ -281,21 +281,21 @@
+     ################
+ 
+     print
+-    print "\t".join(["   CONTAINS   "]+["[%d]" % i for i in range(size)])
++    print("\t".join(["   CONTAINS   "]+["[%d]" % i for i in range(size)]))
+ 
+     for i in range(size):
+-        print "      [%d]\t" % i,
++        print("      [%d]\t" % i),
+         for j in range(size):
+             try:
+                 if geoms[i].contains(geoms[j]):
+-                    print " 1\t",
++                    print(" 1\t"),
+                 else:
+-                    print " 0\t",
++                    print(" 0\t"),
+             except geos.GEOSException():
+                 exc = geos.GEOSException()
+-                print exc.toString()
++                print(exc.toString())
+             except:
+-                print " X\t",
++                print(" X\t"),
+         print
+ 
+     ################
+@@ -303,21 +303,21 @@
+     ################
+ 
+     print
+-    print "\t".join(["   OVERLAPS   "]+["[%d]" % i for i in range(size)])
++    print("\t".join(["   OVERLAPS   "]+["[%d]" % i for i in range(size)]))
+ 
+     for i in range(size):
+-        print "      [%d]\t" % i,
++        print("      [%d]\t" % i),
+         for j in range(size):
+             try:
+                 if geoms[i].overlaps(geoms[j]):
+-                    print " 1\t",
++                    print(" 1\t"),
+                 else:
+-                    print " 0\t",
++                    print(" 0\t"),
+             except geos.GEOSException():
+                 exc = geos.GEOSException()
+-                print exc.toString()
++                print(exc.toString())
+             except:
+-                print " X\t",
++                print(" X\t"),
+         print
+ 
+     ################
+@@ -325,23 +325,23 @@
+     ################
+ 
+     print
+-    print "\t".join(["     RELATE   "]+["[%d]" % i for i in range(size)])
++    print("\t".join(["     RELATE   "]+["[%d]" % i for i in range(size)]))
+ 
+     for i in range(size):
+-        print "      [%d]\t" % i,
++        print("      [%d]\t" % i),
+         for j in range(size):
+             im = geos.IntersectionMatrix('')
+             try:
+                 if geoms[i].relate(geoms[j],"212101212"):
+-                    print " 1\t",
++                    print(" 1\t"),
+                 else:
+-                    print " 0\t",
+-                im=geoms[i].relate(geoms[j])
++                    print(" 0\t"),
++                im = geoms[i].relate(geoms[j])
+             except geos.GEOSException():
+                 exc = geos.GEOSException()
+-                print exc.toString()
++                print(exc.toString())
+             except:
+-                print " X\t",
++                print(" X\t"),
+         print
+ 
+     ################
+@@ -349,21 +349,21 @@
+     ################
+ 
+     print
+-    print "\t".join(["     EQUALS   "]+["[%d]" % i for i in range(size)])
++    print("\t".join(["     EQUALS   "]+["[%d]" % i for i in range(size)]))
+ 
+     for i in range(size):
+-        print "      [%d]\t" % i,
++        print("      [%d]\t" % i),
+         for j in range(size):
+             try:
+                 if geoms[i].equals(geoms[j]):
+-                    print " 1\t",
++                    print(" 1\t"),
+                 else:
+-                    print " 0\t",
++                    print(" 0\t"),
+             except geos.GEOSException():
+                 exc = geos.GEOSException()
+-                print exc.toString()
++                print(exc.toString())()
+             except:
+-                print " X\t",
++                print(" X\t"),
+         print
+ 
+     ################
+@@ -371,21 +371,21 @@
+     ################
+ 
+     print
+-    print "\t".join(["EQUALS_EXACT  "]+["[%d]" % i for i in range(size)])
++    print("\t".join(["EQUALS_EXACT  "]+["[%d]" % i for i in range(size)]))
+ 
+     for i in range(size):
+-        print "      [%d]\t" % i,
++        print("      [%d]\t" % i),
+         for j in range(size):
+             try:
+                 if geoms[i].equalsExact(geoms[j],0.5):
+-                    print " 1\t",
++                    print(" 1\t"),
+                 else:
+-                    print " 0\t",
++                    print(" 0\t"),
+             except geos.GEOSException():
+                 exc = geos.GEOSException()
+-                print exc.toString()
++                print(exc.toString())()
+             except:
+-                print " X\t",
++                print(" X\t"),
+         print
+ 
+     ################
+@@ -393,21 +393,21 @@
+     ################
+ 
+     print
+-    print "\t".join(["IS_WITHIN_DIST"]+["[%d]" % i for i in range(size)])
++    print("\t".join(["IS_WITHIN_DIST"]+["[%d]" % i for i in range(size)]))
+ 
+     for i in range(size):
+-        print "      [%d]\t" % i,
++        print("      [%d]\t" % i),
+         for j in range(size):
+             try:
+                 if geoms[i].isWithinDistance(geoms[j],2):
+-                    print " 1\t",
++                    print(" 1\t"),
+                 else:
+-                    print " 0\t",
++                    print(" 0\t"),
+             except geos.GEOSException():
+                 exc = geos.GEOSException()
+-                print exc.toString()
++                print(exc.toString())()
+             except:
+-                print " X\t",
++                print(" X\t"),
+         print
+ 
+ ####################
+@@ -415,9 +415,9 @@
+ ####################
+ 
+     print
+-    print "-------------------------------------------------------------------------------"
+-    print "COMBINATIONS"
+-    print "-------------------------------------------------------------------------------"
++    print("-------------------------------------------------------------------------------")
++    print("COMBINATIONS")
++    print("-------------------------------------------------------------------------------")
+ 
+     ################
+     # UNION
+@@ -430,11 +430,11 @@
+                 newgeoms.append(geoms[i].Union(geoms[j]))
+             except geos.GEOSException():
+                 exc = geos.GEOSException()
+-                print exc.toString()
++                print(exc.toString())()
+             except:
+                 pass
+ 
+-    print "\n", "----- AND HERE ARE SOME UNION COMBINATIONS ------"
++    print("\n", "----- AND HERE ARE SOME UNION COMBINATIONS ------")
+     wkt_print_geoms(newgeoms)
+ 
+     ################
+@@ -448,11 +448,11 @@
+                 newgeoms.append(geoms[i].intersection(geoms[j]))
+             except geos.GEOSException():
+                 exc = geos.GEOSException()
+-                print exc.toString()
++                print(exc.toString())()
+             except:
+                 pass
+ 
+-    print "\n", "----- HERE ARE SOME INTERSECTIONS COMBINATIONS ------"
++    print("\n", "----- HERE ARE SOME INTERSECTIONS COMBINATIONS ------")
+     wkt_print_geoms(newgeoms)
+ 
+     ################
+@@ -466,11 +466,11 @@
+                 newgeoms.append(geoms[i].difference(geoms[j]))
+             except geos.GEOSException():
+                 exc = geos.GEOSException()
+-                print exc.toString()
++                print(exc.toString())()
+             except:
+                 pass
+ 
+-    print "\n", "----- HERE ARE SOME DIFFERENCE COMBINATIONS ------"
++    print("\n", "----- HERE ARE SOME DIFFERENCE COMBINATIONS ------")
+     wkt_print_geoms(newgeoms)
+ 
+     ################
+@@ -484,11 +484,11 @@
+                 newgeoms.append(geoms[i].symDifference(geoms[j]))
+             except geos.GEOSException():
+                 exc = geos.GEOSException()
+-                print exc.toString()
++                print(exc.toString())()
+             except:
+                 pass
+ 
+-    print "\n", "----- HERE ARE SYMMETRIC DIFFERENCES ------"
++    print("\n", "----- HERE ARE SYMMETRIC DIFFERENCES ------")
+     wkt_print_geoms(newgeoms)
+ 
+     ################
+@@ -505,9 +505,9 @@
+         newgeoms.append(mls[i])
+     del mls
+ 
+-    print "\n", "----- HERE IS THE LINEMERGE OUTPUT ------"
++    print("\n", "----- HERE IS THE LINEMERGE OUTPUT ------")
+     wkt_print_geoms(newgeoms)
+-    
++
+     ################
+     # POLYGONIZE
+     ################
+@@ -522,8 +522,8 @@
+         newgeoms.append(polys[i])
+     del polys
+ 
+-    print "\n", "----- HERE IS POLYGONIZE OUTPUT ------"
++    print("\n", "----- HERE IS POLYGONIZE OUTPUT ------")
+     wkt_print_geoms(newgeoms)
+ 
+-print "GEOS", geos.geosversion(), "ported from JTS", geos.jtsport()
++print("GEOS", geos.geosversion(), "ported from JTS", geos.jtsport())
+ do_all()
+diff -urN geos_new/swig/python/tests/runtests.py geos_old/swig/python/tests/runtests.py
+--- geos_new/swig/python/tests/runtests.py	2013-08-25 20:40:32.000000000 +0530
++++ geos_old/swig/python/tests/runtests.py	2014-12-23 19:49:07.676945737 +0530
+@@ -3,7 +3,7 @@
+ #
+ # This is free software; you can redistribute and/or modify it under
+ # the terms of the GNU Lesser General Public Licence as published
+-# by the Free Software Foundation. 
++# by the Free Software Foundation.
+ # See the COPYING file for more information.
+ # ===========================================================================
+ #
+@@ -27,4 +27,3 @@
+ # If module is run as a script, execute every test case in the suite
+ if __name__ == '__main__':
+     unittest.main()
+-
+diff -urN geos_new/swig/python/tests/test_geometry.py geos_old/swig/python/tests/test_geometry.py
+--- geos_new/swig/python/tests/test_geometry.py	2013-08-25 20:40:32.000000000 +0530
++++ geos_old/swig/python/tests/test_geometry.py	2014-12-23 19:49:07.676945737 +0530
+@@ -9,18 +9,18 @@
+ 		cs.setX(0, 7)
+ 		cs.setY(0, 8)
+ 		cs.setZ(0, 9)
+-		
++
+ 		geom = geos.createPoint(cs)
+ 		assert isinstance(geom, geos.Point)
+ 		self.assertEqual('Point', geom.geomType())
+ 		self.assertEqual(geos.GEOS_POINT, geom.typeId())
+-		
++
+ 		self.assertEqual(False, geom.isEmpty())
+ 		self.assertEqual(True, geom.isValid())
+ 		self.assertEqual(True, geom.isSimple())
+ 		self.assertEqual(False, geom.isRing())
+ 		self.assertEqual(True, geom.hasZ())
+-		
++
+ 		self.assertEqual(1, geom.getNumGeometries())
+ 
+ 		coords = geom.getCoordSeq()
+@@ -28,7 +28,7 @@
+ 		self.assertEqual(7, coords.getX(0))
+ 		self.assertEqual(8, coords.getY(0))
+ 		self.assertEqual(9, coords.getZ(0))
+-    
++
+ 		self.assertEqual(0, geom.area())
+ 		self.assertEqual(0, geom.length())
+ 
+@@ -46,20 +46,20 @@
+ 		cs.setX(1, 3)
+ 		cs.setY(1, 3)
+ 		cs.setZ(1, 3)
+-		
++
+ 		geom = geos.createLineString(cs)
+ 		assert isinstance(geom, geos.LineString)
+ 		self.assertEqual('LineString', geom.geomType())
+ 		self.assertEqual(geos.GEOS_LINESTRING, geom.typeId())
+-		
++
+ 		self.assertEqual(False, geom.isEmpty())
+ 		self.assertEqual(True, geom.isValid())
+ 		self.assertEqual(True, geom.isSimple())
+ 		self.assertEqual(False, geom.isRing())
+ 		self.assertEqual(True, geom.hasZ())
+-		
++
+ 		self.assertEqual(1, geom.getNumGeometries())
+-		
++
+ 		coords = geom.getCoordSeq()
+ 		assert isinstance(coords, geos.CoordinateSequence)
+ 		self.assertEqual(7, coords.getX(0))
+@@ -68,11 +68,11 @@
+ 		self.assertEqual(3, coords.getX(1))
+ 		self.assertEqual(3, coords.getY(1))
+ 		self.assertEqual(3, coords.getZ(1))
+-		
++
+ 		self.assertEqual(0, geom.area())
+ 		self.assertEqual(6.4031242374328485, geom.length())
+-	
+-	
++
++
+ 	def testCreateLineStringIllegal(self):
+ 		cs = geos.CoordinateSequence(1,0)
+ 		self.assertRaises(RuntimeError, geos.createLineString, cs)
+@@ -91,18 +91,18 @@
+ 		cs.setX(3, 7)
+ 		cs.setY(3, 8)
+ 		cs.setZ(3, 9)
+-		
++
+ 		geom = geos.createLinearRing(cs)
+ 		assert isinstance(geom, geos.LinearRing)
+ 		self.assertEqual('LinearRing', geom.geomType())
+ 		self.assertEqual(geos.GEOS_LINEARRING, geom.typeId())
+-		
++
+ 		self.assertEqual(False, geom.isEmpty())
+ 		self.assertEqual(True, geom.isValid())
+ 		self.assertEqual(True, geom.isSimple())
+ 		self.assertEqual(True, geom.isRing())
+ 		self.assertEqual(True, geom.hasZ())
+-		
++
+ 		self.assertEqual(1, geom.getNumGeometries())
+ 
+ 		coords = geom.getCoordSeq()
+@@ -119,10 +119,10 @@
+ 		self.assertEqual(7, coords.getX(3))
+ 		self.assertEqual(8, coords.getY(3))
+ 		self.assertEqual(9, coords.getZ(3))
+-		
++
+ 		self.assertEqual(0, geom.area())
+ 		self.assertEqual(29.228665330091953, geom.length())
+-	
++
+ 	def testCreateLinearRingIllegal(self):
+ 		cs = geos.CoordinateSequence(1,0)
+ 		self.assertRaises(RuntimeError, geos.createLinearRing, cs)
+@@ -135,39 +135,39 @@
+ 
+ 		cs.setX(1, 0)
+ 		cs.setY(1, 10)
+-		
++
+ 		cs.setX(2, 10)
+ 		cs.setY(2, 10)
+-		
++
+ 		cs.setX(3, 10)
+ 		cs.setY(3, 0)
+-		
++
+ 		cs.setX(4, 0)
+ 		cs.setY(4, 0)
+ 		shell = geos.createLinearRing(cs)
+-		
++
+ 		geom = geos.createPolygon(shell)
+ 		assert isinstance(geom, geos.Polygon)
+ 		self.assertEqual('Polygon', geom.geomType())
+ 		self.assertEqual(geos.GEOS_POLYGON, geom.typeId())
+-		
++
+ 		self.assertEqual(False, geom.isEmpty())
+ 		self.assertEqual(True, geom.isValid())
+ 		self.assertEqual(True, geom.isSimple())
+ 		self.assertEqual(False, geom.isRing())
+ 		self.assertEqual(True, geom.hasZ())
+-		
++
+ 		self.assertEqual(1, geom.getNumGeometries())
+-		
++
+ 		exteriorRing = geom.getExteriorRing()
+ 		assert(shell.equals(exteriorRing))
+ 		self.assertEqual(0, geom.getNumInteriorRings())
+-		
++
+ 		self.assertRaises(RuntimeError, geom.getInteriorRingN, 1)
+-		
++
+ 		self.assertEqual(100, geom.area())
+ 		self.assertEqual(40, geom.length())
+-	
++
+ 	def testCreatePolygonWithHoles(self):
+ 		# Polygon shell
+ 		cs = geos.CoordinateSequence(5,2)
+@@ -176,17 +176,17 @@
+ 
+ 		cs.setX(1, 0)
+ 		cs.setY(1, 10)
+-		
++
+ 		cs.setX(2, 10)
+ 		cs.setY(2, 10)
+-		
++
+ 		cs.setX(3, 10)
+ 		cs.setY(3, 0)
+-		
++
+ 		cs.setX(4, 0)
+ 		cs.setY(4, 0)
+ 		shell = geos.createLinearRing(cs)
+-		
++
+ 		# Hole 1
+ 		cs = geos.CoordinateSequence(5,2)
+ 		cs.setX(0, 2)
+@@ -194,17 +194,17 @@
+ 
+ 		cs.setX(1, 2)
+ 		cs.setY(1, 4)
+-		
++
+ 		cs.setX(2, 4)
+ 		cs.setY(2, 4)
+-		
++
+ 		cs.setX(3, 4)
+ 		cs.setY(3, 2)
+-		
++
+ 		cs.setX(4, 2)
+ 		cs.setY(4, 2)
+ 		hole1 = geos.createLinearRing(cs)
+-		
++
+ 		# Hole 2
+ 		cs = geos.CoordinateSequence(5,2)
+ 		cs.setX(0, 6)
+@@ -212,40 +212,40 @@
+ 
+ 		cs.setX(1, 6)
+ 		cs.setY(1, 8)
+-		
++
+ 		cs.setX(2, 8)
+ 		cs.setY(2, 8)
+-		
++
+ 		cs.setX(3, 8)
+ 		cs.setY(3, 6)
+-		
++
+ 		cs.setX(4, 6)
+ 		cs.setY(4, 6)
+ 		hole2 = geos.createLinearRing(cs)
+-		
++
+ 		geom = geos.createPolygon(shell, [hole1, hole2])
+ 		assert isinstance(geom, geos.Polygon)
+ 		self.assertEqual('Polygon', geom.geomType())
+ 		self.assertEqual(geos.GEOS_POLYGON, geom.typeId())
+-		
++
+ 		self.assertEqual(False, geom.isEmpty())
+ 		self.assertEqual(True, geom.isValid())
+ 		self.assertEqual(True, geom.isSimple())
+ 		self.assertEqual(False, geom.isRing())
+ 		self.assertEqual(True, geom.hasZ())
+-		
++
+ 		self.assertEqual(1, geom.getNumGeometries())
+-		
++
+ 		exteriorRing = geom.getExteriorRing()
+ 		assert(shell.equals(exteriorRing))
+-		
++
+ 		self.assertEqual(2, geom.getNumInteriorRings())
+ 		assert(hole1.equals(geom.getInteriorRingN(0)))
+ 		assert(hole2.equals(geom.getInteriorRingN(1)))
+-		
++
+ 		self.assertEqual(92, geom.area())
+ 		self.assertEqual(56, geom.length())
+-	
++
+ 
+ 	def testDistance(self):
+ 		cs = geos.CoordinateSequence(1,2)
+@@ -257,7 +257,7 @@
+ 		cs.setX(0, 3)
+ 		cs.setY(0, 4)
+ 		geom2 = geos.createPoint(cs)
+-		
++
+ 		self.assertEqual(5, geom1.distance(geom2))
+ 
+ if __name__ == "__main__":
