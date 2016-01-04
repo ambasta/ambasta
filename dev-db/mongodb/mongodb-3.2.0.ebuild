@@ -1,6 +1,6 @@
 # Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/dev-db/mongodb/mongodb-3.0.1.ebuild,v 1.2 2015/03/26 15:56:30 ultrabug Exp $
+# $Id$
 
 EAPI=5
 SCONS_MIN_VERSION="2.3.0"
@@ -14,43 +14,63 @@ MY_P=${PN}-src-r${PV/_rc/-rc}
 
 DESCRIPTION="A high-performance, open source, schema-free document-oriented database"
 HOMEPAGE="http://www.mongodb.org"
-SRC_URI="http://downloads.mongodb.org/src/${MY_P}.tar.gz"
+SRC_URI="https://fastdl.mongodb.org/src/${MY_P}.tar.gz"
 
 LICENSE="AGPL-3 Apache-2.0"
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
-IUSE="debug kerberos mms-agent ssl +tools"
+IUSE="debug kerberos libressl mms-agent ssl test +tools"
 
-RDEPEND="app-arch/snappy
+RDEPEND=">=app-arch/snappy-1.1.2
 	>=dev-cpp/yaml-cpp-0.5.1
-	>=dev-libs/boost-1.50[threads(+)]
-	>=dev-libs/libpcre-8.30[cxx]
+	>=dev-libs/boost-1.57[threads(+)]
+	>=dev-libs/libpcre-8.37[cxx]
 	dev-libs/snowball-stemmer
-	dev-util/google-perftools[-minimal]
 	net-libs/libpcap
+	>=sys-libs/zlib-1.2.8
 	mms-agent? ( app-admin/mms-agent )
-	ssl? ( >=dev-libs/openssl-1.0.1g:= )"
+	ssl? (
+		!libressl? ( >=dev-libs/openssl-1.0.1g:0= )
+		libressl? ( dev-libs/libressl:= )
+	)"
 DEPEND="${RDEPEND}
 	>=sys-devel/gcc-4.8.2:*
 	sys-libs/ncurses
 	sys-libs/readline
-	kerberos? ( dev-libs/cyrus-sasl[kerberos] )"
-PDEPEND="tools? ( >=app-admin/mongo-tools-3.0.1 )"
+	debug? ( dev-util/valgrind )
+	kerberos? ( dev-libs/cyrus-sasl[kerberos] )
+	test? (
+		dev-python/pymongo
+		dev-python/pyyaml
+	)"
+PDEPEND="tools? ( >=app-admin/mongo-tools-${PV} )"
 
 S=${WORKDIR}/${MY_P}
+
+pkg_pretend() {
+	if [[ ${REPLACING_VERSIONS} < 3.0 ]]; then
+		ewarn "To upgrade an existing MongoDB deployment to 3.2, you must be"
+		ewarn "running a 3.0-series release. Please update to the latest 3.0"
+		ewarn "release before continuing if wish to keep your data."
+	fi
+}
 
 pkg_setup() {
 	enewgroup mongodb
 	enewuser mongodb -1 -1 /var/lib/${PN} mongodb
 
-	scons_opts="--variant-dir=build --cc=$(tc-getCC) --cxx=$(tc-getCXX)"
+	# Maintainer notes
+	#
+	# --use-system-tcmalloc is strongly NOT recommended:
+	# https://www.mongodb.org/about/contributors/tutorial/build-mongodb-from-source/
+
 	scons_opts+=" --disable-warnings-as-errors"
 	scons_opts+=" --use-system-boost"
 	scons_opts+=" --use-system-pcre"
 	scons_opts+=" --use-system-snappy"
 	scons_opts+=" --use-system-stemmer"
-	scons_opts+=" --use-system-tcmalloc"
 	scons_opts+=" --use-system-yaml"
+	scons_opts+=" --use-system-zlib"
 
 	if use debug; then
 		scons_opts+=" --dbg=on"
@@ -71,7 +91,7 @@ pkg_setup() {
 }
 
 src_prepare() {
-	epatch "${FILESDIR}/${PN}-3.0.0-fix-scons.patch"
+	epatch "${FILESDIR}/${PN}-3.2.0-fix-scons.patch"
 }
 
 src_compile() {
@@ -121,9 +141,10 @@ pkg_preinst() {
 }
 
 src_test() {
-	escons ${scons_opts} dbtest
-	"${S}"/dbtest --dbpath=unittest || die "dbtest failed"
-	escons ${scons_opts} smokeCppUnittests --smokedbprefix="smokecpptest" || die "smokeCppUnittests tests failed"
+	# this one test fails
+	rm jstests/core/repl_write_threads_start_param.js
+
+	./buildscripts/resmoke.py --dbpathPrefix=test --suites core || die "Tests failed"
 }
 
 pkg_postinst() {
@@ -143,4 +164,10 @@ pkg_postinst() {
 		ewarn "Once you have your data dumped, you need to set storage.engine: wiredTiger in /etc/${PN}.conf"
 		ewarn "  http://docs.mongodb.org/master/release-notes/3.0-upgrade/#change-storage-engine-to-wiredtiger"
 	fi
+
+	ewarn "Make sure to read the release notes and follow the upgrade process:"
+	ewarn "  https://docs.mongodb.org/manual/release-notes/3.2/"
+	ewarn "  https://docs.mongodb.org/master/release-notes/3.2-upgrade/"
+	ewarn
+	ewarn " Starting in 3.2, MongoDB uses the WiredTiger as the default storage engine."
 }

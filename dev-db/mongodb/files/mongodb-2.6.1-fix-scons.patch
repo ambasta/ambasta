@@ -1,6 +1,8 @@
---- SConstruct.orig	2015-02-05 16:33:41.000000000 +0000
-+++ SConstruct	2015-02-18 08:21:23.120134258 +0000
-@@ -1008,7 +1008,6 @@
+diff --git SConstruct SConstruct
+index 3886d1b..81c59a9 100644
+--- SConstruct
++++ SConstruct
+@@ -811,19 +811,17 @@ if nix:
      # -Winvalid-pch Warn if a precompiled header (see Precompiled Headers) is found in the search path but can't be used.
      env.Append( CCFLAGS=["-fPIC",
                           "-fno-strict-aliasing",
@@ -8,23 +10,21 @@
                           "-pthread",
                           "-Wall",
                           "-Wsign-compare",
-@@ -1016,13 +1015,13 @@
+                          "-Wno-unknown-pragmas",
                           "-Winvalid-pch"] )
      # env.Append( " -Wconversion" ) TODO: this doesn't really work yet
-     if linux or darwin:
--        env.Append( CCFLAGS=["-pipe"] )
-         if not has_option("disable-warnings-as-errors"):
-             env.Append( CCFLAGS=["-Werror"] )
+-    if linux or darwin:
+-        env.Append( CCFLAGS=["-Werror", "-pipe"] )
  
      env.Append( CPPDEFINES=["_FILE_OFFSET_BITS=64"] )
 -    env.Append( CXXFLAGS=["-Wnon-virtual-dtor", "-Woverloaded-virtual"] )
      env.Append( LINKFLAGS=["-fPIC", "-pthread"] )
-+    env.Append( CXXFLAGS=os.environ['CXXFLAGS'] )
++    env.Append( CXXFLAGS=os.environ['CXXFLAGS'])
 +    env.Append( LINKFLAGS=os.environ['LDFLAGS'] )
  
      # SERVER-9761: Ensure early detection of missing symbols in dependent libraries at program
      # startup.
-@@ -1039,7 +1038,7 @@
+@@ -840,7 +838,7 @@ if nix:
      if not darwin:
          env.Append( LINKFLAGS=["-rdynamic"] )
  
