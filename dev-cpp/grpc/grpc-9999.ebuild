@@ -6,14 +6,14 @@ EAPI=5
 
 inherit toolchain-funcs git-r3
 
-DESCRIPTION="The C based gRPC"
+DESCRIPTION="Remote Procedure Call framework that puts mobile and HTTP/2 first"
 HOMEPAGE="http://www.grpc.io/"
 EGIT_REPO_URI='https://github.com/grpc/grpc.git'
 
-LICENSE="BSD"
+LICENSE="BSD" # All implementations are 3-clause BSD. http://www.grpc.io/faq/
 SLOT=0
 
-KEYWORDS="amd64"
+KEYWORDS="~amd64 ~x86"
 IUSE="static-libs -minimal"
 DEPEND="dev-libs/protobuf"
 
