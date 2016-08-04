@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
 <pkgmetadata>
-    <maintainer type="project">
-        <email>cpp@gentoo.org</email>
-        <name>Gentoo C++ Project</name>
-    </maintainer>
+    <!-- maintainer-needed -->
     <upstream>
-        <remote-id type="github">grpc</remote-id>
+        <doc lang="en">http://www.grpc.io/docs/</doc>
+        <remote-id type="github">grpc/grpc</remote-id>
+        <bugs-to>https://github.com/grpc/grpc/issues</bugs-to>
     </upstream>
 </pkgmetadata>
