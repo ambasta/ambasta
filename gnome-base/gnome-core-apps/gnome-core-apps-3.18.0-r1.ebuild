@@ -4,6 +4,8 @@
 
 EAPI="5"
 
+
+
 DESCRIPTION="Sub-meta package for the core applications integrated with GNOME 3"
 HOMEPAGE="https://www.gnome.org/"
 LICENSE="metapackage"
@@ -34,14 +36,13 @@ RDEPEND="
 	>=app-editors/gedit-${PV}
 	>=app-text/evince-${PV}
 	>=media-gfx/eog-${PV}
+	>=media-video/totem-${PV}
 	>=x11-terms/gnome-terminal-${PV}
-
 
 	>=x11-themes/adwaita-icon-theme-${PV}
 	>=x11-themes/gnome-themes-standard-${PV}
 
 	ambasta? (
-		>=media-video/totem-${PV}
 		>=gnome-extra/gnome-contacts-${PV}
 		>=net-im/empathy-3.12.11
 		>=gnome-extra/gnome-user-docs-${PV}

@@ -17,6 +17,10 @@ KEYWORDS="~amd64 ~x86"
 # Note to developers:
 # This is a wrapper for the extra apps integrated with GNOME 3
 # New package
+#
+# cantarell upstream relies on noto, unifont and symbola fonts for
+# the fonts they cannot handle due to lack of enough manpower:
+# https://bugzilla.gnome.org/show_bug.cgi?id=762890
 RDEPEND="
 	>=gnome-base/gnome-core-libs-${PV}
 
@@ -40,10 +44,10 @@ RDEPEND="
 	>=sys-apps/gnome-disk-utility-${PV}
 
 	ambasta? (
-		>=gnome-extra/sushi-${PV}
 		>=gnome-extra/gnome-weather-${PV}
+		>=gnome-extra/sushi-${PV}
+		>=mail-client/evolution-${PV}
 		>=media-sound/sound-juicer-${PV}
-		>=mail-client/evolution-3.16
 		>=net-misc/vinagre-${PV}
 		>=net-misc/vino-${PV}
 		>=www-client/epiphany-${PV} )
