@@ -10,7 +10,7 @@ DESCRIPTION="The C based gRPC"
 HOMEPAGE="http://www.grpc.io/"
 EGIT_REPO_URI='https://github.com/grpc/grpc.git'
 
-LICENSE="Google-TOS"
+LICENSE="BSD"
 SLOT=0
 
 KEYWORDS="amd64"
