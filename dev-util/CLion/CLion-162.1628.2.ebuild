@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Id$
 
-EAPI=5
+EAPI=6
 inherit eutils versionator
 
 SLOT="0"
@@ -17,10 +17,13 @@ LICENSE="IDEA
 IUSE=""
 
 RDEPEND="${DEPEND}
-	sys-devel/gdb
+	|| (
+		sys-devel/gdb
+		sys-devel/llvm[lldb]
+	)
 	dev-util/cmake
 	>=virtual/jdk-1.8.0"
-S="${WORKDIR}/${PN}-${PV}"
+S="${WORKDIR}/${PN,,}-${PV}"
 
 QA_PREBUILT="opt/${PN}-${PV}/*"
 
@@ -43,9 +46,16 @@ src_prepare() {
 	rm license/CMake* || die
 	rm -r bin/gdb || die
 	rm license/GDB* || die
+	rm -r bin/lldb || die
+	rm license/LLDB* || die
 
-	rm -r plugins/tfsIntegration/lib/native/solaris || die
+	rm -r plugins/tfsIntegration/lib/native/aix || die
+	rm -r plugins/tfsIntegration/lib/native/freebsd || die
 	rm -r plugins/tfsIntegration/lib/native/hpux || die
+	rm -r plugins/tfsIntegration/lib/native/solaris || die
+	rm -r plugins/tfsIntegration/lib/native/macosx || die
+	rm -r plugins/tfsIntegration/lib/native/win32 || die
+	eapply_user
 }
 
 src_install() {
@@ -55,9 +65,8 @@ src_install() {
 	doins -r *
 	fperms 755 "${dir}"/bin/{clion.sh,fsnotifier{,64}}
 
-	make_wrapper "${PN}" "${dir}/bin/${PN}.sh"
-	newicon "bin/${PN}.svg" "${PN}.svg"
-	make_desktop_entry "${PN}" "clion" "${PN}" "Development;IDE;"
+	make_wrapper "${PN}" "${dir}/bin/${PN,,}.sh"
+	newicon "bin/${PN,,}.svg" "${PN}.svg"
 
 	# recommended by: https://confluence.jetbrains.com/display/IDEADEV/Inotify+Watches+Limit
 	mkdir -p "${D}/etc/sysctl.d/" || die
