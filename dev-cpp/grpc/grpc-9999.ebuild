@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Id$
 
-EAPI=5
+EAPI=6
 
 inherit toolchain-funcs git-r3 cmake-utils
 
@@ -21,7 +21,7 @@ LICENSE="BSD" # All implementations are 3-clause BSD. http://www.grpc.io/faq/
 SLOT=0
 
 KEYWORDS="~amd64 ~x86"
-IUSE=""
+IUSE="static-libs"
 DEPEND="dev-libs/protobuf"
 
 EGIT_CLONE_TYPE=single
@@ -34,10 +34,12 @@ src_prepare() {
 
 src_configure() {
 	local mycmakeargs=(
+		-DBUILD_SHARED_LIBS=$(usex static-libs OFF ON)
 		-DgRPC_ZLIB_PROVIDER=package
 		-DgRPC_SSL_PROVIDER=package
 		-DgRPC_PROTOBUF_PROVIDER=package
 		-DgRPC_USE_PROTO_LITE=OFF
+		-DBUILD_SHARED_LIBS:BOOL=ON
 	)
 	cmake-utils_src_configure
 }
