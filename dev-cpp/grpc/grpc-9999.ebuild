@@ -4,32 +4,44 @@
 
 EAPI=5
 
-inherit toolchain-funcs git-r3
+inherit toolchain-funcs git-r3 cmake-utils
 
 DESCRIPTION="Remote Procedure Call framework that puts mobile and HTTP/2 first"
 HOMEPAGE="http://www.grpc.io/"
-EGIT_REPO_URI='https://github.com/grpc/grpc.git'
+
+if [[ ${PV} == 9999 ]]; then
+	inherit git-r3
+	EGIT_REPO_URI="https://github.com/grpc/grpc.git"
+else
+	SRC_URI=""
+	KEYWORDS="~amd64 ~x86"
+fi
 
 LICENSE="BSD" # All implementations are 3-clause BSD. http://www.grpc.io/faq/
 SLOT=0
 
 KEYWORDS="~amd64 ~x86"
-IUSE="static-libs -minimal"
+IUSE=""
 DEPEND="dev-libs/protobuf"
 
 EGIT_CLONE_TYPE=single
 EGIT_SUBMODULES=('third_party/nanopb')
 
 src_prepare() {
-	epatch "${FILESDIR}/fix-makefile.patch"
+	epatch "${FILESDIR}/cmake-protobuf.patch"
+	cmake-utils_src_prepare
 }
 
-src_compile() {
-	emake shared
-	use static-libs && emake static
-	use minimal || emake plugins
+src_configure() {
+	local mycmakeargs=(
+		-DgRPC_ZLIB_PROVIDER=package
+		-DgRPC_SSL_PROVIDER=package
+		-DgRPC_PROTOBUF_PROVIDER=package
+		-DgRPC_USE_PROTO_LITE=OFF
+	)
+	cmake-utils_src_configure
 }
 
 src_install() {
-	emake install
+	cmake-utils_src_install
 }

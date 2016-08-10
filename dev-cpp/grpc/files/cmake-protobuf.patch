@@ -1,0 +1,119 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 15e5ec9..a9e84f2 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -109,18 +109,23 @@ if("${gRPC_PROTOBUF_PROVIDER}" STREQUAL "module")
+       message(WARNING "gRPC_PROTOBUF_PROVIDER is \"module\" but PROTOBUF_ROOT_DIR is wrong")
+   endif()
+ elseif("${gRPC_PROTOBUF_PROVIDER}" STREQUAL "package")
+-  find_package(protobuf CONFIG)
+-  if(protobuf_FOUND)
+-    if(TARGET protobuf::${_gRPC_PROTOBUF_LIBRARY_NAME})
+-      set(_gRPC_PROTOBUF_LIBRARIES protobuf::${_gRPC_PROTOBUF_LIBRARY_NAME})
+-    endif()
+-    if(TARGET protobuf::libprotoc)
+-      set(_gRPC_PROTOBUF_PROTOC_LIBRARIES protobuf::libprotoc)
+-    endif()
+-    set(_gRPC_FIND_PROTOBUF "if(NOT protobuf_FOUND)\n  find_package(protobuf CONFIG)\nendif()")
++  find_package(Protobuf)
++  if(Protobuf_FOUND)
++      set(_gRPC_PROTOBUF_LIBRARIES "${Protobuf_LIBRARIES}")
++      set(_gRPC_PROTOBUF_PROTOC_LIBRARIES "${Protobuf_PROTOC_LIBRARIES}")
+   else()
+-    find_package(Protobuf MODULE)
+-    set(_gRPC_FIND_PROTOBUF "if(NOT Protobuf_FOUND)\n  find_package(Protobuf)\nendif()")
++        find_package(protobuf CONFIG)
++        if(protobuf_FOUND)
++            if(TARGET protobuf::${_gRPC_PROTOBUF_LIBRARY_NAME})
++                set(_gRPC_PROTOBUF_LIBRARIES protobuf::${_gRPC_PROTOBUF_LIBRARY_NAME})
++            endif()
++            if(TARGET protobuf::libprotoc)
++                set(_gRPC_PROTOBUF_PROTOC_LIBRARIES protobuf::libprotoc)
++            endif()
++            set(_gRPC_FIND_PROTOBUF "if(NOT protobuf_FOUND)\n  find_package(protobuf CONFIG)\nendif()")
++        else()
++            set(_gRPC_FIND_PROTOBUF "if(NOT Protobuf_FOUND)\n  find_package(Protobuf)\nendif()")
++        endif()
+   endif()
+ endif()
+ 
+@@ -1493,6 +1498,7 @@ target_include_directories(gen_hpack_tables
+ target_link_libraries(gen_hpack_tables
+   gpr
+   grpc
++  ${_gRPC_PROTOBUF_LIBRARIES}
+ )
+ 
+ 
+@@ -1542,6 +1548,7 @@ target_link_libraries(grpc_create_jwt
+   ${_gRPC_SSL_LIBRARIES}
+   grpc
+   gpr
++  ${_gRPC_PROTOBUF_LIBRARIES}
+ )
+ 
+ 
+@@ -1568,6 +1575,7 @@ target_include_directories(grpc_print_google_default_creds_token
+ target_link_libraries(grpc_print_google_default_creds_token
+   grpc
+   gpr
++  ${_gRPC_PROTOBUF_LIBRARIES}
+ )
+ 
+ 
+@@ -1594,6 +1602,7 @@ target_include_directories(grpc_verify_jwt
+ target_link_libraries(grpc_verify_jwt
+   grpc
+   gpr
++  ${_gRPC_PROTOBUF_LIBRARIES}
+ )
+ 
+ 
+@@ -1618,6 +1627,7 @@ target_include_directories(grpc_cpp_plugin
+ )
+ 
+ target_link_libraries(grpc_cpp_plugin
++  ${_gRPC_PROTOBUF_LIBRARIES}
+   ${_gRPC_PROTOBUF_PROTOC_LIBRARIES}
+   grpc_plugin_support
+ )
+@@ -1644,6 +1654,7 @@ target_include_directories(grpc_csharp_plugin
+ )
+ 
+ target_link_libraries(grpc_csharp_plugin
++  ${_gRPC_PROTOBUF_LIBRARIES}
+   ${_gRPC_PROTOBUF_PROTOC_LIBRARIES}
+   grpc_plugin_support
+ )
+@@ -1670,6 +1681,7 @@ target_include_directories(grpc_node_plugin
+ )
+ 
+ target_link_libraries(grpc_node_plugin
++  ${_gRPC_PROTOBUF_LIBRARIES}
+   ${_gRPC_PROTOBUF_PROTOC_LIBRARIES}
+   grpc_plugin_support
+ )
+@@ -1697,6 +1709,7 @@ target_include_directories(grpc_objective_c_plugin
+ 
+ target_link_libraries(grpc_objective_c_plugin
+   ${_gRPC_PROTOBUF_PROTOC_LIBRARIES}
++  ${_gRPC_PROTOBUF_LIBRARIES}
+   grpc_plugin_support
+ )
+ 
+@@ -1724,6 +1737,7 @@ target_include_directories(grpc_python_plugin
+ target_link_libraries(grpc_python_plugin
+   ${_gRPC_PROTOBUF_PROTOC_LIBRARIES}
+   grpc_plugin_support
++  ${_gRPC_PROTOBUF_LIBRARIES}
+ )
+ 
+ 
+@@ -1748,6 +1762,7 @@ target_include_directories(grpc_ruby_plugin
+ )
+ 
+ target_link_libraries(grpc_ruby_plugin
++  ${_gRPC_PROTOBUF_LIBRARIES}
+   ${_gRPC_PROTOBUF_PROTOC_LIBRARIES}
+   grpc_plugin_support
+ )
