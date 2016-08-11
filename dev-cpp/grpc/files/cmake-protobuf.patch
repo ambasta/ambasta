@@ -1,5 +1,5 @@
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index 15e5ec9..c7ac65a 100644
+index 15e5ec9..172f938 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
 @@ -48,6 +48,8 @@ set(PACKAGE_TARNAME   "${PACKAGE_NAME}-${PACKAGE_VERSION}")
@@ -182,3 +182,76 @@ index 15e5ec9..c7ac65a 100644
    ${_gRPC_PROTOBUF_PROTOC_LIBRARIES}
    grpc_plugin_support
  )
+@@ -1778,3 +1809,54 @@ foreach(_config gRPCConfig gRPCConfigVersion)
+     DESTINATION ${CMAKE_INSTALL_CMAKEDIR}
+   )
+ endforeach()
++
++set(_PKG_CONFIG_VERSION "${PACKAGE_VERSION}")
++set(_PKG_CONFIG_REQUIRES_GRPC "zlib")
++set(_PKG_CONFIG_REQUIRES_SECURE "openssl")
++set(_PKG_CONFIG_REQUIRES_GRPCXX "protobuf")
++execute_process(COMMAND pkg-config --libs-only-l openssl OUTPUT_VARIABLE _PKG_CONFIG_LIBS_SECURE)
++execute_process(COMMAND pkg-config --libs-only-l zlib OUTPUT_VARIABLE _PKG_CONFIG_LIBS_GRPC)
++execute_process(COMMAND pkg-config --libs-only-l protobuf OUTPUT_VARIABLE _PKG_CONFIG_LIBS_GRPCXX)
++string(STRIP ${_PKG_CONFIG_LIBS_SECURE} _PKG_CONFIG_LIBS_SECURE)
++string(STRIP ${_PKG_CONFIG_LIBS_GRPC} _PKG_CONFIG_LIBS_GRPC)
++string(STRIP ${_PKG_CONFIG_LIBS_GRPCXX} _PKG_CONFIG_LIBS_GRPCXX)
++
++# grpc .pc file
++set(_PKG_CONFIG_PROJECT_NAME "gRPC")
++set(_PKG_CONFIG_DESCRIPTION "High performance general RPC framework")
++unset(_PKG_CONFIG_CFLAGS)
++set(_PKG_CONFIG_REQUIRES_PRIVATE "${_PKG_CONFIG_REQUIRES_GRPC} ${_PKG_CONFIG_REQUIRES_SECURE}")
++set(_PKG_CONFIG_LIBS "-lgrpc")
++set(_PKG_CONFIG_LIBS_PRIVATE "${_PKG_CONFIG_LIBS_GRPC} ${_PKG_CONFIG_LIBS_SECURE}")
++CONFIGURE_FILE(tools/cmake/pkg-config.pc.in ${_PKG_CONFIG_PROJECT_NAME}.pc @ONLY)
++INSTALL(FILES "${CMAKE_CURRENT_BINARY_DIR}/${_PKG_CONFIG_PROJECT_NAME}.pc" DESTINATION lib/pkgconfig)
++
++# grpc_unsecure .pc file
++set(_PKG_CONFIG_PROJECT_NAME "gRPC_unsecure")
++set(_PKG_CONFIG_DESCRIPTION "High performance general RPC framework without SSL")
++unset(_PKG_CONFIG_CFLAGS)
++set(_PKG_CONFIG_REQUIRES_PRIVATE "${_PKG_CONFIG_REQUIRES_GRPC}")
++set(_PKG_CONFIG_LIBS "-lgrpc")
++set(_PKG_CONFIG_LIBS_PRIVATE "${_PKG_CONFIG_LIBS_GRPC}")
++CONFIGURE_FILE(tools/cmake/pkg-config.pc.in ${_PKG_CONFIG_PROJECT_NAME}.pc @ONLY)
++INSTALL(FILES "${CMAKE_CURRENT_BINARY_DIR}/${_PKG_CONFIG_PROJECT_NAME}.pc" DESTINATION lib/pkgconfig)
++
++# grpc++ .pc file
++set(_PKG_CONFIG_PROJECT_NAME "gRPC++")
++set(_PKG_CONFIG_DESCRIPTION "C++ wrapper for gRPC")
++unset(_PKG_CONFIG_CFLAGS)
++set(_PKG_CONFIG_REQUIRES_PRIVATE "${_PKG_CONFIG_REQUIRES_GRPCXX}")
++set(_PKG_CONFIG_LIBS "-lgrpc++")
++set(_PKG_CONFIG_LIBS_PRIVATE "${_PKG_CONFIG_LIBS_GRPCXX}")
++CONFIGURE_FILE(tools/cmake/pkg-config.pc.in ${_PKG_CONFIG_PROJECT_NAME}.pc @ONLY)
++INSTALL(FILES "${CMAKE_CURRENT_BINARY_DIR}/${_PKG_CONFIG_PROJECT_NAME}.pc" DESTINATION lib/pkgconfig)
++
++# grpc++_unsecure .pc file
++set(_PKG_CONFIG_PROJECT_NAME "gRPC++_unsecure")
++set(_PKG_CONFIG_DESCRIPTION "C++ wrapper for gRPC without SSL")
++unset(_PKG_CONFIG_CFLAGS)
++set(_PKG_CONFIG_REQUIRES_PRIVATE "gRPC_unsecure ${_PKG_CONFIG_REQUIRES_GRPCXX}")
++set(_PKG_CONFIG_LIBS "-lgrpc++")
++set(_PKG_CONFIG_LIBS_PRIVATE "${_PKG_CONFIG_LIBS_GRPCXX}")
++CONFIGURE_FILE(tools/cmake/pkg-config.pc.in ${_PKG_CONFIG_PROJECT_NAME}.pc @ONLY)
++INSTALL(FILES "${CMAKE_CURRENT_BINARY_DIR}/${_PKG_CONFIG_PROJECT_NAME}.pc" DESTINATION lib/pkgconfig)
+diff --git a/tools/cmake/pkg-config.pc.in b/tools/cmake/pkg-config.pc.in
+new file mode 100644
+index 0000000..c7a404a
+--- /dev/null
++++ b/tools/cmake/pkg-config.pc.in
+@@ -0,0 +1,12 @@
++prefix=@_PKG_CONFIG_PREFIX@
++exec_prefix=${prefix}
++includedir=${prefix}/include
++libdir=${exec_prefix}/lib
++
++Name: @_PKG_CONFIG_PROJECT_NAME@
++Description: @_PKG_CONFIG_DESCRIPTION@
++Version: @_PKG_CONFIG_VERSION@
++Cflags: -I${includedir} @_PKG_CONFIG_CFLAGS@
++Requires.private: @_PKG_CONFIG_REQUIRES_PRIVATE@
++Libs: -L${libdir} @_PKG_CONFIG_LIBS@
++Libs.private: @_PKG_CONFIG_LIBS_PRIVATE@
