@@ -4,7 +4,7 @@
 
 EAPI=6
 
-inherit toolchain-funcs git-r3 cmake-utils
+inherit cmake-utils
 
 DESCRIPTION="Remote Procedure Call framework that puts mobile and HTTP/2 first"
 HOMEPAGE="http://www.grpc.io/"
@@ -27,10 +27,7 @@ DEPEND="dev-libs/protobuf"
 EGIT_CLONE_TYPE=single
 EGIT_SUBMODULES=('third_party/nanopb')
 
-src_prepare() {
-	epatch "${FILESDIR}/cmake-protobuf.patch"
-	cmake-utils_src_prepare
-}
+PATCHES=( "${FILESDIR}/cmake-protobuf.patch" )
 
 src_configure() {
 	local mycmakeargs=(
@@ -39,11 +36,6 @@ src_configure() {
 		-DgRPC_SSL_PROVIDER=package
 		-DgRPC_PROTOBUF_PROVIDER=package
 		-DgRPC_USE_PROTO_LITE=OFF
-		-DBUILD_SHARED_LIBS:BOOL=ON
 	)
 	cmake-utils_src_configure
-}
-
-src_install() {
-	cmake-utils_src_install
 }
