@@ -13,6 +13,6 @@ HOMEPAGE="https://github.com/aws/aws-sdk-cpp"
 LICENSE="Apache-2.0"
 KEYWORDS="~amd64 ~x86"
 SLOT=0
-DEPEND=""
+DEPEND="dev-cpp/aws-cpp-sdk-core"
 
-PATCHES=("${FILESDIR}/cmake_gnu_fixes.patch")
+PATCHES=("${FILESDIR}/aws-sdk-cmake.patch")

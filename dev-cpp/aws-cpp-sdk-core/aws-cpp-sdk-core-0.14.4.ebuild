@@ -15,6 +15,4 @@ KEYWORDS="~amd64 ~x86"
 SLOT=0
 DEPEND=""
 
-PATCHES=(
-	"${FILESDIR}/cmake_gnu_fixes.patch"
-	"${FILESDIR}/cmake_core_fixes.patch")
+PATCHES=("${FILESDIR}/aws-sdk-cmake.patch")

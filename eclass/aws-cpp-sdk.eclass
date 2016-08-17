@@ -1,4 +1,4 @@
-inherit cmake-utils multilib versionator
+inherit cmake-utils flag-o-matic multilib versionator
 
 IUSE="-static-libs -custom-memory-management +http"
 
@@ -21,6 +21,10 @@ fi
 # @DESCRIPTION:
 # Removes all directories except for the library selected for build
 aws-cpp-sdk_src_prepare() {
+	for patch in "${PATCHES}"; do
+		epatch "${patch}"
+	done
+
 	for subdir in `dir ${S}/`; do
 		if [[ -d ${subdir} ]]; then
 			if [[ ${subdir} == ${PN} ]] || [[ ${subdir} == "${PN}-tests" ]]; then
@@ -30,6 +34,8 @@ aws-cpp-sdk_src_prepare() {
 			fi
 		fi
 	done
+	PATCHES=()
+	append-cxxflags -std=c++11
 	cmake-utils_src_prepare
 }
 
@@ -53,4 +59,4 @@ aws-cpp-sdk_src_configure() {
 	cmake-utils_src_configure
 }
 
-EXPORT_FUNCTIONS src_configure
+EXPORT_FUNCTIONS src_prepare src_configure

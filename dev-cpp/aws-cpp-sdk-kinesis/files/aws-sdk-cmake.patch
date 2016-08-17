@@ -1,17 +1,71 @@
-diff -urN aws-sdk-cpp-old/android-build/cmakefiles/openssl-cmake/apps/CMakeLists.txt aws-sdk-cpp/android-build/cmakefiles/openssl-cmake/apps/CMakeLists.txt
---- aws-sdk-cpp-old/android-build/cmakefiles/openssl-cmake/apps/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
-+++ aws-sdk-cpp/android-build/cmakefiles/openssl-cmake/apps/CMakeLists.txt	2016-08-17 17:49:23.260472488 +0530
-@@ -39,5 +39,5 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 3e4b553..6cb2135 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -121,6 +121,7 @@ if(PLATFORM_WINDOWS)
+     set(USE_WINDOWS_DLL_SEMANTICS 1)
+ elseif(PLATFORM_LINUX)
+     message(STATUS "Generating linux build config")
++    include(GNUInstallDirs)
+     set(SDK_INSTALL_BINARY_PREFIX "linux")
+ elseif(PLATFORM_APPLE)
+     message(STATUS "Generating Mac OSX/IOS build config")
+@@ -266,6 +267,11 @@ if(BUILD_SHARED_LIBS)
+     if(PLATFORM_WINDOWS)
+         SET(SUFFIX dll)
+     elseif(PLATFORM_LINUX OR PLATFORM_ANDROID)
++        if(PLATFORM_LINUX)
++            SET(ARCHIVE_DIRECTORY "${CMAKE_INSTALL_BINDIR}")
++            SET(BINARY_DIRECTORY "${CMAKE_INSTALL_BINDIR}")
++            SET(LIBRARY_DIRECTORY "${CMAKE_INSTALL_LIBDIR}")
++        endif()
+         SET(SUFFIX so)
+     elseif(PLATFORM_APPLE)
+         SET(SUFFIX dylib)
+@@ -885,8 +891,6 @@ elseif(USE_GCC_FLAGS)
+     endif()
+ endif()
+ 
+-set(CORE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/aws-cpp-sdk-core/")
+-
+ # The NDK does not provide any http or crypto functionality out of the box; we build versions of zlib, openssl, and curl to account for this.
+ if(BUILD_CURL OR BUILD_OPENSSL)
+     include(ExternalProject)
+@@ -1070,10 +1074,6 @@ if(PLATFORM_CUSTOM)
+     apply_custom_platform_settings()
+ endif()
+ 
+-#sdks
+-add_subdirectory(aws-cpp-sdk-core)
+-LIST(APPEND EXPORTS "aws-cpp-sdk-core")
+-
+ foreach(SDK IN LISTS SDK_BUILD_LIST)
+     SET(SDK_DIR "aws-cpp-sdk-${SDK}")
+     add_subdirectory("${SDK_DIR}")
+@@ -1108,7 +1108,6 @@ if(ENABLE_TESTING)
+     if(PLATFORM_ANDROID AND NOT BUILD_SHARED_LIBS)
+ 	add_subdirectory(android-unified-tests)
+     else()
+-        add_subdirectory(aws-cpp-sdk-core-tests)
+ 	foreach(SDK IN LISTS SDK_BUILD_LIST)
+ 	    get_test_project_for_service(${SDK} TEST_PROJECT)
+ 	    if(TEST_PROJECT) 
+diff --git a/android-build/cmakefiles/openssl-cmake/apps/CMakeLists.txt b/android-build/cmakefiles/openssl-cmake/apps/CMakeLists.txt
+index d4d79f8..b917766 100644
+--- a/android-build/cmakefiles/openssl-cmake/apps/CMakeLists.txt
++++ b/android-build/cmakefiles/openssl-cmake/apps/CMakeLists.txt
+@@ -39,5 +39,5 @@ set ( E_SRC openssl.c #
  add_executable ( openssl ${E_SRC} )
  target_link_libraries ( openssl z crypto ssl )
  
 -install( TARGETS openssl RUNTIME DESTINATION bin/${SDK_INSTALL_BINARY_PREFIX}/${CMAKE_BUILD_TYPE} )
 +install( TARGETS openssl RUNTIME DESTINATION ${BINARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${CMAKE_BUILD_TYPE} )
  
-diff -urN aws-sdk-cpp-old/android-build/cmakefiles/openssl-cmake/crypto/CMakeLists.txt aws-sdk-cpp/android-build/cmakefiles/openssl-cmake/crypto/CMakeLists.txt
---- aws-sdk-cpp-old/android-build/cmakefiles/openssl-cmake/crypto/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
-+++ aws-sdk-cpp/android-build/cmakefiles/openssl-cmake/crypto/CMakeLists.txt	2016-08-17 17:49:23.260472488 +0530
-@@ -218,6 +218,6 @@
+diff --git a/android-build/cmakefiles/openssl-cmake/crypto/CMakeLists.txt b/android-build/cmakefiles/openssl-cmake/crypto/CMakeLists.txt
+index 5090542..73ac808 100644
+--- a/android-build/cmakefiles/openssl-cmake/crypto/CMakeLists.txt
++++ b/android-build/cmakefiles/openssl-cmake/crypto/CMakeLists.txt
+@@ -218,6 +218,6 @@ endif()
  
  install( FILES ${EXHEADERS} DESTINATION include/openssl )
  
@@ -21,10 +75,11 @@ diff -urN aws-sdk-cpp-old/android-build/cmakefiles/openssl-cmake/crypto/CMakeLis
 +install( TARGETS crypto RUNTIME DESTINATION ${BINARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${CMAKE_BUILD_TYPE}
 +                        LIBRARY DESTINATION ${LIBRARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${CMAKE_BUILD_TYPE}
 +                        ARCHIVE DESTINATION ${LIBRARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${CMAKE_BUILD_TYPE} )
-diff -urN aws-sdk-cpp-old/android-build/cmakefiles/openssl-cmake/ssl/CMakeLists.txt aws-sdk-cpp/android-build/cmakefiles/openssl-cmake/ssl/CMakeLists.txt
---- aws-sdk-cpp-old/android-build/cmakefiles/openssl-cmake/ssl/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
-+++ aws-sdk-cpp/android-build/cmakefiles/openssl-cmake/ssl/CMakeLists.txt	2016-08-17 17:49:23.261472489 +0530
-@@ -42,6 +42,6 @@
+diff --git a/android-build/cmakefiles/openssl-cmake/ssl/CMakeLists.txt b/android-build/cmakefiles/openssl-cmake/ssl/CMakeLists.txt
+index 370503a..b9f8a7b 100644
+--- a/android-build/cmakefiles/openssl-cmake/ssl/CMakeLists.txt
++++ b/android-build/cmakefiles/openssl-cmake/ssl/CMakeLists.txt
+@@ -42,6 +42,6 @@ target_link_libraries ( ssl crypto )
  install( FILES ssl.h ssl2.h ssl3.h ssl23.h tls1.h dtls1.h kssl.h srtp.h
      DESTINATION include/openssl )
  
@@ -34,39 +89,20 @@ diff -urN aws-sdk-cpp-old/android-build/cmakefiles/openssl-cmake/ssl/CMakeLists.
 +install( TARGETS ssl RUNTIME DESTINATION ${BINARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${CMAKE_BUILD_TYPE}
 +                     LIBRARY DESTINATION ${LIBRARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${CMAKE_BUILD_TYPE}
 +                     ARCHIVE DESTINATION ${LIBRARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${CMAKE_BUILD_TYPE} )
-diff -urN aws-sdk-cpp-old/android-build/patches/curl/lib/CMakeLists.patch aws-sdk-cpp/android-build/patches/curl/lib/CMakeLists.patch
---- aws-sdk-cpp-old/android-build/patches/curl/lib/CMakeLists.patch	2016-08-13 04:05:50.000000000 +0530
-+++ aws-sdk-cpp/android-build/patches/curl/lib/CMakeLists.patch	2016-08-17 17:49:23.253472477 +0530
-@@ -5,8 +5,8 @@
-  endif()
-  
- -install(TARGETS ${LIB_NAME}
---  ARCHIVE DESTINATION lib
---  LIBRARY DESTINATION lib
---  RUNTIME DESTINATION bin)
--+install( TARGETS ${LIB_NAME} ARCHIVE DESTINATION lib/${SDK_INSTALL_BINARY_PREFIX}/${CMAKE_BUILD_TYPE}
--+                             LIBRARY DESTINATION lib/${SDK_INSTALL_BINARY_PREFIX}/${CMAKE_BUILD_TYPE} )
-+-  ARCHIVE DESTINATION ${LIBRARY_DIRECTORY}
-+-  LIBRARY DESTINATION ${LIBRARY_DIRECTORY}
-+-  RUNTIME DESTINATION ${BINARY_DIRECTORY})
-++install( TARGETS ${LIB_NAME} ARCHIVE DESTINATION ${LIBRARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${CMAKE_BUILD_TYPE}
-++                             LIBRARY DESTINATION ${LIBRARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${CMAKE_BUILD_TYPE} )
-diff -urN aws-sdk-cpp-old/android-build/patches/curl/src/CMakeLists.patch aws-sdk-cpp/android-build/patches/curl/src/CMakeLists.patch
---- aws-sdk-cpp-old/android-build/patches/curl/src/CMakeLists.patch	2016-08-13 04:05:50.000000000 +0530
-+++ aws-sdk-cpp/android-build/patches/curl/src/CMakeLists.patch	2016-08-17 17:49:23.253472477 +0530
-@@ -4,6 +4,6 @@
-  
-  #INCLUDE(ModuleInstall OPTIONAL)
-  
---install(TARGETS ${EXE_NAME} DESTINATION bin)
--+install(TARGETS ${EXE_NAME} DESTINATION bin/${SDK_INSTALL_BINARY_PREFIX}/${CMAKE_BUILD_TYPE})
-+-install(TARGETS ${EXE_NAME} DESTINATION ${BINARY_DIRECTORY})
-++install(TARGETS ${EXE_NAME} DESTINATION ${BINARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${CMAKE_BUILD_TYPE})
- +
-diff -urN aws-sdk-cpp-old/aws-cpp-sdk-access-management/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-access-management/CMakeLists.txt
---- aws-sdk-cpp-old/aws-cpp-sdk-access-management/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
-+++ aws-sdk-cpp/aws-cpp-sdk-access-management/CMakeLists.txt	2016-08-17 17:49:23.421472727 +0530
-@@ -43,16 +43,16 @@
+diff --git a/aws-cpp-sdk-access-management/CMakeLists.txt b/aws-cpp-sdk-access-management/CMakeLists.txt
+index 8737c86..2c7528b 100644
+--- a/aws-cpp-sdk-access-management/CMakeLists.txt
++++ b/aws-cpp-sdk-access-management/CMakeLists.txt
+@@ -24,7 +24,7 @@ set(ACCESS_MANAGEMENT_INCLUDES
+     "${CMAKE_CURRENT_SOURCE_DIR}/include/"
+     "${AWS_NATIVE_SDK_ROOT}/aws-cpp-sdk-iam/include/"
+     "${AWS_NATIVE_SDK_ROOT}/aws-cpp-sdk-cognito-identity/include/"
+-    "${CORE_DIR}/include/"
++    
+   )
+ 
+ include_directories(${ACCESS_MANAGEMENT_INCLUDES})
+@@ -43,16 +43,16 @@ target_link_libraries(aws-cpp-sdk-access-management aws-cpp-sdk-cognito-identity
  if(SIMPLE_INSTALL)
      install (TARGETS aws-cpp-sdk-access-management
              ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
@@ -87,10 +123,20 @@ diff -urN aws-sdk-cpp-old/aws-cpp-sdk-access-management/CMakeLists.txt aws-sdk-c
      endif()
  endif()
  
-diff -urN aws-sdk-cpp-old/aws-cpp-sdk-acm/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-acm/CMakeLists.txt
---- aws-sdk-cpp-old/aws-cpp-sdk-acm/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
-+++ aws-sdk-cpp/aws-cpp-sdk-acm/CMakeLists.txt	2016-08-17 17:49:25.666476061 +0530
-@@ -68,16 +68,16 @@
+diff --git a/aws-cpp-sdk-acm/CMakeLists.txt b/aws-cpp-sdk-acm/CMakeLists.txt
+index 6464d10..e9a2d2a 100644
+--- a/aws-cpp-sdk-acm/CMakeLists.txt
++++ b/aws-cpp-sdk-acm/CMakeLists.txt
+@@ -48,7 +48,7 @@ project(aws-cpp-sdk-acm)
+ 
+   set(ACM_INCLUDES
+     "${CMAKE_CURRENT_SOURCE_DIR}/include/"
+-    "${CORE_DIR}/include/"
++    
+   )
+ 
+   include_directories(${ACM_INCLUDES})
+@@ -68,16 +68,16 @@ project(aws-cpp-sdk-acm)
    if(SIMPLE_INSTALL)
        install (TARGETS aws-cpp-sdk-acm
                 ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
@@ -111,10 +157,20 @@ diff -urN aws-sdk-cpp-old/aws-cpp-sdk-acm/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk
      endif()
    endif()
  
-diff -urN aws-sdk-cpp-old/aws-cpp-sdk-apigateway/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-apigateway/CMakeLists.txt
---- aws-sdk-cpp-old/aws-cpp-sdk-apigateway/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
-+++ aws-sdk-cpp/aws-cpp-sdk-apigateway/CMakeLists.txt	2016-08-17 17:49:25.018475099 +0530
-@@ -68,16 +68,16 @@
+diff --git a/aws-cpp-sdk-apigateway/CMakeLists.txt b/aws-cpp-sdk-apigateway/CMakeLists.txt
+index 1a65395..2eed879 100644
+--- a/aws-cpp-sdk-apigateway/CMakeLists.txt
++++ b/aws-cpp-sdk-apigateway/CMakeLists.txt
+@@ -48,7 +48,7 @@ project(aws-cpp-sdk-apigateway)
+ 
+   set(APIGATEWAY_INCLUDES
+     "${CMAKE_CURRENT_SOURCE_DIR}/include/"
+-    "${CORE_DIR}/include/"
++    
+   )
+ 
+   include_directories(${APIGATEWAY_INCLUDES})
+@@ -68,16 +68,16 @@ project(aws-cpp-sdk-apigateway)
    if(SIMPLE_INSTALL)
        install (TARGETS aws-cpp-sdk-apigateway
                 ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
@@ -135,10 +191,20 @@ diff -urN aws-sdk-cpp-old/aws-cpp-sdk-apigateway/CMakeLists.txt aws-sdk-cpp/aws-
      endif()
    endif()
  
-diff -urN aws-sdk-cpp-old/aws-cpp-sdk-application-autoscaling/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-application-autoscaling/CMakeLists.txt
---- aws-sdk-cpp-old/aws-cpp-sdk-application-autoscaling/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
-+++ aws-sdk-cpp/aws-cpp-sdk-application-autoscaling/CMakeLists.txt	2016-08-17 17:49:24.760474715 +0530
-@@ -68,16 +68,16 @@
+diff --git a/aws-cpp-sdk-application-autoscaling/CMakeLists.txt b/aws-cpp-sdk-application-autoscaling/CMakeLists.txt
+index fde94de..7e1f437 100644
+--- a/aws-cpp-sdk-application-autoscaling/CMakeLists.txt
++++ b/aws-cpp-sdk-application-autoscaling/CMakeLists.txt
+@@ -48,7 +48,7 @@ project(aws-cpp-sdk-application-autoscaling)
+ 
+   set(APPLICATION-AUTOSCALING_INCLUDES
+     "${CMAKE_CURRENT_SOURCE_DIR}/include/"
+-    "${CORE_DIR}/include/"
++    
+   )
+ 
+   include_directories(${APPLICATION-AUTOSCALING_INCLUDES})
+@@ -68,16 +68,16 @@ project(aws-cpp-sdk-application-autoscaling)
    if(SIMPLE_INSTALL)
        install (TARGETS aws-cpp-sdk-application-autoscaling
                 ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
@@ -159,10 +225,20 @@ diff -urN aws-sdk-cpp-old/aws-cpp-sdk-application-autoscaling/CMakeLists.txt aws
      endif()
    endif()
  
-diff -urN aws-sdk-cpp-old/aws-cpp-sdk-autoscaling/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-autoscaling/CMakeLists.txt
---- aws-sdk-cpp-old/aws-cpp-sdk-autoscaling/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
-+++ aws-sdk-cpp/aws-cpp-sdk-autoscaling/CMakeLists.txt	2016-08-17 17:49:22.520471388 +0530
-@@ -68,16 +68,16 @@
+diff --git a/aws-cpp-sdk-autoscaling/CMakeLists.txt b/aws-cpp-sdk-autoscaling/CMakeLists.txt
+index 0bd118e..4ab23e8 100644
+--- a/aws-cpp-sdk-autoscaling/CMakeLists.txt
++++ b/aws-cpp-sdk-autoscaling/CMakeLists.txt
+@@ -48,7 +48,7 @@ project(aws-cpp-sdk-autoscaling)
+ 
+   set(AUTOSCALING_INCLUDES
+     "${CMAKE_CURRENT_SOURCE_DIR}/include/"
+-    "${CORE_DIR}/include/"
++    
+   )
+ 
+   include_directories(${AUTOSCALING_INCLUDES})
+@@ -68,16 +68,16 @@ project(aws-cpp-sdk-autoscaling)
    if(SIMPLE_INSTALL)
        install (TARGETS aws-cpp-sdk-autoscaling
                 ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
@@ -183,10 +259,20 @@ diff -urN aws-sdk-cpp-old/aws-cpp-sdk-autoscaling/CMakeLists.txt aws-sdk-cpp/aws
      endif()
    endif()
  
-diff -urN aws-sdk-cpp-old/aws-cpp-sdk-cloudformation/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-cloudformation/CMakeLists.txt
---- aws-sdk-cpp-old/aws-cpp-sdk-cloudformation/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
-+++ aws-sdk-cpp/aws-cpp-sdk-cloudformation/CMakeLists.txt	2016-08-17 17:49:25.265475465 +0530
-@@ -68,16 +68,16 @@
+diff --git a/aws-cpp-sdk-cloudformation/CMakeLists.txt b/aws-cpp-sdk-cloudformation/CMakeLists.txt
+index a0171e9..9bbbd17 100644
+--- a/aws-cpp-sdk-cloudformation/CMakeLists.txt
++++ b/aws-cpp-sdk-cloudformation/CMakeLists.txt
+@@ -48,7 +48,7 @@ project(aws-cpp-sdk-cloudformation)
+ 
+   set(CLOUDFORMATION_INCLUDES
+     "${CMAKE_CURRENT_SOURCE_DIR}/include/"
+-    "${CORE_DIR}/include/"
++    
+   )
+ 
+   include_directories(${CLOUDFORMATION_INCLUDES})
+@@ -68,16 +68,16 @@ project(aws-cpp-sdk-cloudformation)
    if(SIMPLE_INSTALL)
        install (TARGETS aws-cpp-sdk-cloudformation
                 ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
@@ -207,10 +293,20 @@ diff -urN aws-sdk-cpp-old/aws-cpp-sdk-cloudformation/CMakeLists.txt aws-sdk-cpp/
      endif()
    endif()
  
-diff -urN aws-sdk-cpp-old/aws-cpp-sdk-cloudfront/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-cloudfront/CMakeLists.txt
---- aws-sdk-cpp-old/aws-cpp-sdk-cloudfront/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
-+++ aws-sdk-cpp/aws-cpp-sdk-cloudfront/CMakeLists.txt	2016-08-17 17:49:24.263473977 +0530
-@@ -68,16 +68,16 @@
+diff --git a/aws-cpp-sdk-cloudfront/CMakeLists.txt b/aws-cpp-sdk-cloudfront/CMakeLists.txt
+index 7d5bec7..455dcd8 100644
+--- a/aws-cpp-sdk-cloudfront/CMakeLists.txt
++++ b/aws-cpp-sdk-cloudfront/CMakeLists.txt
+@@ -48,7 +48,7 @@ project(aws-cpp-sdk-cloudfront)
+ 
+   set(CLOUDFRONT_INCLUDES
+     "${CMAKE_CURRENT_SOURCE_DIR}/include/"
+-    "${CORE_DIR}/include/"
++    
+   )
+ 
+   include_directories(${CLOUDFRONT_INCLUDES})
+@@ -68,16 +68,16 @@ project(aws-cpp-sdk-cloudfront)
    if(SIMPLE_INSTALL)
        install (TARGETS aws-cpp-sdk-cloudfront
                 ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
@@ -231,10 +327,20 @@ diff -urN aws-sdk-cpp-old/aws-cpp-sdk-cloudfront/CMakeLists.txt aws-sdk-cpp/aws-
      endif()
    endif()
  
-diff -urN aws-sdk-cpp-old/aws-cpp-sdk-cloudhsm/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-cloudhsm/CMakeLists.txt
---- aws-sdk-cpp-old/aws-cpp-sdk-cloudhsm/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
-+++ aws-sdk-cpp/aws-cpp-sdk-cloudhsm/CMakeLists.txt	2016-08-17 17:49:26.048476628 +0530
-@@ -68,16 +68,16 @@
+diff --git a/aws-cpp-sdk-cloudhsm/CMakeLists.txt b/aws-cpp-sdk-cloudhsm/CMakeLists.txt
+index 7fb497e..2dbd5c0 100644
+--- a/aws-cpp-sdk-cloudhsm/CMakeLists.txt
++++ b/aws-cpp-sdk-cloudhsm/CMakeLists.txt
+@@ -48,7 +48,7 @@ project(aws-cpp-sdk-cloudhsm)
+ 
+   set(CLOUDHSM_INCLUDES
+     "${CMAKE_CURRENT_SOURCE_DIR}/include/"
+-    "${CORE_DIR}/include/"
++    
+   )
+ 
+   include_directories(${CLOUDHSM_INCLUDES})
+@@ -68,16 +68,16 @@ project(aws-cpp-sdk-cloudhsm)
    if(SIMPLE_INSTALL)
        install (TARGETS aws-cpp-sdk-cloudhsm
                 ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
@@ -255,10 +361,20 @@ diff -urN aws-sdk-cpp-old/aws-cpp-sdk-cloudhsm/CMakeLists.txt aws-sdk-cpp/aws-cp
      endif()
    endif()
  
-diff -urN aws-sdk-cpp-old/aws-cpp-sdk-cloudsearch/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-cloudsearch/CMakeLists.txt
---- aws-sdk-cpp-old/aws-cpp-sdk-cloudsearch/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
-+++ aws-sdk-cpp/aws-cpp-sdk-cloudsearch/CMakeLists.txt	2016-08-17 17:49:23.081472222 +0530
-@@ -68,16 +68,16 @@
+diff --git a/aws-cpp-sdk-cloudsearch/CMakeLists.txt b/aws-cpp-sdk-cloudsearch/CMakeLists.txt
+index 67d8989..2e6c3e7 100644
+--- a/aws-cpp-sdk-cloudsearch/CMakeLists.txt
++++ b/aws-cpp-sdk-cloudsearch/CMakeLists.txt
+@@ -48,7 +48,7 @@ project(aws-cpp-sdk-cloudsearch)
+ 
+   set(CLOUDSEARCH_INCLUDES
+     "${CMAKE_CURRENT_SOURCE_DIR}/include/"
+-    "${CORE_DIR}/include/"
++    
+   )
+ 
+   include_directories(${CLOUDSEARCH_INCLUDES})
+@@ -68,16 +68,16 @@ project(aws-cpp-sdk-cloudsearch)
    if(SIMPLE_INSTALL)
        install (TARGETS aws-cpp-sdk-cloudsearch
                 ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
@@ -279,10 +395,20 @@ diff -urN aws-sdk-cpp-old/aws-cpp-sdk-cloudsearch/CMakeLists.txt aws-sdk-cpp/aws
      endif()
    endif()
  
-diff -urN aws-sdk-cpp-old/aws-cpp-sdk-cloudsearchdomain/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-cloudsearchdomain/CMakeLists.txt
---- aws-sdk-cpp-old/aws-cpp-sdk-cloudsearchdomain/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
-+++ aws-sdk-cpp/aws-cpp-sdk-cloudsearchdomain/CMakeLists.txt	2016-08-17 17:49:24.425474218 +0530
-@@ -68,16 +68,16 @@
+diff --git a/aws-cpp-sdk-cloudsearchdomain/CMakeLists.txt b/aws-cpp-sdk-cloudsearchdomain/CMakeLists.txt
+index 5eb4e49..bdae61a 100644
+--- a/aws-cpp-sdk-cloudsearchdomain/CMakeLists.txt
++++ b/aws-cpp-sdk-cloudsearchdomain/CMakeLists.txt
+@@ -48,7 +48,7 @@ project(aws-cpp-sdk-cloudsearchdomain)
+ 
+   set(CLOUDSEARCHDOMAIN_INCLUDES
+     "${CMAKE_CURRENT_SOURCE_DIR}/include/"
+-    "${CORE_DIR}/include/"
++    
+   )
+ 
+   include_directories(${CLOUDSEARCHDOMAIN_INCLUDES})
+@@ -68,16 +68,16 @@ project(aws-cpp-sdk-cloudsearchdomain)
    if(SIMPLE_INSTALL)
        install (TARGETS aws-cpp-sdk-cloudsearchdomain
                 ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
@@ -303,10 +429,20 @@ diff -urN aws-sdk-cpp-old/aws-cpp-sdk-cloudsearchdomain/CMakeLists.txt aws-sdk-c
      endif()
    endif()
  
-diff -urN aws-sdk-cpp-old/aws-cpp-sdk-cloudtrail/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-cloudtrail/CMakeLists.txt
---- aws-sdk-cpp-old/aws-cpp-sdk-cloudtrail/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
-+++ aws-sdk-cpp/aws-cpp-sdk-cloudtrail/CMakeLists.txt	2016-08-17 17:49:25.488475797 +0530
-@@ -68,16 +68,16 @@
+diff --git a/aws-cpp-sdk-cloudtrail/CMakeLists.txt b/aws-cpp-sdk-cloudtrail/CMakeLists.txt
+index cced8c4..8f5574c 100644
+--- a/aws-cpp-sdk-cloudtrail/CMakeLists.txt
++++ b/aws-cpp-sdk-cloudtrail/CMakeLists.txt
+@@ -48,7 +48,7 @@ project(aws-cpp-sdk-cloudtrail)
+ 
+   set(CLOUDTRAIL_INCLUDES
+     "${CMAKE_CURRENT_SOURCE_DIR}/include/"
+-    "${CORE_DIR}/include/"
++    
+   )
+ 
+   include_directories(${CLOUDTRAIL_INCLUDES})
+@@ -68,16 +68,16 @@ project(aws-cpp-sdk-cloudtrail)
    if(SIMPLE_INSTALL)
        install (TARGETS aws-cpp-sdk-cloudtrail
                 ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
@@ -327,10 +463,20 @@ diff -urN aws-sdk-cpp-old/aws-cpp-sdk-cloudtrail/CMakeLists.txt aws-sdk-cpp/aws-
      endif()
    endif()
  
-diff -urN aws-sdk-cpp-old/aws-cpp-sdk-codecommit/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-codecommit/CMakeLists.txt
---- aws-sdk-cpp-old/aws-cpp-sdk-codecommit/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
-+++ aws-sdk-cpp/aws-cpp-sdk-codecommit/CMakeLists.txt	2016-08-17 17:49:22.737471711 +0530
-@@ -68,16 +68,16 @@
+diff --git a/aws-cpp-sdk-codecommit/CMakeLists.txt b/aws-cpp-sdk-codecommit/CMakeLists.txt
+index 7a972b3..133426e 100644
+--- a/aws-cpp-sdk-codecommit/CMakeLists.txt
++++ b/aws-cpp-sdk-codecommit/CMakeLists.txt
+@@ -48,7 +48,7 @@ project(aws-cpp-sdk-codecommit)
+ 
+   set(CODECOMMIT_INCLUDES
+     "${CMAKE_CURRENT_SOURCE_DIR}/include/"
+-    "${CORE_DIR}/include/"
++    
+   )
+ 
+   include_directories(${CODECOMMIT_INCLUDES})
+@@ -68,16 +68,16 @@ project(aws-cpp-sdk-codecommit)
    if(SIMPLE_INSTALL)
        install (TARGETS aws-cpp-sdk-codecommit
                 ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
@@ -351,10 +497,20 @@ diff -urN aws-sdk-cpp-old/aws-cpp-sdk-codecommit/CMakeLists.txt aws-sdk-cpp/aws-
      endif()
    endif()
  
-diff -urN aws-sdk-cpp-old/aws-cpp-sdk-codedeploy/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-codedeploy/CMakeLists.txt
---- aws-sdk-cpp-old/aws-cpp-sdk-codedeploy/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
-+++ aws-sdk-cpp/aws-cpp-sdk-codedeploy/CMakeLists.txt	2016-08-17 17:49:25.927476449 +0530
-@@ -68,16 +68,16 @@
+diff --git a/aws-cpp-sdk-codedeploy/CMakeLists.txt b/aws-cpp-sdk-codedeploy/CMakeLists.txt
+index 6e47697..73280b5 100644
+--- a/aws-cpp-sdk-codedeploy/CMakeLists.txt
++++ b/aws-cpp-sdk-codedeploy/CMakeLists.txt
+@@ -48,7 +48,7 @@ project(aws-cpp-sdk-codedeploy)
+ 
+   set(CODEDEPLOY_INCLUDES
+     "${CMAKE_CURRENT_SOURCE_DIR}/include/"
+-    "${CORE_DIR}/include/"
++    
+   )
+ 
+   include_directories(${CODEDEPLOY_INCLUDES})
+@@ -68,16 +68,16 @@ project(aws-cpp-sdk-codedeploy)
    if(SIMPLE_INSTALL)
        install (TARGETS aws-cpp-sdk-codedeploy
                 ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
@@ -375,10 +531,20 @@ diff -urN aws-sdk-cpp-old/aws-cpp-sdk-codedeploy/CMakeLists.txt aws-sdk-cpp/aws-
      endif()
    endif()
  
-diff -urN aws-sdk-cpp-old/aws-cpp-sdk-codepipeline/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-codepipeline/CMakeLists.txt
---- aws-sdk-cpp-old/aws-cpp-sdk-codepipeline/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
-+++ aws-sdk-cpp/aws-cpp-sdk-codepipeline/CMakeLists.txt	2016-08-17 17:49:23.513472863 +0530
-@@ -68,16 +68,16 @@
+diff --git a/aws-cpp-sdk-codepipeline/CMakeLists.txt b/aws-cpp-sdk-codepipeline/CMakeLists.txt
+index 14b875a..2c64c2e 100644
+--- a/aws-cpp-sdk-codepipeline/CMakeLists.txt
++++ b/aws-cpp-sdk-codepipeline/CMakeLists.txt
+@@ -48,7 +48,7 @@ project(aws-cpp-sdk-codepipeline)
+ 
+   set(CODEPIPELINE_INCLUDES
+     "${CMAKE_CURRENT_SOURCE_DIR}/include/"
+-    "${CORE_DIR}/include/"
++    
+   )
+ 
+   include_directories(${CODEPIPELINE_INCLUDES})
+@@ -68,16 +68,16 @@ project(aws-cpp-sdk-codepipeline)
    if(SIMPLE_INSTALL)
        install (TARGETS aws-cpp-sdk-codepipeline
                 ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
@@ -399,10 +565,20 @@ diff -urN aws-sdk-cpp-old/aws-cpp-sdk-codepipeline/CMakeLists.txt aws-sdk-cpp/aw
      endif()
    endif()
  
-diff -urN aws-sdk-cpp-old/aws-cpp-sdk-cognito-identity/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-cognito-identity/CMakeLists.txt
---- aws-sdk-cpp-old/aws-cpp-sdk-cognito-identity/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
-+++ aws-sdk-cpp/aws-cpp-sdk-cognito-identity/CMakeLists.txt	2016-08-17 17:49:22.633471557 +0530
-@@ -68,16 +68,16 @@
+diff --git a/aws-cpp-sdk-cognito-identity/CMakeLists.txt b/aws-cpp-sdk-cognito-identity/CMakeLists.txt
+index 10f95e1..39a311c 100644
+--- a/aws-cpp-sdk-cognito-identity/CMakeLists.txt
++++ b/aws-cpp-sdk-cognito-identity/CMakeLists.txt
+@@ -48,7 +48,7 @@ project(aws-cpp-sdk-cognito-identity)
+ 
+   set(COGNITO-IDENTITY_INCLUDES
+     "${CMAKE_CURRENT_SOURCE_DIR}/include/"
+-    "${CORE_DIR}/include/"
++    
+   )
+ 
+   include_directories(${COGNITO-IDENTITY_INCLUDES})
+@@ -68,16 +68,16 @@ project(aws-cpp-sdk-cognito-identity)
    if(SIMPLE_INSTALL)
        install (TARGETS aws-cpp-sdk-cognito-identity
                 ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
@@ -423,10 +599,20 @@ diff -urN aws-sdk-cpp-old/aws-cpp-sdk-cognito-identity/CMakeLists.txt aws-sdk-cp
      endif()
    endif()
  
-diff -urN aws-sdk-cpp-old/aws-cpp-sdk-cognito-idp/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-cognito-idp/CMakeLists.txt
---- aws-sdk-cpp-old/aws-cpp-sdk-cognito-idp/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
-+++ aws-sdk-cpp/aws-cpp-sdk-cognito-idp/CMakeLists.txt	2016-08-17 17:49:22.687471637 +0530
-@@ -68,16 +68,16 @@
+diff --git a/aws-cpp-sdk-cognito-idp/CMakeLists.txt b/aws-cpp-sdk-cognito-idp/CMakeLists.txt
+index 11e3db9..84274af 100644
+--- a/aws-cpp-sdk-cognito-idp/CMakeLists.txt
++++ b/aws-cpp-sdk-cognito-idp/CMakeLists.txt
+@@ -48,7 +48,7 @@ project(aws-cpp-sdk-cognito-idp)
+ 
+   set(COGNITO-IDP_INCLUDES
+     "${CMAKE_CURRENT_SOURCE_DIR}/include/"
+-    "${CORE_DIR}/include/"
++    
+   )
+ 
+   include_directories(${COGNITO-IDP_INCLUDES})
+@@ -68,16 +68,16 @@ project(aws-cpp-sdk-cognito-idp)
    if(SIMPLE_INSTALL)
        install (TARGETS aws-cpp-sdk-cognito-idp
                 ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
@@ -447,10 +633,20 @@ diff -urN aws-sdk-cpp-old/aws-cpp-sdk-cognito-idp/CMakeLists.txt aws-sdk-cpp/aws
      endif()
    endif()
  
-diff -urN aws-sdk-cpp-old/aws-cpp-sdk-cognito-sync/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-cognito-sync/CMakeLists.txt
---- aws-sdk-cpp-old/aws-cpp-sdk-cognito-sync/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
-+++ aws-sdk-cpp/aws-cpp-sdk-cognito-sync/CMakeLists.txt	2016-08-17 17:49:23.614473013 +0530
-@@ -68,16 +68,16 @@
+diff --git a/aws-cpp-sdk-cognito-sync/CMakeLists.txt b/aws-cpp-sdk-cognito-sync/CMakeLists.txt
+index 8e00fd8..de308d0 100644
+--- a/aws-cpp-sdk-cognito-sync/CMakeLists.txt
++++ b/aws-cpp-sdk-cognito-sync/CMakeLists.txt
+@@ -48,7 +48,7 @@ project(aws-cpp-sdk-cognito-sync)
+ 
+   set(COGNITO-SYNC_INCLUDES
+     "${CMAKE_CURRENT_SOURCE_DIR}/include/"
+-    "${CORE_DIR}/include/"
++    
+   )
+ 
+   include_directories(${COGNITO-SYNC_INCLUDES})
+@@ -68,16 +68,16 @@ project(aws-cpp-sdk-cognito-sync)
    if(SIMPLE_INSTALL)
        install (TARGETS aws-cpp-sdk-cognito-sync
                 ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
@@ -471,10 +667,20 @@ diff -urN aws-sdk-cpp-old/aws-cpp-sdk-cognito-sync/CMakeLists.txt aws-sdk-cpp/aw
      endif()
    endif()
  
-diff -urN aws-sdk-cpp-old/aws-cpp-sdk-config/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-config/CMakeLists.txt
---- aws-sdk-cpp-old/aws-cpp-sdk-config/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
-+++ aws-sdk-cpp/aws-cpp-sdk-config/CMakeLists.txt	2016-08-17 17:49:25.767476211 +0530
-@@ -68,16 +68,16 @@
+diff --git a/aws-cpp-sdk-config/CMakeLists.txt b/aws-cpp-sdk-config/CMakeLists.txt
+index d42166b..e6a8b81 100644
+--- a/aws-cpp-sdk-config/CMakeLists.txt
++++ b/aws-cpp-sdk-config/CMakeLists.txt
+@@ -48,7 +48,7 @@ project(aws-cpp-sdk-config)
+ 
+   set(CONFIG_INCLUDES
+     "${CMAKE_CURRENT_SOURCE_DIR}/include/"
+-    "${CORE_DIR}/include/"
++    
+   )
+ 
+   include_directories(${CONFIG_INCLUDES})
+@@ -68,16 +68,16 @@ project(aws-cpp-sdk-config)
    if(SIMPLE_INSTALL)
        install (TARGETS aws-cpp-sdk-config
                 ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
@@ -495,17 +701,18 @@ diff -urN aws-sdk-cpp-old/aws-cpp-sdk-config/CMakeLists.txt aws-sdk-cpp/aws-cpp-
      endif()
    endif()
  
-diff -urN aws-sdk-cpp-old/aws-cpp-sdk-core/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-core/CMakeLists.txt
---- aws-sdk-cpp-old/aws-cpp-sdk-core/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
-+++ aws-sdk-cpp/aws-cpp-sdk-core/CMakeLists.txt	2016-08-17 17:49:25.993476547 +0530
-@@ -363,15 +363,15 @@
+diff --git a/aws-cpp-sdk-core/CMakeLists.txt b/aws-cpp-sdk-core/CMakeLists.txt
+index dce50ef..55521e5 100644
+--- a/aws-cpp-sdk-core/CMakeLists.txt
++++ b/aws-cpp-sdk-core/CMakeLists.txt
+@@ -363,15 +363,15 @@ endif()
  
  if(SIMPLE_INSTALL)
      install (TARGETS aws-cpp-sdk-core ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
 -                                      LIBRARY DESTINATION lib
 -                                      RUNTIME DESTINATION bin)
-+        LIBRARY DESTINATION ${LIBRARY_DIRECTORY}
-+        RUNTIME DESTINATION ${BINARY_DIRECTORY})
++                                      LIBRARY DESTINATION ${LIBRARY_DIRECTORY}
++                                      RUNTIME DESTINATION ${BINARY_DIRECTORY})
  else()
      if(PLATFORM_CUSTOM)
          install_custom_library(aws-cpp-sdk-core)
@@ -513,15 +720,25 @@ diff -urN aws-sdk-cpp-old/aws-cpp-sdk-core/CMakeLists.txt aws-sdk-cpp/aws-cpp-sd
          install (TARGETS aws-cpp-sdk-core ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
 -                                          LIBRARY DESTINATION lib/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
 -                                          RUNTIME DESTINATION bin/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
-+            LIBRARY DESTINATION ${LIBRARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
-+            RUNTIME DESTINATION ${BINARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
++                                          LIBRARY DESTINATION ${LIBRARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
++                                          RUNTIME DESTINATION ${BINARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
      endif()
  endif()
  
-diff -urN aws-sdk-cpp-old/aws-cpp-sdk-datapipeline/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-datapipeline/CMakeLists.txt
---- aws-sdk-cpp-old/aws-cpp-sdk-datapipeline/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
-+++ aws-sdk-cpp/aws-cpp-sdk-datapipeline/CMakeLists.txt	2016-08-17 17:49:25.363475611 +0530
-@@ -68,16 +68,16 @@
+diff --git a/aws-cpp-sdk-datapipeline/CMakeLists.txt b/aws-cpp-sdk-datapipeline/CMakeLists.txt
+index 2b9db2d..4e89260 100644
+--- a/aws-cpp-sdk-datapipeline/CMakeLists.txt
++++ b/aws-cpp-sdk-datapipeline/CMakeLists.txt
+@@ -48,7 +48,7 @@ project(aws-cpp-sdk-datapipeline)
+ 
+   set(DATAPIPELINE_INCLUDES
+     "${CMAKE_CURRENT_SOURCE_DIR}/include/"
+-    "${CORE_DIR}/include/"
++    
+   )
+ 
+   include_directories(${DATAPIPELINE_INCLUDES})
+@@ -68,16 +68,16 @@ project(aws-cpp-sdk-datapipeline)
    if(SIMPLE_INSTALL)
        install (TARGETS aws-cpp-sdk-datapipeline
                 ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
@@ -542,10 +759,20 @@ diff -urN aws-sdk-cpp-old/aws-cpp-sdk-datapipeline/CMakeLists.txt aws-sdk-cpp/aw
      endif()
    endif()
  
-diff -urN aws-sdk-cpp-old/aws-cpp-sdk-devicefarm/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-devicefarm/CMakeLists.txt
---- aws-sdk-cpp-old/aws-cpp-sdk-devicefarm/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
-+++ aws-sdk-cpp/aws-cpp-sdk-devicefarm/CMakeLists.txt	2016-08-17 17:49:25.205475376 +0530
-@@ -68,16 +68,16 @@
+diff --git a/aws-cpp-sdk-devicefarm/CMakeLists.txt b/aws-cpp-sdk-devicefarm/CMakeLists.txt
+index 29ccc22..685a639 100644
+--- a/aws-cpp-sdk-devicefarm/CMakeLists.txt
++++ b/aws-cpp-sdk-devicefarm/CMakeLists.txt
+@@ -48,7 +48,7 @@ project(aws-cpp-sdk-devicefarm)
+ 
+   set(DEVICEFARM_INCLUDES
+     "${CMAKE_CURRENT_SOURCE_DIR}/include/"
+-    "${CORE_DIR}/include/"
++    
+   )
+ 
+   include_directories(${DEVICEFARM_INCLUDES})
+@@ -68,16 +68,16 @@ project(aws-cpp-sdk-devicefarm)
    if(SIMPLE_INSTALL)
        install (TARGETS aws-cpp-sdk-devicefarm
                 ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
@@ -566,10 +793,20 @@ diff -urN aws-sdk-cpp-old/aws-cpp-sdk-devicefarm/CMakeLists.txt aws-sdk-cpp/aws-
      endif()
    endif()
  
-diff -urN aws-sdk-cpp-old/aws-cpp-sdk-directconnect/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-directconnect/CMakeLists.txt
---- aws-sdk-cpp-old/aws-cpp-sdk-directconnect/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
-+++ aws-sdk-cpp/aws-cpp-sdk-directconnect/CMakeLists.txt	2016-08-17 17:49:25.857476345 +0530
-@@ -68,16 +68,16 @@
+diff --git a/aws-cpp-sdk-directconnect/CMakeLists.txt b/aws-cpp-sdk-directconnect/CMakeLists.txt
+index 98f50c6..2ed74b7 100644
+--- a/aws-cpp-sdk-directconnect/CMakeLists.txt
++++ b/aws-cpp-sdk-directconnect/CMakeLists.txt
+@@ -48,7 +48,7 @@ project(aws-cpp-sdk-directconnect)
+ 
+   set(DIRECTCONNECT_INCLUDES
+     "${CMAKE_CURRENT_SOURCE_DIR}/include/"
+-    "${CORE_DIR}/include/"
++    
+   )
+ 
+   include_directories(${DIRECTCONNECT_INCLUDES})
+@@ -68,16 +68,16 @@ project(aws-cpp-sdk-directconnect)
    if(SIMPLE_INSTALL)
        install (TARGETS aws-cpp-sdk-directconnect
                 ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
@@ -590,10 +827,20 @@ diff -urN aws-sdk-cpp-old/aws-cpp-sdk-directconnect/CMakeLists.txt aws-sdk-cpp/a
      endif()
    endif()
  
-diff -urN aws-sdk-cpp-old/aws-cpp-sdk-dms/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-dms/CMakeLists.txt
---- aws-sdk-cpp-old/aws-cpp-sdk-dms/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
-+++ aws-sdk-cpp/aws-cpp-sdk-dms/CMakeLists.txt	2016-08-17 17:49:24.797474770 +0530
-@@ -68,16 +68,16 @@
+diff --git a/aws-cpp-sdk-dms/CMakeLists.txt b/aws-cpp-sdk-dms/CMakeLists.txt
+index ba0635c..a82795d 100644
+--- a/aws-cpp-sdk-dms/CMakeLists.txt
++++ b/aws-cpp-sdk-dms/CMakeLists.txt
+@@ -48,7 +48,7 @@ project(aws-cpp-sdk-dms)
+ 
+   set(DMS_INCLUDES
+     "${CMAKE_CURRENT_SOURCE_DIR}/include/"
+-    "${CORE_DIR}/include/"
++    
+   )
+ 
+   include_directories(${DMS_INCLUDES})
+@@ -68,16 +68,16 @@ project(aws-cpp-sdk-dms)
    if(SIMPLE_INSTALL)
        install (TARGETS aws-cpp-sdk-dms
                 ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
@@ -614,10 +861,20 @@ diff -urN aws-sdk-cpp-old/aws-cpp-sdk-dms/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk
      endif()
    endif()
  
-diff -urN aws-sdk-cpp-old/aws-cpp-sdk-ds/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-ds/CMakeLists.txt
---- aws-sdk-cpp-old/aws-cpp-sdk-ds/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
-+++ aws-sdk-cpp/aws-cpp-sdk-ds/CMakeLists.txt	2016-08-17 17:49:25.678476079 +0530
-@@ -68,16 +68,16 @@
+diff --git a/aws-cpp-sdk-ds/CMakeLists.txt b/aws-cpp-sdk-ds/CMakeLists.txt
+index 230bc12..6040e96 100644
+--- a/aws-cpp-sdk-ds/CMakeLists.txt
++++ b/aws-cpp-sdk-ds/CMakeLists.txt
+@@ -48,7 +48,7 @@ project(aws-cpp-sdk-ds)
+ 
+   set(DS_INCLUDES
+     "${CMAKE_CURRENT_SOURCE_DIR}/include/"
+-    "${CORE_DIR}/include/"
++    
+   )
+ 
+   include_directories(${DS_INCLUDES})
+@@ -68,16 +68,16 @@ project(aws-cpp-sdk-ds)
    if(SIMPLE_INSTALL)
        install (TARGETS aws-cpp-sdk-ds
                 ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
@@ -638,10 +895,20 @@ diff -urN aws-sdk-cpp-old/aws-cpp-sdk-ds/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-
      endif()
    endif()
  
-diff -urN aws-sdk-cpp-old/aws-cpp-sdk-dynamodb/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-dynamodb/CMakeLists.txt
---- aws-sdk-cpp-old/aws-cpp-sdk-dynamodb/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
-+++ aws-sdk-cpp/aws-cpp-sdk-dynamodb/CMakeLists.txt	2016-08-17 17:49:23.157472335 +0530
-@@ -68,16 +68,16 @@
+diff --git a/aws-cpp-sdk-dynamodb/CMakeLists.txt b/aws-cpp-sdk-dynamodb/CMakeLists.txt
+index 5308f78..dc78b7e 100644
+--- a/aws-cpp-sdk-dynamodb/CMakeLists.txt
++++ b/aws-cpp-sdk-dynamodb/CMakeLists.txt
+@@ -48,7 +48,7 @@ project(aws-cpp-sdk-dynamodb)
+ 
+   set(DYNAMODB_INCLUDES
+     "${CMAKE_CURRENT_SOURCE_DIR}/include/"
+-    "${CORE_DIR}/include/"
++    
+   )
+ 
+   include_directories(${DYNAMODB_INCLUDES})
+@@ -68,16 +68,16 @@ project(aws-cpp-sdk-dynamodb)
    if(SIMPLE_INSTALL)
        install (TARGETS aws-cpp-sdk-dynamodb
                 ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
@@ -662,10 +929,20 @@ diff -urN aws-sdk-cpp-old/aws-cpp-sdk-dynamodb/CMakeLists.txt aws-sdk-cpp/aws-cp
      endif()
    endif()
  
-diff -urN aws-sdk-cpp-old/aws-cpp-sdk-ec2/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-ec2/CMakeLists.txt
---- aws-sdk-cpp-old/aws-cpp-sdk-ec2/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
-+++ aws-sdk-cpp/aws-cpp-sdk-ec2/CMakeLists.txt	2016-08-17 17:49:22.753471735 +0530
-@@ -68,16 +68,16 @@
+diff --git a/aws-cpp-sdk-ec2/CMakeLists.txt b/aws-cpp-sdk-ec2/CMakeLists.txt
+index f63dd1e..980672e 100644
+--- a/aws-cpp-sdk-ec2/CMakeLists.txt
++++ b/aws-cpp-sdk-ec2/CMakeLists.txt
+@@ -48,7 +48,7 @@ project(aws-cpp-sdk-ec2)
+ 
+   set(EC2_INCLUDES
+     "${CMAKE_CURRENT_SOURCE_DIR}/include/"
+-    "${CORE_DIR}/include/"
++    
+   )
+ 
+   include_directories(${EC2_INCLUDES})
+@@ -68,16 +68,16 @@ project(aws-cpp-sdk-ec2)
    if(SIMPLE_INSTALL)
        install (TARGETS aws-cpp-sdk-ec2
                 ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
@@ -686,10 +963,20 @@ diff -urN aws-sdk-cpp-old/aws-cpp-sdk-ec2/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk
      endif()
    endif()
  
-diff -urN aws-sdk-cpp-old/aws-cpp-sdk-ecr/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-ecr/CMakeLists.txt
---- aws-sdk-cpp-old/aws-cpp-sdk-ecr/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
-+++ aws-sdk-cpp/aws-cpp-sdk-ecr/CMakeLists.txt	2016-08-17 17:49:24.838474831 +0530
-@@ -68,16 +68,16 @@
+diff --git a/aws-cpp-sdk-ecr/CMakeLists.txt b/aws-cpp-sdk-ecr/CMakeLists.txt
+index 16e3989..bf1e1f2 100644
+--- a/aws-cpp-sdk-ecr/CMakeLists.txt
++++ b/aws-cpp-sdk-ecr/CMakeLists.txt
+@@ -48,7 +48,7 @@ project(aws-cpp-sdk-ecr)
+ 
+   set(ECR_INCLUDES
+     "${CMAKE_CURRENT_SOURCE_DIR}/include/"
+-    "${CORE_DIR}/include/"
++    
+   )
+ 
+   include_directories(${ECR_INCLUDES})
+@@ -68,16 +68,16 @@ project(aws-cpp-sdk-ecr)
    if(SIMPLE_INSTALL)
        install (TARGETS aws-cpp-sdk-ecr
                 ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
@@ -710,10 +997,20 @@ diff -urN aws-sdk-cpp-old/aws-cpp-sdk-ecr/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk
      endif()
    endif()
  
-diff -urN aws-sdk-cpp-old/aws-cpp-sdk-ecs/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-ecs/CMakeLists.txt
---- aws-sdk-cpp-old/aws-cpp-sdk-ecs/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
-+++ aws-sdk-cpp/aws-cpp-sdk-ecs/CMakeLists.txt	2016-08-17 17:49:24.495474322 +0530
-@@ -68,16 +68,16 @@
+diff --git a/aws-cpp-sdk-ecs/CMakeLists.txt b/aws-cpp-sdk-ecs/CMakeLists.txt
+index 628de0d..3ece5c2 100644
+--- a/aws-cpp-sdk-ecs/CMakeLists.txt
++++ b/aws-cpp-sdk-ecs/CMakeLists.txt
+@@ -48,7 +48,7 @@ project(aws-cpp-sdk-ecs)
+ 
+   set(ECS_INCLUDES
+     "${CMAKE_CURRENT_SOURCE_DIR}/include/"
+-    "${CORE_DIR}/include/"
++    
+   )
+ 
+   include_directories(${ECS_INCLUDES})
+@@ -68,16 +68,16 @@ project(aws-cpp-sdk-ecs)
    if(SIMPLE_INSTALL)
        install (TARGETS aws-cpp-sdk-ecs
                 ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
@@ -734,10 +1031,20 @@ diff -urN aws-sdk-cpp-old/aws-cpp-sdk-ecs/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk
      endif()
    endif()
  
-diff -urN aws-sdk-cpp-old/aws-cpp-sdk-elasticache/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-elasticache/CMakeLists.txt
---- aws-sdk-cpp-old/aws-cpp-sdk-elasticache/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
-+++ aws-sdk-cpp/aws-cpp-sdk-elasticache/CMakeLists.txt	2016-08-17 17:49:26.067476657 +0530
-@@ -68,16 +68,16 @@
+diff --git a/aws-cpp-sdk-elasticache/CMakeLists.txt b/aws-cpp-sdk-elasticache/CMakeLists.txt
+index eb8d8b7..3f2579b 100644
+--- a/aws-cpp-sdk-elasticache/CMakeLists.txt
++++ b/aws-cpp-sdk-elasticache/CMakeLists.txt
+@@ -48,7 +48,7 @@ project(aws-cpp-sdk-elasticache)
+ 
+   set(ELASTICACHE_INCLUDES
+     "${CMAKE_CURRENT_SOURCE_DIR}/include/"
+-    "${CORE_DIR}/include/"
++    
+   )
+ 
+   include_directories(${ELASTICACHE_INCLUDES})
+@@ -68,16 +68,16 @@ project(aws-cpp-sdk-elasticache)
    if(SIMPLE_INSTALL)
        install (TARGETS aws-cpp-sdk-elasticache
                 ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
@@ -758,10 +1065,20 @@ diff -urN aws-sdk-cpp-old/aws-cpp-sdk-elasticache/CMakeLists.txt aws-sdk-cpp/aws
      endif()
    endif()
  
-diff -urN aws-sdk-cpp-old/aws-cpp-sdk-elasticbeanstalk/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-elasticbeanstalk/CMakeLists.txt
---- aws-sdk-cpp-old/aws-cpp-sdk-elasticbeanstalk/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
-+++ aws-sdk-cpp/aws-cpp-sdk-elasticbeanstalk/CMakeLists.txt	2016-08-17 17:49:23.721473172 +0530
-@@ -68,16 +68,16 @@
+diff --git a/aws-cpp-sdk-elasticbeanstalk/CMakeLists.txt b/aws-cpp-sdk-elasticbeanstalk/CMakeLists.txt
+index f348d35..26ecbcd 100644
+--- a/aws-cpp-sdk-elasticbeanstalk/CMakeLists.txt
++++ b/aws-cpp-sdk-elasticbeanstalk/CMakeLists.txt
+@@ -48,7 +48,7 @@ project(aws-cpp-sdk-elasticbeanstalk)
+ 
+   set(ELASTICBEANSTALK_INCLUDES
+     "${CMAKE_CURRENT_SOURCE_DIR}/include/"
+-    "${CORE_DIR}/include/"
++    
+   )
+ 
+   include_directories(${ELASTICBEANSTALK_INCLUDES})
+@@ -68,16 +68,16 @@ project(aws-cpp-sdk-elasticbeanstalk)
    if(SIMPLE_INSTALL)
        install (TARGETS aws-cpp-sdk-elasticbeanstalk
                 ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
@@ -782,10 +1099,20 @@ diff -urN aws-sdk-cpp-old/aws-cpp-sdk-elasticbeanstalk/CMakeLists.txt aws-sdk-cp
      endif()
    endif()
  
-diff -urN aws-sdk-cpp-old/aws-cpp-sdk-elasticfilesystem/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-elasticfilesystem/CMakeLists.txt
---- aws-sdk-cpp-old/aws-cpp-sdk-elasticfilesystem/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
-+++ aws-sdk-cpp/aws-cpp-sdk-elasticfilesystem/CMakeLists.txt	2016-08-17 17:49:25.159475308 +0530
-@@ -68,16 +68,16 @@
+diff --git a/aws-cpp-sdk-elasticfilesystem/CMakeLists.txt b/aws-cpp-sdk-elasticfilesystem/CMakeLists.txt
+index 437a0ff..f057a5d 100644
+--- a/aws-cpp-sdk-elasticfilesystem/CMakeLists.txt
++++ b/aws-cpp-sdk-elasticfilesystem/CMakeLists.txt
+@@ -48,7 +48,7 @@ project(aws-cpp-sdk-elasticfilesystem)
+ 
+   set(ELASTICFILESYSTEM_INCLUDES
+     "${CMAKE_CURRENT_SOURCE_DIR}/include/"
+-    "${CORE_DIR}/include/"
++    
+   )
+ 
+   include_directories(${ELASTICFILESYSTEM_INCLUDES})
+@@ -68,16 +68,16 @@ project(aws-cpp-sdk-elasticfilesystem)
    if(SIMPLE_INSTALL)
        install (TARGETS aws-cpp-sdk-elasticfilesystem
                 ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
@@ -806,10 +1133,20 @@ diff -urN aws-sdk-cpp-old/aws-cpp-sdk-elasticfilesystem/CMakeLists.txt aws-sdk-c
      endif()
    endif()
  
-diff -urN aws-sdk-cpp-old/aws-cpp-sdk-elasticloadbalancing/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-elasticloadbalancing/CMakeLists.txt
---- aws-sdk-cpp-old/aws-cpp-sdk-elasticloadbalancing/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
-+++ aws-sdk-cpp/aws-cpp-sdk-elasticloadbalancing/CMakeLists.txt	2016-08-17 17:49:25.435475718 +0530
-@@ -68,16 +68,16 @@
+diff --git a/aws-cpp-sdk-elasticloadbalancing/CMakeLists.txt b/aws-cpp-sdk-elasticloadbalancing/CMakeLists.txt
+index a280665..0928a48 100644
+--- a/aws-cpp-sdk-elasticloadbalancing/CMakeLists.txt
++++ b/aws-cpp-sdk-elasticloadbalancing/CMakeLists.txt
+@@ -48,7 +48,7 @@ project(aws-cpp-sdk-elasticloadbalancing)
+ 
+   set(ELASTICLOADBALANCING_INCLUDES
+     "${CMAKE_CURRENT_SOURCE_DIR}/include/"
+-    "${CORE_DIR}/include/"
++    
+   )
+ 
+   include_directories(${ELASTICLOADBALANCING_INCLUDES})
+@@ -68,16 +68,16 @@ project(aws-cpp-sdk-elasticloadbalancing)
    if(SIMPLE_INSTALL)
        install (TARGETS aws-cpp-sdk-elasticloadbalancing
                 ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
@@ -830,10 +1167,20 @@ diff -urN aws-sdk-cpp-old/aws-cpp-sdk-elasticloadbalancing/CMakeLists.txt aws-sd
      endif()
    endif()
  
-diff -urN aws-sdk-cpp-old/aws-cpp-sdk-elasticloadbalancingv2/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-elasticloadbalancingv2/CMakeLists.txt
---- aws-sdk-cpp-old/aws-cpp-sdk-elasticloadbalancingv2/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
-+++ aws-sdk-cpp/aws-cpp-sdk-elasticloadbalancingv2/CMakeLists.txt	2016-08-17 17:49:23.354472627 +0530
-@@ -68,16 +68,16 @@
+diff --git a/aws-cpp-sdk-elasticloadbalancingv2/CMakeLists.txt b/aws-cpp-sdk-elasticloadbalancingv2/CMakeLists.txt
+index 30fac6c..565876c 100644
+--- a/aws-cpp-sdk-elasticloadbalancingv2/CMakeLists.txt
++++ b/aws-cpp-sdk-elasticloadbalancingv2/CMakeLists.txt
+@@ -48,7 +48,7 @@ project(aws-cpp-sdk-elasticloadbalancingv2)
+ 
+   set(ELASTICLOADBALANCINGV2_INCLUDES
+     "${CMAKE_CURRENT_SOURCE_DIR}/include/"
+-    "${CORE_DIR}/include/"
++    
+   )
+ 
+   include_directories(${ELASTICLOADBALANCINGV2_INCLUDES})
+@@ -68,16 +68,16 @@ project(aws-cpp-sdk-elasticloadbalancingv2)
    if(SIMPLE_INSTALL)
        install (TARGETS aws-cpp-sdk-elasticloadbalancingv2
                 ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
@@ -854,10 +1201,20 @@ diff -urN aws-sdk-cpp-old/aws-cpp-sdk-elasticloadbalancingv2/CMakeLists.txt aws-
      endif()
    endif()
  
-diff -urN aws-sdk-cpp-old/aws-cpp-sdk-elasticmapreduce/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-elasticmapreduce/CMakeLists.txt
---- aws-sdk-cpp-old/aws-cpp-sdk-elasticmapreduce/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
-+++ aws-sdk-cpp/aws-cpp-sdk-elasticmapreduce/CMakeLists.txt	2016-08-17 17:49:25.883476383 +0530
-@@ -68,16 +68,16 @@
+diff --git a/aws-cpp-sdk-elasticmapreduce/CMakeLists.txt b/aws-cpp-sdk-elasticmapreduce/CMakeLists.txt
+index 5af501b..49cdc0d 100644
+--- a/aws-cpp-sdk-elasticmapreduce/CMakeLists.txt
++++ b/aws-cpp-sdk-elasticmapreduce/CMakeLists.txt
+@@ -48,7 +48,7 @@ project(aws-cpp-sdk-elasticmapreduce)
+ 
+   set(ELASTICMAPREDUCE_INCLUDES
+     "${CMAKE_CURRENT_SOURCE_DIR}/include/"
+-    "${CORE_DIR}/include/"
++    
+   )
+ 
+   include_directories(${ELASTICMAPREDUCE_INCLUDES})
+@@ -68,16 +68,16 @@ project(aws-cpp-sdk-elasticmapreduce)
    if(SIMPLE_INSTALL)
        install (TARGETS aws-cpp-sdk-elasticmapreduce
                 ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
@@ -878,10 +1235,20 @@ diff -urN aws-sdk-cpp-old/aws-cpp-sdk-elasticmapreduce/CMakeLists.txt aws-sdk-cp
      endif()
    endif()
  
-diff -urN aws-sdk-cpp-old/aws-cpp-sdk-elastictranscoder/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-elastictranscoder/CMakeLists.txt
---- aws-sdk-cpp-old/aws-cpp-sdk-elastictranscoder/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
-+++ aws-sdk-cpp/aws-cpp-sdk-elastictranscoder/CMakeLists.txt	2016-08-17 17:49:23.635473044 +0530
-@@ -68,16 +68,16 @@
+diff --git a/aws-cpp-sdk-elastictranscoder/CMakeLists.txt b/aws-cpp-sdk-elastictranscoder/CMakeLists.txt
+index 843070c..1a8ef63 100644
+--- a/aws-cpp-sdk-elastictranscoder/CMakeLists.txt
++++ b/aws-cpp-sdk-elastictranscoder/CMakeLists.txt
+@@ -48,7 +48,7 @@ project(aws-cpp-sdk-elastictranscoder)
+ 
+   set(ELASTICTRANSCODER_INCLUDES
+     "${CMAKE_CURRENT_SOURCE_DIR}/include/"
+-    "${CORE_DIR}/include/"
++    
+   )
+ 
+   include_directories(${ELASTICTRANSCODER_INCLUDES})
+@@ -68,16 +68,16 @@ project(aws-cpp-sdk-elastictranscoder)
    if(SIMPLE_INSTALL)
        install (TARGETS aws-cpp-sdk-elastictranscoder
                 ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
@@ -902,10 +1269,20 @@ diff -urN aws-sdk-cpp-old/aws-cpp-sdk-elastictranscoder/CMakeLists.txt aws-sdk-c
      endif()
    endif()
  
-diff -urN aws-sdk-cpp-old/aws-cpp-sdk-email/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-email/CMakeLists.txt
---- aws-sdk-cpp-old/aws-cpp-sdk-email/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
-+++ aws-sdk-cpp/aws-cpp-sdk-email/CMakeLists.txt	2016-08-17 17:49:24.437474236 +0530
-@@ -68,16 +68,16 @@
+diff --git a/aws-cpp-sdk-email/CMakeLists.txt b/aws-cpp-sdk-email/CMakeLists.txt
+index df0ba7d..4064799 100644
+--- a/aws-cpp-sdk-email/CMakeLists.txt
++++ b/aws-cpp-sdk-email/CMakeLists.txt
+@@ -48,7 +48,7 @@ project(aws-cpp-sdk-email)
+ 
+   set(EMAIL_INCLUDES
+     "${CMAKE_CURRENT_SOURCE_DIR}/include/"
+-    "${CORE_DIR}/include/"
++    
+   )
+ 
+   include_directories(${EMAIL_INCLUDES})
+@@ -68,16 +68,16 @@ project(aws-cpp-sdk-email)
    if(SIMPLE_INSTALL)
        install (TARGETS aws-cpp-sdk-email
                 ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
@@ -926,10 +1303,20 @@ diff -urN aws-sdk-cpp-old/aws-cpp-sdk-email/CMakeLists.txt aws-sdk-cpp/aws-cpp-s
      endif()
    endif()
  
-diff -urN aws-sdk-cpp-old/aws-cpp-sdk-es/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-es/CMakeLists.txt
---- aws-sdk-cpp-old/aws-cpp-sdk-es/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
-+++ aws-sdk-cpp/aws-cpp-sdk-es/CMakeLists.txt	2016-08-17 17:49:23.141472311 +0530
-@@ -68,16 +68,16 @@
+diff --git a/aws-cpp-sdk-es/CMakeLists.txt b/aws-cpp-sdk-es/CMakeLists.txt
+index b39f015..d2d5550 100644
+--- a/aws-cpp-sdk-es/CMakeLists.txt
++++ b/aws-cpp-sdk-es/CMakeLists.txt
+@@ -48,7 +48,7 @@ project(aws-cpp-sdk-es)
+ 
+   set(ES_INCLUDES
+     "${CMAKE_CURRENT_SOURCE_DIR}/include/"
+-    "${CORE_DIR}/include/"
++    
+   )
+ 
+   include_directories(${ES_INCLUDES})
+@@ -68,16 +68,16 @@ project(aws-cpp-sdk-es)
    if(SIMPLE_INSTALL)
        install (TARGETS aws-cpp-sdk-es
                 ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
@@ -950,10 +1337,20 @@ diff -urN aws-sdk-cpp-old/aws-cpp-sdk-es/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-
      endif()
    endif()
  
-diff -urN aws-sdk-cpp-old/aws-cpp-sdk-events/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-events/CMakeLists.txt
---- aws-sdk-cpp-old/aws-cpp-sdk-events/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
-+++ aws-sdk-cpp/aws-cpp-sdk-events/CMakeLists.txt	2016-08-17 17:49:23.499472843 +0530
-@@ -68,16 +68,16 @@
+diff --git a/aws-cpp-sdk-events/CMakeLists.txt b/aws-cpp-sdk-events/CMakeLists.txt
+index db99b3f..4ca1a43 100644
+--- a/aws-cpp-sdk-events/CMakeLists.txt
++++ b/aws-cpp-sdk-events/CMakeLists.txt
+@@ -48,7 +48,7 @@ project(aws-cpp-sdk-events)
+ 
+   set(EVENTS_INCLUDES
+     "${CMAKE_CURRENT_SOURCE_DIR}/include/"
+-    "${CORE_DIR}/include/"
++    
+   )
+ 
+   include_directories(${EVENTS_INCLUDES})
+@@ -68,16 +68,16 @@ project(aws-cpp-sdk-events)
    if(SIMPLE_INSTALL)
        install (TARGETS aws-cpp-sdk-events
                 ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
@@ -974,10 +1371,20 @@ diff -urN aws-sdk-cpp-old/aws-cpp-sdk-events/CMakeLists.txt aws-sdk-cpp/aws-cpp-
      endif()
    endif()
  
-diff -urN aws-sdk-cpp-old/aws-cpp-sdk-firehose/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-firehose/CMakeLists.txt
---- aws-sdk-cpp-old/aws-cpp-sdk-firehose/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
-+++ aws-sdk-cpp/aws-cpp-sdk-firehose/CMakeLists.txt	2016-08-17 17:49:24.774474736 +0530
-@@ -68,16 +68,16 @@
+diff --git a/aws-cpp-sdk-firehose/CMakeLists.txt b/aws-cpp-sdk-firehose/CMakeLists.txt
+index ef1f942..65a30dd 100644
+--- a/aws-cpp-sdk-firehose/CMakeLists.txt
++++ b/aws-cpp-sdk-firehose/CMakeLists.txt
+@@ -48,7 +48,7 @@ project(aws-cpp-sdk-firehose)
+ 
+   set(FIREHOSE_INCLUDES
+     "${CMAKE_CURRENT_SOURCE_DIR}/include/"
+-    "${CORE_DIR}/include/"
++    
+   )
+ 
+   include_directories(${FIREHOSE_INCLUDES})
+@@ -68,16 +68,16 @@ project(aws-cpp-sdk-firehose)
    if(SIMPLE_INSTALL)
        install (TARGETS aws-cpp-sdk-firehose
                 ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
@@ -998,10 +1405,20 @@ diff -urN aws-sdk-cpp-old/aws-cpp-sdk-firehose/CMakeLists.txt aws-sdk-cpp/aws-cp
      endif()
    endif()
  
-diff -urN aws-sdk-cpp-old/aws-cpp-sdk-gamelift/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-gamelift/CMakeLists.txt
---- aws-sdk-cpp-old/aws-cpp-sdk-gamelift/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
-+++ aws-sdk-cpp/aws-cpp-sdk-gamelift/CMakeLists.txt	2016-08-17 17:49:24.858474861 +0530
-@@ -68,16 +68,16 @@
+diff --git a/aws-cpp-sdk-gamelift/CMakeLists.txt b/aws-cpp-sdk-gamelift/CMakeLists.txt
+index 003e2fc..583b60d 100644
+--- a/aws-cpp-sdk-gamelift/CMakeLists.txt
++++ b/aws-cpp-sdk-gamelift/CMakeLists.txt
+@@ -48,7 +48,7 @@ project(aws-cpp-sdk-gamelift)
+ 
+   set(GAMELIFT_INCLUDES
+     "${CMAKE_CURRENT_SOURCE_DIR}/include/"
+-    "${CORE_DIR}/include/"
++    
+   )
+ 
+   include_directories(${GAMELIFT_INCLUDES})
+@@ -68,16 +68,16 @@ project(aws-cpp-sdk-gamelift)
    if(SIMPLE_INSTALL)
        install (TARGETS aws-cpp-sdk-gamelift
                 ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
@@ -1022,10 +1439,20 @@ diff -urN aws-sdk-cpp-old/aws-cpp-sdk-gamelift/CMakeLists.txt aws-sdk-cpp/aws-cp
      endif()
    endif()
  
-diff -urN aws-sdk-cpp-old/aws-cpp-sdk-glacier/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-glacier/CMakeLists.txt
---- aws-sdk-cpp-old/aws-cpp-sdk-glacier/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
-+++ aws-sdk-cpp/aws-cpp-sdk-glacier/CMakeLists.txt	2016-08-17 17:49:22.652471585 +0530
-@@ -68,16 +68,16 @@
+diff --git a/aws-cpp-sdk-glacier/CMakeLists.txt b/aws-cpp-sdk-glacier/CMakeLists.txt
+index 5637637..1384aa5 100644
+--- a/aws-cpp-sdk-glacier/CMakeLists.txt
++++ b/aws-cpp-sdk-glacier/CMakeLists.txt
+@@ -48,7 +48,7 @@ project(aws-cpp-sdk-glacier)
+ 
+   set(GLACIER_INCLUDES
+     "${CMAKE_CURRENT_SOURCE_DIR}/include/"
+-    "${CORE_DIR}/include/"
++    
+   )
+ 
+   include_directories(${GLACIER_INCLUDES})
+@@ -68,16 +68,16 @@ project(aws-cpp-sdk-glacier)
    if(SIMPLE_INSTALL)
        install (TARGETS aws-cpp-sdk-glacier
                 ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
@@ -1046,10 +1473,20 @@ diff -urN aws-sdk-cpp-old/aws-cpp-sdk-glacier/CMakeLists.txt aws-sdk-cpp/aws-cpp
      endif()
    endif()
  
-diff -urN aws-sdk-cpp-old/aws-cpp-sdk-iam/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-iam/CMakeLists.txt
---- aws-sdk-cpp-old/aws-cpp-sdk-iam/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
-+++ aws-sdk-cpp/aws-cpp-sdk-iam/CMakeLists.txt	2016-08-17 17:49:24.311474048 +0530
-@@ -68,16 +68,16 @@
+diff --git a/aws-cpp-sdk-iam/CMakeLists.txt b/aws-cpp-sdk-iam/CMakeLists.txt
+index ad5d484..fd5afda 100644
+--- a/aws-cpp-sdk-iam/CMakeLists.txt
++++ b/aws-cpp-sdk-iam/CMakeLists.txt
+@@ -48,7 +48,7 @@ project(aws-cpp-sdk-iam)
+ 
+   set(IAM_INCLUDES
+     "${CMAKE_CURRENT_SOURCE_DIR}/include/"
+-    "${CORE_DIR}/include/"
++    
+   )
+ 
+   include_directories(${IAM_INCLUDES})
+@@ -68,16 +68,16 @@ project(aws-cpp-sdk-iam)
    if(SIMPLE_INSTALL)
        install (TARGETS aws-cpp-sdk-iam
                 ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
@@ -1070,10 +1507,20 @@ diff -urN aws-sdk-cpp-old/aws-cpp-sdk-iam/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk
      endif()
    endif()
  
-diff -urN aws-sdk-cpp-old/aws-cpp-sdk-identity-management/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-identity-management/CMakeLists.txt
---- aws-sdk-cpp-old/aws-cpp-sdk-identity-management/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
-+++ aws-sdk-cpp/aws-cpp-sdk-identity-management/CMakeLists.txt	2016-08-17 17:49:25.362475610 +0530
-@@ -48,16 +48,16 @@
+diff --git a/aws-cpp-sdk-identity-management/CMakeLists.txt b/aws-cpp-sdk-identity-management/CMakeLists.txt
+index 5cd2866..e7fafc6 100644
+--- a/aws-cpp-sdk-identity-management/CMakeLists.txt
++++ b/aws-cpp-sdk-identity-management/CMakeLists.txt
+@@ -28,7 +28,7 @@ file(GLOB IDENTITY_MGMT_SRC
+ set(IDENTITY_MGMT_INCLUDES
+     "${CMAKE_CURRENT_SOURCE_DIR}/include/"
+     "${AWS_NATIVE_SDK_ROOT}/aws-cpp-sdk-cognito-identity/include/"
+-    "${CORE_DIR}/include/"
++    
+   )
+ 
+ include_directories(${IDENTITY_MGMT_INCLUDES})
+@@ -48,16 +48,16 @@ target_link_libraries(aws-cpp-sdk-identity-management aws-cpp-sdk-cognito-identi
  if(SIMPLE_INSTALL)
      install (TARGETS aws-cpp-sdk-identity-management
              ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
@@ -1094,10 +1541,20 @@ diff -urN aws-sdk-cpp-old/aws-cpp-sdk-identity-management/CMakeLists.txt aws-sdk
      endif()
  endif()
  
-diff -urN aws-sdk-cpp-old/aws-cpp-sdk-importexport/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-importexport/CMakeLists.txt
---- aws-sdk-cpp-old/aws-cpp-sdk-importexport/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
-+++ aws-sdk-cpp/aws-cpp-sdk-importexport/CMakeLists.txt	2016-08-17 17:49:25.570475918 +0530
-@@ -68,16 +68,16 @@
+diff --git a/aws-cpp-sdk-importexport/CMakeLists.txt b/aws-cpp-sdk-importexport/CMakeLists.txt
+index 2358d4d..abe1b88 100644
+--- a/aws-cpp-sdk-importexport/CMakeLists.txt
++++ b/aws-cpp-sdk-importexport/CMakeLists.txt
+@@ -48,7 +48,7 @@ project(aws-cpp-sdk-importexport)
+ 
+   set(IMPORTEXPORT_INCLUDES
+     "${CMAKE_CURRENT_SOURCE_DIR}/include/"
+-    "${CORE_DIR}/include/"
++    
+   )
+ 
+   include_directories(${IMPORTEXPORT_INCLUDES})
+@@ -68,16 +68,16 @@ project(aws-cpp-sdk-importexport)
    if(SIMPLE_INSTALL)
        install (TARGETS aws-cpp-sdk-importexport
                 ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
@@ -1118,10 +1575,20 @@ diff -urN aws-sdk-cpp-old/aws-cpp-sdk-importexport/CMakeLists.txt aws-sdk-cpp/aw
      endif()
    endif()
  
-diff -urN aws-sdk-cpp-old/aws-cpp-sdk-inspector/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-inspector/CMakeLists.txt
---- aws-sdk-cpp-old/aws-cpp-sdk-inspector/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
-+++ aws-sdk-cpp/aws-cpp-sdk-inspector/CMakeLists.txt	2016-08-17 17:49:23.424472731 +0530
-@@ -68,16 +68,16 @@
+diff --git a/aws-cpp-sdk-inspector/CMakeLists.txt b/aws-cpp-sdk-inspector/CMakeLists.txt
+index a2ff29a..b6c2b11 100644
+--- a/aws-cpp-sdk-inspector/CMakeLists.txt
++++ b/aws-cpp-sdk-inspector/CMakeLists.txt
+@@ -48,7 +48,7 @@ project(aws-cpp-sdk-inspector)
+ 
+   set(INSPECTOR_INCLUDES
+     "${CMAKE_CURRENT_SOURCE_DIR}/include/"
+-    "${CORE_DIR}/include/"
++    
+   )
+ 
+   include_directories(${INSPECTOR_INCLUDES})
+@@ -68,16 +68,16 @@ project(aws-cpp-sdk-inspector)
    if(SIMPLE_INSTALL)
        install (TARGETS aws-cpp-sdk-inspector
                 ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
@@ -1142,10 +1609,20 @@ diff -urN aws-sdk-cpp-old/aws-cpp-sdk-inspector/CMakeLists.txt aws-sdk-cpp/aws-c
      endif()
    endif()
  
-diff -urN aws-sdk-cpp-old/aws-cpp-sdk-iot/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-iot/CMakeLists.txt
---- aws-sdk-cpp-old/aws-cpp-sdk-iot/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
-+++ aws-sdk-cpp/aws-cpp-sdk-iot/CMakeLists.txt	2016-08-17 17:49:25.804476266 +0530
-@@ -68,16 +68,16 @@
+diff --git a/aws-cpp-sdk-iot/CMakeLists.txt b/aws-cpp-sdk-iot/CMakeLists.txt
+index f7cdac7..ee714be 100644
+--- a/aws-cpp-sdk-iot/CMakeLists.txt
++++ b/aws-cpp-sdk-iot/CMakeLists.txt
+@@ -48,7 +48,7 @@ project(aws-cpp-sdk-iot)
+ 
+   set(IOT_INCLUDES
+     "${CMAKE_CURRENT_SOURCE_DIR}/include/"
+-    "${CORE_DIR}/include/"
++    
+   )
+ 
+   include_directories(${IOT_INCLUDES})
+@@ -68,16 +68,16 @@ project(aws-cpp-sdk-iot)
    if(SIMPLE_INSTALL)
        install (TARGETS aws-cpp-sdk-iot
                 ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
@@ -1166,10 +1643,20 @@ diff -urN aws-sdk-cpp-old/aws-cpp-sdk-iot/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk
      endif()
    endif()
  
-diff -urN aws-sdk-cpp-old/aws-cpp-sdk-kinesis/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-kinesis/CMakeLists.txt
---- aws-sdk-cpp-old/aws-cpp-sdk-kinesis/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
-+++ aws-sdk-cpp/aws-cpp-sdk-kinesis/CMakeLists.txt	2016-08-17 17:49:25.971476514 +0530
-@@ -68,16 +68,16 @@
+diff --git a/aws-cpp-sdk-kinesis/CMakeLists.txt b/aws-cpp-sdk-kinesis/CMakeLists.txt
+index d463d48..7c21891 100644
+--- a/aws-cpp-sdk-kinesis/CMakeLists.txt
++++ b/aws-cpp-sdk-kinesis/CMakeLists.txt
+@@ -48,7 +48,7 @@ project(aws-cpp-sdk-kinesis)
+ 
+   set(KINESIS_INCLUDES
+     "${CMAKE_CURRENT_SOURCE_DIR}/include/"
+-    "${CORE_DIR}/include/"
++    
+   )
+ 
+   include_directories(${KINESIS_INCLUDES})
+@@ -68,16 +68,16 @@ project(aws-cpp-sdk-kinesis)
    if(SIMPLE_INSTALL)
        install (TARGETS aws-cpp-sdk-kinesis
                 ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
@@ -1190,10 +1677,20 @@ diff -urN aws-sdk-cpp-old/aws-cpp-sdk-kinesis/CMakeLists.txt aws-sdk-cpp/aws-cpp
      endif()
    endif()
  
-diff -urN aws-sdk-cpp-old/aws-cpp-sdk-kms/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-kms/CMakeLists.txt
---- aws-sdk-cpp-old/aws-cpp-sdk-kms/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
-+++ aws-sdk-cpp/aws-cpp-sdk-kms/CMakeLists.txt	2016-08-17 17:49:23.220472428 +0530
-@@ -68,16 +68,16 @@
+diff --git a/aws-cpp-sdk-kms/CMakeLists.txt b/aws-cpp-sdk-kms/CMakeLists.txt
+index 05ce4b7..f736e18 100644
+--- a/aws-cpp-sdk-kms/CMakeLists.txt
++++ b/aws-cpp-sdk-kms/CMakeLists.txt
+@@ -48,7 +48,7 @@ project(aws-cpp-sdk-kms)
+ 
+   set(KMS_INCLUDES
+     "${CMAKE_CURRENT_SOURCE_DIR}/include/"
+-    "${CORE_DIR}/include/"
++    
+   )
+ 
+   include_directories(${KMS_INCLUDES})
+@@ -68,16 +68,16 @@ project(aws-cpp-sdk-kms)
    if(SIMPLE_INSTALL)
        install (TARGETS aws-cpp-sdk-kms
                 ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
@@ -1214,10 +1711,20 @@ diff -urN aws-sdk-cpp-old/aws-cpp-sdk-kms/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk
      endif()
    endif()
  
-diff -urN aws-sdk-cpp-old/aws-cpp-sdk-lambda/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-lambda/CMakeLists.txt
---- aws-sdk-cpp-old/aws-cpp-sdk-lambda/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
-+++ aws-sdk-cpp/aws-cpp-sdk-lambda/CMakeLists.txt	2016-08-17 17:49:25.172475327 +0530
-@@ -68,16 +68,16 @@
+diff --git a/aws-cpp-sdk-lambda/CMakeLists.txt b/aws-cpp-sdk-lambda/CMakeLists.txt
+index b7cb171..f7e337f 100644
+--- a/aws-cpp-sdk-lambda/CMakeLists.txt
++++ b/aws-cpp-sdk-lambda/CMakeLists.txt
+@@ -48,7 +48,7 @@ project(aws-cpp-sdk-lambda)
+ 
+   set(LAMBDA_INCLUDES
+     "${CMAKE_CURRENT_SOURCE_DIR}/include/"
+-    "${CORE_DIR}/include/"
++    
+   )
+ 
+   include_directories(${LAMBDA_INCLUDES})
+@@ -68,16 +68,16 @@ project(aws-cpp-sdk-lambda)
    if(SIMPLE_INSTALL)
        install (TARGETS aws-cpp-sdk-lambda
                 ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
@@ -1238,10 +1745,20 @@ diff -urN aws-sdk-cpp-old/aws-cpp-sdk-lambda/CMakeLists.txt aws-sdk-cpp/aws-cpp-
      endif()
    endif()
  
-diff -urN aws-sdk-cpp-old/aws-cpp-sdk-logs/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-logs/CMakeLists.txt
---- aws-sdk-cpp-old/aws-cpp-sdk-logs/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
-+++ aws-sdk-cpp/aws-cpp-sdk-logs/CMakeLists.txt	2016-08-17 17:49:25.306475526 +0530
-@@ -68,16 +68,16 @@
+diff --git a/aws-cpp-sdk-logs/CMakeLists.txt b/aws-cpp-sdk-logs/CMakeLists.txt
+index 25b4f1a..e23f977 100644
+--- a/aws-cpp-sdk-logs/CMakeLists.txt
++++ b/aws-cpp-sdk-logs/CMakeLists.txt
+@@ -48,7 +48,7 @@ project(aws-cpp-sdk-logs)
+ 
+   set(LOGS_INCLUDES
+     "${CMAKE_CURRENT_SOURCE_DIR}/include/"
+-    "${CORE_DIR}/include/"
++    
+   )
+ 
+   include_directories(${LOGS_INCLUDES})
+@@ -68,16 +68,16 @@ project(aws-cpp-sdk-logs)
    if(SIMPLE_INSTALL)
        install (TARGETS aws-cpp-sdk-logs
                 ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
@@ -1262,10 +1779,20 @@ diff -urN aws-sdk-cpp-old/aws-cpp-sdk-logs/CMakeLists.txt aws-sdk-cpp/aws-cpp-sd
      endif()
    endif()
  
-diff -urN aws-sdk-cpp-old/aws-cpp-sdk-machinelearning/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-machinelearning/CMakeLists.txt
---- aws-sdk-cpp-old/aws-cpp-sdk-machinelearning/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
-+++ aws-sdk-cpp/aws-cpp-sdk-machinelearning/CMakeLists.txt	2016-08-17 17:49:25.386475645 +0530
-@@ -68,16 +68,16 @@
+diff --git a/aws-cpp-sdk-machinelearning/CMakeLists.txt b/aws-cpp-sdk-machinelearning/CMakeLists.txt
+index 0ba0150..8512576 100644
+--- a/aws-cpp-sdk-machinelearning/CMakeLists.txt
++++ b/aws-cpp-sdk-machinelearning/CMakeLists.txt
+@@ -48,7 +48,7 @@ project(aws-cpp-sdk-machinelearning)
+ 
+   set(MACHINELEARNING_INCLUDES
+     "${CMAKE_CURRENT_SOURCE_DIR}/include/"
+-    "${CORE_DIR}/include/"
++    
+   )
+ 
+   include_directories(${MACHINELEARNING_INCLUDES})
+@@ -68,16 +68,16 @@ project(aws-cpp-sdk-machinelearning)
    if(SIMPLE_INSTALL)
        install (TARGETS aws-cpp-sdk-machinelearning
                 ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
@@ -1286,10 +1813,20 @@ diff -urN aws-sdk-cpp-old/aws-cpp-sdk-machinelearning/CMakeLists.txt aws-sdk-cpp
      endif()
    endif()
  
-diff -urN aws-sdk-cpp-old/aws-cpp-sdk-marketplacecommerceanalytics/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-marketplacecommerceanalytics/CMakeLists.txt
---- aws-sdk-cpp-old/aws-cpp-sdk-marketplacecommerceanalytics/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
-+++ aws-sdk-cpp/aws-cpp-sdk-marketplacecommerceanalytics/CMakeLists.txt	2016-08-17 17:49:23.841473351 +0530
-@@ -68,16 +68,16 @@
+diff --git a/aws-cpp-sdk-marketplacecommerceanalytics/CMakeLists.txt b/aws-cpp-sdk-marketplacecommerceanalytics/CMakeLists.txt
+index c0d768e..12458e3 100644
+--- a/aws-cpp-sdk-marketplacecommerceanalytics/CMakeLists.txt
++++ b/aws-cpp-sdk-marketplacecommerceanalytics/CMakeLists.txt
+@@ -48,7 +48,7 @@ project(aws-cpp-sdk-marketplacecommerceanalytics)
+ 
+   set(MARKETPLACECOMMERCEANALYTICS_INCLUDES
+     "${CMAKE_CURRENT_SOURCE_DIR}/include/"
+-    "${CORE_DIR}/include/"
++    
+   )
+ 
+   include_directories(${MARKETPLACECOMMERCEANALYTICS_INCLUDES})
+@@ -68,16 +68,16 @@ project(aws-cpp-sdk-marketplacecommerceanalytics)
    if(SIMPLE_INSTALL)
        install (TARGETS aws-cpp-sdk-marketplacecommerceanalytics
                 ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
@@ -1310,10 +1847,20 @@ diff -urN aws-sdk-cpp-old/aws-cpp-sdk-marketplacecommerceanalytics/CMakeLists.tx
      endif()
    endif()
  
-diff -urN aws-sdk-cpp-old/aws-cpp-sdk-meteringmarketplace/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-meteringmarketplace/CMakeLists.txt
---- aws-sdk-cpp-old/aws-cpp-sdk-meteringmarketplace/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
-+++ aws-sdk-cpp/aws-cpp-sdk-meteringmarketplace/CMakeLists.txt	2016-08-17 17:49:25.470475770 +0530
-@@ -68,16 +68,16 @@
+diff --git a/aws-cpp-sdk-meteringmarketplace/CMakeLists.txt b/aws-cpp-sdk-meteringmarketplace/CMakeLists.txt
+index dcb5037..7da070b 100644
+--- a/aws-cpp-sdk-meteringmarketplace/CMakeLists.txt
++++ b/aws-cpp-sdk-meteringmarketplace/CMakeLists.txt
+@@ -48,7 +48,7 @@ project(aws-cpp-sdk-meteringmarketplace)
+ 
+   set(METERINGMARKETPLACE_INCLUDES
+     "${CMAKE_CURRENT_SOURCE_DIR}/include/"
+-    "${CORE_DIR}/include/"
++    
+   )
+ 
+   include_directories(${METERINGMARKETPLACE_INCLUDES})
+@@ -68,16 +68,16 @@ project(aws-cpp-sdk-meteringmarketplace)
    if(SIMPLE_INSTALL)
        install (TARGETS aws-cpp-sdk-meteringmarketplace
                 ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
@@ -1334,10 +1881,20 @@ diff -urN aws-sdk-cpp-old/aws-cpp-sdk-meteringmarketplace/CMakeLists.txt aws-sdk
      endif()
    endif()
  
-diff -urN aws-sdk-cpp-old/aws-cpp-sdk-mobileanalytics/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-mobileanalytics/CMakeLists.txt
---- aws-sdk-cpp-old/aws-cpp-sdk-mobileanalytics/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
-+++ aws-sdk-cpp/aws-cpp-sdk-mobileanalytics/CMakeLists.txt	2016-08-17 17:49:23.135472302 +0530
-@@ -68,16 +68,16 @@
+diff --git a/aws-cpp-sdk-mobileanalytics/CMakeLists.txt b/aws-cpp-sdk-mobileanalytics/CMakeLists.txt
+index b11a7e6..e82c8cf 100644
+--- a/aws-cpp-sdk-mobileanalytics/CMakeLists.txt
++++ b/aws-cpp-sdk-mobileanalytics/CMakeLists.txt
+@@ -48,7 +48,7 @@ project(aws-cpp-sdk-mobileanalytics)
+ 
+   set(MOBILEANALYTICS_INCLUDES
+     "${CMAKE_CURRENT_SOURCE_DIR}/include/"
+-    "${CORE_DIR}/include/"
++    
+   )
+ 
+   include_directories(${MOBILEANALYTICS_INCLUDES})
+@@ -68,16 +68,16 @@ project(aws-cpp-sdk-mobileanalytics)
    if(SIMPLE_INSTALL)
        install (TARGETS aws-cpp-sdk-mobileanalytics
                 ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
@@ -1358,10 +1915,20 @@ diff -urN aws-sdk-cpp-old/aws-cpp-sdk-mobileanalytics/CMakeLists.txt aws-sdk-cpp
      endif()
    endif()
  
-diff -urN aws-sdk-cpp-old/aws-cpp-sdk-monitoring/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-monitoring/CMakeLists.txt
---- aws-sdk-cpp-old/aws-cpp-sdk-monitoring/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
-+++ aws-sdk-cpp/aws-cpp-sdk-monitoring/CMakeLists.txt	2016-08-17 17:49:25.331475563 +0530
-@@ -68,16 +68,16 @@
+diff --git a/aws-cpp-sdk-monitoring/CMakeLists.txt b/aws-cpp-sdk-monitoring/CMakeLists.txt
+index bbc9597..1c19525 100644
+--- a/aws-cpp-sdk-monitoring/CMakeLists.txt
++++ b/aws-cpp-sdk-monitoring/CMakeLists.txt
+@@ -48,7 +48,7 @@ project(aws-cpp-sdk-monitoring)
+ 
+   set(MONITORING_INCLUDES
+     "${CMAKE_CURRENT_SOURCE_DIR}/include/"
+-    "${CORE_DIR}/include/"
++    
+   )
+ 
+   include_directories(${MONITORING_INCLUDES})
+@@ -68,16 +68,16 @@ project(aws-cpp-sdk-monitoring)
    if(SIMPLE_INSTALL)
        install (TARGETS aws-cpp-sdk-monitoring
                 ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
@@ -1382,10 +1949,20 @@ diff -urN aws-sdk-cpp-old/aws-cpp-sdk-monitoring/CMakeLists.txt aws-sdk-cpp/aws-
      endif()
    endif()
  
-diff -urN aws-sdk-cpp-old/aws-cpp-sdk-opsworks/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-opsworks/CMakeLists.txt
---- aws-sdk-cpp-old/aws-cpp-sdk-opsworks/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
-+++ aws-sdk-cpp/aws-cpp-sdk-opsworks/CMakeLists.txt	2016-08-17 17:49:25.578475930 +0530
-@@ -68,16 +68,16 @@
+diff --git a/aws-cpp-sdk-opsworks/CMakeLists.txt b/aws-cpp-sdk-opsworks/CMakeLists.txt
+index 0732bdd..57462bb 100644
+--- a/aws-cpp-sdk-opsworks/CMakeLists.txt
++++ b/aws-cpp-sdk-opsworks/CMakeLists.txt
+@@ -48,7 +48,7 @@ project(aws-cpp-sdk-opsworks)
+ 
+   set(OPSWORKS_INCLUDES
+     "${CMAKE_CURRENT_SOURCE_DIR}/include/"
+-    "${CORE_DIR}/include/"
++    
+   )
+ 
+   include_directories(${OPSWORKS_INCLUDES})
+@@ -68,16 +68,16 @@ project(aws-cpp-sdk-opsworks)
    if(SIMPLE_INSTALL)
        install (TARGETS aws-cpp-sdk-opsworks
                 ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
@@ -1406,10 +1983,20 @@ diff -urN aws-sdk-cpp-old/aws-cpp-sdk-opsworks/CMakeLists.txt aws-sdk-cpp/aws-cp
      endif()
    endif()
  
-diff -urN aws-sdk-cpp-old/aws-cpp-sdk-queues/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-queues/CMakeLists.txt
---- aws-sdk-cpp-old/aws-cpp-sdk-queues/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
-+++ aws-sdk-cpp/aws-cpp-sdk-queues/CMakeLists.txt	2016-08-17 17:49:23.613473012 +0530
-@@ -48,16 +48,16 @@
+diff --git a/aws-cpp-sdk-queues/CMakeLists.txt b/aws-cpp-sdk-queues/CMakeLists.txt
+index 79ac6ea..a92791a 100644
+--- a/aws-cpp-sdk-queues/CMakeLists.txt
++++ b/aws-cpp-sdk-queues/CMakeLists.txt
+@@ -29,7 +29,7 @@ file(GLOB QUEUES_SRC
+ set(QUEUES_INCLUDES
+     "${CMAKE_CURRENT_SOURCE_DIR}/include/"
+     "${AWS_NATIVE_SDK_ROOT}/aws-cpp-sdk-sqs/include/"
+-    "${CORE_DIR}/include/"
++    
+   )
+ 
+ include_directories(${QUEUES_INCLUDES})
+@@ -48,16 +48,16 @@ target_link_libraries(aws-cpp-sdk-queues aws-cpp-sdk-sqs)
  if(SIMPLE_INSTALL)
      install (TARGETS aws-cpp-sdk-queues
              ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
@@ -1430,10 +2017,20 @@ diff -urN aws-sdk-cpp-old/aws-cpp-sdk-queues/CMakeLists.txt aws-sdk-cpp/aws-cpp-
      endif()
  endif()
  
-diff -urN aws-sdk-cpp-old/aws-cpp-sdk-rds/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-rds/CMakeLists.txt
---- aws-sdk-cpp-old/aws-cpp-sdk-rds/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
-+++ aws-sdk-cpp/aws-cpp-sdk-rds/CMakeLists.txt	2016-08-17 17:49:24.629474521 +0530
-@@ -68,16 +68,16 @@
+diff --git a/aws-cpp-sdk-rds/CMakeLists.txt b/aws-cpp-sdk-rds/CMakeLists.txt
+index f4fa45e..63a7d39 100644
+--- a/aws-cpp-sdk-rds/CMakeLists.txt
++++ b/aws-cpp-sdk-rds/CMakeLists.txt
+@@ -48,7 +48,7 @@ project(aws-cpp-sdk-rds)
+ 
+   set(RDS_INCLUDES
+     "${CMAKE_CURRENT_SOURCE_DIR}/include/"
+-    "${CORE_DIR}/include/"
++    
+   )
+ 
+   include_directories(${RDS_INCLUDES})
+@@ -68,16 +68,16 @@ project(aws-cpp-sdk-rds)
    if(SIMPLE_INSTALL)
        install (TARGETS aws-cpp-sdk-rds
                 ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
@@ -1454,10 +2051,20 @@ diff -urN aws-sdk-cpp-old/aws-cpp-sdk-rds/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk
      endif()
    endif()
  
-diff -urN aws-sdk-cpp-old/aws-cpp-sdk-redshift/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-redshift/CMakeLists.txt
---- aws-sdk-cpp-old/aws-cpp-sdk-redshift/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
-+++ aws-sdk-cpp/aws-cpp-sdk-redshift/CMakeLists.txt	2016-08-17 17:49:23.261472489 +0530
-@@ -68,16 +68,16 @@
+diff --git a/aws-cpp-sdk-redshift/CMakeLists.txt b/aws-cpp-sdk-redshift/CMakeLists.txt
+index 366aa7a..4cda7ce 100644
+--- a/aws-cpp-sdk-redshift/CMakeLists.txt
++++ b/aws-cpp-sdk-redshift/CMakeLists.txt
+@@ -48,7 +48,7 @@ project(aws-cpp-sdk-redshift)
+ 
+   set(REDSHIFT_INCLUDES
+     "${CMAKE_CURRENT_SOURCE_DIR}/include/"
+-    "${CORE_DIR}/include/"
++    
+   )
+ 
+   include_directories(${REDSHIFT_INCLUDES})
+@@ -68,16 +68,16 @@ project(aws-cpp-sdk-redshift)
    if(SIMPLE_INSTALL)
        install (TARGETS aws-cpp-sdk-redshift
                 ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
@@ -1478,10 +2085,20 @@ diff -urN aws-sdk-cpp-old/aws-cpp-sdk-redshift/CMakeLists.txt aws-sdk-cpp/aws-cp
      endif()
    endif()
  
-diff -urN aws-sdk-cpp-old/aws-cpp-sdk-route53/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-route53/CMakeLists.txt
---- aws-sdk-cpp-old/aws-cpp-sdk-route53/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
-+++ aws-sdk-cpp/aws-cpp-sdk-route53/CMakeLists.txt	2016-08-17 17:49:25.509475828 +0530
-@@ -68,16 +68,16 @@
+diff --git a/aws-cpp-sdk-route53/CMakeLists.txt b/aws-cpp-sdk-route53/CMakeLists.txt
+index 471d67b..d095fae 100644
+--- a/aws-cpp-sdk-route53/CMakeLists.txt
++++ b/aws-cpp-sdk-route53/CMakeLists.txt
+@@ -48,7 +48,7 @@ project(aws-cpp-sdk-route53)
+ 
+   set(ROUTE53_INCLUDES
+     "${CMAKE_CURRENT_SOURCE_DIR}/include/"
+-    "${CORE_DIR}/include/"
++    
+   )
+ 
+   include_directories(${ROUTE53_INCLUDES})
+@@ -68,16 +68,16 @@ project(aws-cpp-sdk-route53)
    if(SIMPLE_INSTALL)
        install (TARGETS aws-cpp-sdk-route53
                 ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
@@ -1502,10 +2119,20 @@ diff -urN aws-sdk-cpp-old/aws-cpp-sdk-route53/CMakeLists.txt aws-sdk-cpp/aws-cpp
      endif()
    endif()
  
-diff -urN aws-sdk-cpp-old/aws-cpp-sdk-route53domains/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-route53domains/CMakeLists.txt
---- aws-sdk-cpp-old/aws-cpp-sdk-route53domains/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
-+++ aws-sdk-cpp/aws-cpp-sdk-route53domains/CMakeLists.txt	2016-08-17 17:49:25.126475259 +0530
-@@ -68,16 +68,16 @@
+diff --git a/aws-cpp-sdk-route53domains/CMakeLists.txt b/aws-cpp-sdk-route53domains/CMakeLists.txt
+index d61b2f9..8d14236 100644
+--- a/aws-cpp-sdk-route53domains/CMakeLists.txt
++++ b/aws-cpp-sdk-route53domains/CMakeLists.txt
+@@ -48,7 +48,7 @@ project(aws-cpp-sdk-route53domains)
+ 
+   set(ROUTE53DOMAINS_INCLUDES
+     "${CMAKE_CURRENT_SOURCE_DIR}/include/"
+-    "${CORE_DIR}/include/"
++    
+   )
+ 
+   include_directories(${ROUTE53DOMAINS_INCLUDES})
+@@ -68,16 +68,16 @@ project(aws-cpp-sdk-route53domains)
    if(SIMPLE_INSTALL)
        install (TARGETS aws-cpp-sdk-route53domains
                 ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
@@ -1526,10 +2153,20 @@ diff -urN aws-sdk-cpp-old/aws-cpp-sdk-route53domains/CMakeLists.txt aws-sdk-cpp/
      endif()
    endif()
  
-diff -urN aws-sdk-cpp-old/aws-cpp-sdk-s3/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-s3/CMakeLists.txt
---- aws-sdk-cpp-old/aws-cpp-sdk-s3/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
-+++ aws-sdk-cpp/aws-cpp-sdk-s3/CMakeLists.txt	2016-08-17 17:49:24.934474974 +0530
-@@ -68,16 +68,16 @@
+diff --git a/aws-cpp-sdk-s3/CMakeLists.txt b/aws-cpp-sdk-s3/CMakeLists.txt
+index c934d41..04fd21a 100644
+--- a/aws-cpp-sdk-s3/CMakeLists.txt
++++ b/aws-cpp-sdk-s3/CMakeLists.txt
+@@ -48,7 +48,7 @@ project(aws-cpp-sdk-s3)
+ 
+   set(S3_INCLUDES
+     "${CMAKE_CURRENT_SOURCE_DIR}/include/"
+-    "${CORE_DIR}/include/"
++    
+   )
+ 
+   include_directories(${S3_INCLUDES})
+@@ -68,16 +68,16 @@ project(aws-cpp-sdk-s3)
    if(SIMPLE_INSTALL)
        install (TARGETS aws-cpp-sdk-s3
                 ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
@@ -1550,10 +2187,20 @@ diff -urN aws-sdk-cpp-old/aws-cpp-sdk-s3/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-
      endif()
    endif()
  
-diff -urN aws-sdk-cpp-old/aws-cpp-sdk-sdb/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-sdb/CMakeLists.txt
---- aws-sdk-cpp-old/aws-cpp-sdk-sdb/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
-+++ aws-sdk-cpp/aws-cpp-sdk-sdb/CMakeLists.txt	2016-08-17 17:49:25.473475774 +0530
-@@ -68,16 +68,16 @@
+diff --git a/aws-cpp-sdk-sdb/CMakeLists.txt b/aws-cpp-sdk-sdb/CMakeLists.txt
+index 315be8b..6f32816 100644
+--- a/aws-cpp-sdk-sdb/CMakeLists.txt
++++ b/aws-cpp-sdk-sdb/CMakeLists.txt
+@@ -48,7 +48,7 @@ project(aws-cpp-sdk-sdb)
+ 
+   set(SDB_INCLUDES
+     "${CMAKE_CURRENT_SOURCE_DIR}/include/"
+-    "${CORE_DIR}/include/"
++    
+   )
+ 
+   include_directories(${SDB_INCLUDES})
+@@ -68,16 +68,16 @@ project(aws-cpp-sdk-sdb)
    if(SIMPLE_INSTALL)
        install (TARGETS aws-cpp-sdk-sdb
                 ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
@@ -1574,10 +2221,20 @@ diff -urN aws-sdk-cpp-old/aws-cpp-sdk-sdb/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk
      endif()
    endif()
  
-diff -urN aws-sdk-cpp-old/aws-cpp-sdk-servicecatalog/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-servicecatalog/CMakeLists.txt
---- aws-sdk-cpp-old/aws-cpp-sdk-servicecatalog/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
-+++ aws-sdk-cpp/aws-cpp-sdk-servicecatalog/CMakeLists.txt	2016-08-17 17:49:23.468472797 +0530
-@@ -68,16 +68,16 @@
+diff --git a/aws-cpp-sdk-servicecatalog/CMakeLists.txt b/aws-cpp-sdk-servicecatalog/CMakeLists.txt
+index dc9656f..fe5ea10 100644
+--- a/aws-cpp-sdk-servicecatalog/CMakeLists.txt
++++ b/aws-cpp-sdk-servicecatalog/CMakeLists.txt
+@@ -48,7 +48,7 @@ project(aws-cpp-sdk-servicecatalog)
+ 
+   set(SERVICECATALOG_INCLUDES
+     "${CMAKE_CURRENT_SOURCE_DIR}/include/"
+-    "${CORE_DIR}/include/"
++    
+   )
+ 
+   include_directories(${SERVICECATALOG_INCLUDES})
+@@ -68,16 +68,16 @@ project(aws-cpp-sdk-servicecatalog)
    if(SIMPLE_INSTALL)
        install (TARGETS aws-cpp-sdk-servicecatalog
                 ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
@@ -1598,10 +2255,20 @@ diff -urN aws-sdk-cpp-old/aws-cpp-sdk-servicecatalog/CMakeLists.txt aws-sdk-cpp/
      endif()
    endif()
  
-diff -urN aws-sdk-cpp-old/aws-cpp-sdk-snowball/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-snowball/CMakeLists.txt
---- aws-sdk-cpp-old/aws-cpp-sdk-snowball/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
-+++ aws-sdk-cpp/aws-cpp-sdk-snowball/CMakeLists.txt	2016-08-17 17:49:24.908474935 +0530
-@@ -68,16 +68,16 @@
+diff --git a/aws-cpp-sdk-snowball/CMakeLists.txt b/aws-cpp-sdk-snowball/CMakeLists.txt
+index 4de3e41..01bcdbc 100644
+--- a/aws-cpp-sdk-snowball/CMakeLists.txt
++++ b/aws-cpp-sdk-snowball/CMakeLists.txt
+@@ -48,7 +48,7 @@ project(aws-cpp-sdk-snowball)
+ 
+   set(SNOWBALL_INCLUDES
+     "${CMAKE_CURRENT_SOURCE_DIR}/include/"
+-    "${CORE_DIR}/include/"
++    
+   )
+ 
+   include_directories(${SNOWBALL_INCLUDES})
+@@ -68,16 +68,16 @@ project(aws-cpp-sdk-snowball)
    if(SIMPLE_INSTALL)
        install (TARGETS aws-cpp-sdk-snowball
                 ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
@@ -1622,10 +2289,20 @@ diff -urN aws-sdk-cpp-old/aws-cpp-sdk-snowball/CMakeLists.txt aws-sdk-cpp/aws-cp
      endif()
    endif()
  
-diff -urN aws-sdk-cpp-old/aws-cpp-sdk-sns/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-sns/CMakeLists.txt
---- aws-sdk-cpp-old/aws-cpp-sdk-sns/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
-+++ aws-sdk-cpp/aws-cpp-sdk-sns/CMakeLists.txt	2016-08-17 17:49:23.392472684 +0530
-@@ -68,16 +68,16 @@
+diff --git a/aws-cpp-sdk-sns/CMakeLists.txt b/aws-cpp-sdk-sns/CMakeLists.txt
+index c6aeb3b..4cbd0c1 100644
+--- a/aws-cpp-sdk-sns/CMakeLists.txt
++++ b/aws-cpp-sdk-sns/CMakeLists.txt
+@@ -48,7 +48,7 @@ project(aws-cpp-sdk-sns)
+ 
+   set(SNS_INCLUDES
+     "${CMAKE_CURRENT_SOURCE_DIR}/include/"
+-    "${CORE_DIR}/include/"
++    
+   )
+ 
+   include_directories(${SNS_INCLUDES})
+@@ -68,16 +68,16 @@ project(aws-cpp-sdk-sns)
    if(SIMPLE_INSTALL)
        install (TARGETS aws-cpp-sdk-sns
                 ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
@@ -1646,10 +2323,20 @@ diff -urN aws-sdk-cpp-old/aws-cpp-sdk-sns/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk
      endif()
    endif()
  
-diff -urN aws-sdk-cpp-old/aws-cpp-sdk-sqs/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-sqs/CMakeLists.txt
---- aws-sdk-cpp-old/aws-cpp-sdk-sqs/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
-+++ aws-sdk-cpp/aws-cpp-sdk-sqs/CMakeLists.txt	2016-08-17 17:49:23.820473319 +0530
-@@ -68,16 +68,16 @@
+diff --git a/aws-cpp-sdk-sqs/CMakeLists.txt b/aws-cpp-sdk-sqs/CMakeLists.txt
+index 88d2bdc..8f111e1 100644
+--- a/aws-cpp-sdk-sqs/CMakeLists.txt
++++ b/aws-cpp-sdk-sqs/CMakeLists.txt
+@@ -48,7 +48,7 @@ project(aws-cpp-sdk-sqs)
+ 
+   set(SQS_INCLUDES
+     "${CMAKE_CURRENT_SOURCE_DIR}/include/"
+-    "${CORE_DIR}/include/"
++    
+   )
+ 
+   include_directories(${SQS_INCLUDES})
+@@ -68,16 +68,16 @@ project(aws-cpp-sdk-sqs)
    if(SIMPLE_INSTALL)
        install (TARGETS aws-cpp-sdk-sqs
                 ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
@@ -1670,10 +2357,20 @@ diff -urN aws-sdk-cpp-old/aws-cpp-sdk-sqs/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk
      endif()
    endif()
  
-diff -urN aws-sdk-cpp-old/aws-cpp-sdk-ssm/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-ssm/CMakeLists.txt
---- aws-sdk-cpp-old/aws-cpp-sdk-ssm/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
-+++ aws-sdk-cpp/aws-cpp-sdk-ssm/CMakeLists.txt	2016-08-17 17:49:23.782473263 +0530
-@@ -68,16 +68,16 @@
+diff --git a/aws-cpp-sdk-ssm/CMakeLists.txt b/aws-cpp-sdk-ssm/CMakeLists.txt
+index d968830..82924a6 100644
+--- a/aws-cpp-sdk-ssm/CMakeLists.txt
++++ b/aws-cpp-sdk-ssm/CMakeLists.txt
+@@ -48,7 +48,7 @@ project(aws-cpp-sdk-ssm)
+ 
+   set(SSM_INCLUDES
+     "${CMAKE_CURRENT_SOURCE_DIR}/include/"
+-    "${CORE_DIR}/include/"
++    
+   )
+ 
+   include_directories(${SSM_INCLUDES})
+@@ -68,16 +68,16 @@ project(aws-cpp-sdk-ssm)
    if(SIMPLE_INSTALL)
        install (TARGETS aws-cpp-sdk-ssm
                 ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
@@ -1694,10 +2391,20 @@ diff -urN aws-sdk-cpp-old/aws-cpp-sdk-ssm/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk
      endif()
    endif()
  
-diff -urN aws-sdk-cpp-old/aws-cpp-sdk-storagegateway/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-storagegateway/CMakeLists.txt
---- aws-sdk-cpp-old/aws-cpp-sdk-storagegateway/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
-+++ aws-sdk-cpp/aws-cpp-sdk-storagegateway/CMakeLists.txt	2016-08-17 17:49:22.580471478 +0530
-@@ -68,16 +68,16 @@
+diff --git a/aws-cpp-sdk-storagegateway/CMakeLists.txt b/aws-cpp-sdk-storagegateway/CMakeLists.txt
+index d8f627d..ed7b9d9 100644
+--- a/aws-cpp-sdk-storagegateway/CMakeLists.txt
++++ b/aws-cpp-sdk-storagegateway/CMakeLists.txt
+@@ -48,7 +48,7 @@ project(aws-cpp-sdk-storagegateway)
+ 
+   set(STORAGEGATEWAY_INCLUDES
+     "${CMAKE_CURRENT_SOURCE_DIR}/include/"
+-    "${CORE_DIR}/include/"
++    
+   )
+ 
+   include_directories(${STORAGEGATEWAY_INCLUDES})
+@@ -68,16 +68,16 @@ project(aws-cpp-sdk-storagegateway)
    if(SIMPLE_INSTALL)
        install (TARGETS aws-cpp-sdk-storagegateway
                 ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
@@ -1718,10 +2425,20 @@ diff -urN aws-sdk-cpp-old/aws-cpp-sdk-storagegateway/CMakeLists.txt aws-sdk-cpp/
      endif()
    endif()
  
-diff -urN aws-sdk-cpp-old/aws-cpp-sdk-sts/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-sts/CMakeLists.txt
---- aws-sdk-cpp-old/aws-cpp-sdk-sts/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
-+++ aws-sdk-cpp/aws-cpp-sdk-sts/CMakeLists.txt	2016-08-17 17:49:25.348475589 +0530
-@@ -68,16 +68,16 @@
+diff --git a/aws-cpp-sdk-sts/CMakeLists.txt b/aws-cpp-sdk-sts/CMakeLists.txt
+index 2151a7f..c58990d 100644
+--- a/aws-cpp-sdk-sts/CMakeLists.txt
++++ b/aws-cpp-sdk-sts/CMakeLists.txt
+@@ -48,7 +48,7 @@ project(aws-cpp-sdk-sts)
+ 
+   set(STS_INCLUDES
+     "${CMAKE_CURRENT_SOURCE_DIR}/include/"
+-    "${CORE_DIR}/include/"
++    
+   )
+ 
+   include_directories(${STS_INCLUDES})
+@@ -68,16 +68,16 @@ project(aws-cpp-sdk-sts)
    if(SIMPLE_INSTALL)
        install (TARGETS aws-cpp-sdk-sts
                 ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
@@ -1742,10 +2459,20 @@ diff -urN aws-sdk-cpp-old/aws-cpp-sdk-sts/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk
      endif()
    endif()
  
-diff -urN aws-sdk-cpp-old/aws-cpp-sdk-support/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-support/CMakeLists.txt
---- aws-sdk-cpp-old/aws-cpp-sdk-support/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
-+++ aws-sdk-cpp/aws-cpp-sdk-support/CMakeLists.txt	2016-08-17 17:49:23.698473138 +0530
-@@ -68,16 +68,16 @@
+diff --git a/aws-cpp-sdk-support/CMakeLists.txt b/aws-cpp-sdk-support/CMakeLists.txt
+index a7e325c..5079f4f 100644
+--- a/aws-cpp-sdk-support/CMakeLists.txt
++++ b/aws-cpp-sdk-support/CMakeLists.txt
+@@ -48,7 +48,7 @@ project(aws-cpp-sdk-support)
+ 
+   set(SUPPORT_INCLUDES
+     "${CMAKE_CURRENT_SOURCE_DIR}/include/"
+-    "${CORE_DIR}/include/"
++    
+   )
+ 
+   include_directories(${SUPPORT_INCLUDES})
+@@ -68,16 +68,16 @@ project(aws-cpp-sdk-support)
    if(SIMPLE_INSTALL)
        install (TARGETS aws-cpp-sdk-support
                 ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
@@ -1766,10 +2493,20 @@ diff -urN aws-sdk-cpp-old/aws-cpp-sdk-support/CMakeLists.txt aws-sdk-cpp/aws-cpp
      endif()
    endif()
  
-diff -urN aws-sdk-cpp-old/aws-cpp-sdk-swf/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-swf/CMakeLists.txt
---- aws-sdk-cpp-old/aws-cpp-sdk-swf/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
-+++ aws-sdk-cpp/aws-cpp-sdk-swf/CMakeLists.txt	2016-08-17 17:49:24.543474393 +0530
-@@ -68,16 +68,16 @@
+diff --git a/aws-cpp-sdk-swf/CMakeLists.txt b/aws-cpp-sdk-swf/CMakeLists.txt
+index 2425e84..e169ea7 100644
+--- a/aws-cpp-sdk-swf/CMakeLists.txt
++++ b/aws-cpp-sdk-swf/CMakeLists.txt
+@@ -48,7 +48,7 @@ project(aws-cpp-sdk-swf)
+ 
+   set(SWF_INCLUDES
+     "${CMAKE_CURRENT_SOURCE_DIR}/include/"
+-    "${CORE_DIR}/include/"
++    
+   )
+ 
+   include_directories(${SWF_INCLUDES})
+@@ -68,16 +68,16 @@ project(aws-cpp-sdk-swf)
    if(SIMPLE_INSTALL)
        install (TARGETS aws-cpp-sdk-swf
                 ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
@@ -1790,10 +2527,20 @@ diff -urN aws-sdk-cpp-old/aws-cpp-sdk-swf/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk
      endif()
    endif()
  
-diff -urN aws-sdk-cpp-old/aws-cpp-sdk-transfer/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-transfer/CMakeLists.txt
---- aws-sdk-cpp-old/aws-cpp-sdk-transfer/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
-+++ aws-sdk-cpp/aws-cpp-sdk-transfer/CMakeLists.txt	2016-08-17 17:49:24.420474210 +0530
-@@ -49,16 +49,16 @@
+diff --git a/aws-cpp-sdk-transfer/CMakeLists.txt b/aws-cpp-sdk-transfer/CMakeLists.txt
+index 41021eb..59cc1ef 100644
+--- a/aws-cpp-sdk-transfer/CMakeLists.txt
++++ b/aws-cpp-sdk-transfer/CMakeLists.txt
+@@ -30,7 +30,7 @@ file(GLOB ALL_TRANSFER
+ set(TRANSFER_INCLUDES
+     "${CMAKE_CURRENT_SOURCE_DIR}/include/"
+     "${AWS_NATIVE_SDK_ROOT}/aws-cpp-sdk-s3/include/"
+-    "${CORE_DIR}/include/"
++    
+   )
+ 
+ include_directories(${TRANSFER_INCLUDES})
+@@ -49,16 +49,16 @@ target_link_libraries(aws-cpp-sdk-transfer aws-cpp-sdk-s3)
  if(SIMPLE_INSTALL)
      install (TARGETS aws-cpp-sdk-transfer
              ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
@@ -1814,10 +2561,20 @@ diff -urN aws-sdk-cpp-old/aws-cpp-sdk-transfer/CMakeLists.txt aws-sdk-cpp/aws-cp
      endif()
  endif()
  
-diff -urN aws-sdk-cpp-old/aws-cpp-sdk-waf/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-waf/CMakeLists.txt
---- aws-sdk-cpp-old/aws-cpp-sdk-waf/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
-+++ aws-sdk-cpp/aws-cpp-sdk-waf/CMakeLists.txt	2016-08-17 17:49:23.556472927 +0530
-@@ -68,16 +68,16 @@
+diff --git a/aws-cpp-sdk-waf/CMakeLists.txt b/aws-cpp-sdk-waf/CMakeLists.txt
+index 22df57d..5f73304 100644
+--- a/aws-cpp-sdk-waf/CMakeLists.txt
++++ b/aws-cpp-sdk-waf/CMakeLists.txt
+@@ -48,7 +48,7 @@ project(aws-cpp-sdk-waf)
+ 
+   set(WAF_INCLUDES
+     "${CMAKE_CURRENT_SOURCE_DIR}/include/"
+-    "${CORE_DIR}/include/"
++    
+   )
+ 
+   include_directories(${WAF_INCLUDES})
+@@ -68,16 +68,16 @@ project(aws-cpp-sdk-waf)
    if(SIMPLE_INSTALL)
        install (TARGETS aws-cpp-sdk-waf
                 ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
@@ -1838,10 +2595,20 @@ diff -urN aws-sdk-cpp-old/aws-cpp-sdk-waf/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk
      endif()
    endif()
  
-diff -urN aws-sdk-cpp-old/aws-cpp-sdk-workspaces/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-workspaces/CMakeLists.txt
---- aws-sdk-cpp-old/aws-cpp-sdk-workspaces/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
-+++ aws-sdk-cpp/aws-cpp-sdk-workspaces/CMakeLists.txt	2016-08-17 17:49:24.244473949 +0530
-@@ -68,16 +68,16 @@
+diff --git a/aws-cpp-sdk-workspaces/CMakeLists.txt b/aws-cpp-sdk-workspaces/CMakeLists.txt
+index ec78738..c045cce 100644
+--- a/aws-cpp-sdk-workspaces/CMakeLists.txt
++++ b/aws-cpp-sdk-workspaces/CMakeLists.txt
+@@ -48,7 +48,7 @@ project(aws-cpp-sdk-workspaces)
+ 
+   set(WORKSPACES_INCLUDES
+     "${CMAKE_CURRENT_SOURCE_DIR}/include/"
+-    "${CORE_DIR}/include/"
++    
+   )
+ 
+   include_directories(${WORKSPACES_INCLUDES})
+@@ -68,16 +68,16 @@ project(aws-cpp-sdk-workspaces)
    if(SIMPLE_INSTALL)
        install (TARGETS aws-cpp-sdk-workspaces
                 ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
@@ -1862,58 +2629,16 @@ diff -urN aws-sdk-cpp-old/aws-cpp-sdk-workspaces/CMakeLists.txt aws-sdk-cpp/aws-
      endif()
    endif()
  
-diff -urN aws-sdk-cpp-old/CMakeLists.txt aws-sdk-cpp/CMakeLists.txt
---- aws-sdk-cpp-old/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
-+++ aws-sdk-cpp/CMakeLists.txt	2016-08-17 17:54:32.909938877 +0530
-@@ -81,6 +81,7 @@
-     SET(PLATFORM_WINDOWS 1)
- elseif("${TARGET_ARCH}" STREQUAL "LINUX")
-     SET(PLATFORM_LINUX 1)
-+    include(GNUInstallDirs)
- elseif("${TARGET_ARCH}" STREQUAL "APPLE")
-     SET(PLATFORM_APPLE 1)
- elseif("${TARGET_ARCH}" STREQUAL "ANDROID")
-@@ -261,11 +262,18 @@
- endif()
+diff --git a/testing-resources/CMakeLists.txt b/testing-resources/CMakeLists.txt
+index 182c0b3..7acc171 100644
+--- a/testing-resources/CMakeLists.txt
++++ b/testing-resources/CMakeLists.txt
+@@ -71,7 +71,7 @@ file(GLOB TestingResources_SRC
  
- if(BUILD_SHARED_LIBS)
--    SET(ARCHIVE_DIRECTORY "bin")
-+    SET(ARCHIVE_DIRECTORY bin)
-+    SET(BINARY_DIRECTORY bin)
-+    SET(LIBRARY_DIRECTORY lib)
-     SET(LIBTYPE SHARED)
-     if(PLATFORM_WINDOWS)
-         SET(SUFFIX dll)
-     elseif(PLATFORM_LINUX OR PLATFORM_ANDROID)
-+        if(PLATFORM_LINUX)
-+            SET(ARCHIVE_DIRECTORY "${CMAKE_INSTALL_BINDIR}")
-+            SET(BINARY_DIRECTORY "${CMAKE_INSTALL_BINDIR}")
-+            SET(LIBRARY_DIRECTORY "${CMAKE_INSTALL_LIBDIR}")
-+        endif()
-         SET(SUFFIX so)
-     elseif(PLATFORM_APPLE)
-         SET(SUFFIX dylib)
-diff -urN aws-sdk-cpp-old/code-generation/generator/src/main/resources/com/amazonaws/util/awsclientgenerator/velocity/cpp/CMakeFile.vm aws-sdk-cpp/code-generation/generator/src/main/resources/com/amazonaws/util/awsclientgenerator/velocity/cpp/CMakeFile.vm
---- aws-sdk-cpp-old/code-generation/generator/src/main/resources/com/amazonaws/util/awsclientgenerator/velocity/cpp/CMakeFile.vm	2016-08-13 04:05:50.000000000 +0530
-+++ aws-sdk-cpp/code-generation/generator/src/main/resources/com/amazonaws/util/awsclientgenerator/velocity/cpp/CMakeFile.vm	2016-08-17 17:49:23.856473373 +0530
-@@ -72,16 +72,16 @@
-   if(SIMPLE_INSTALL)
-       install (TARGETS aws-cpp-sdk-${metadata.projectName}
-                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
--               LIBRARY DESTINATION lib
--               RUNTIME DESTINATION bin)
-+               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}
-+               RUNTIME DESTINATION ${BINARY_DIRECTORY})
-   else()
-     if(PLATFORM_CUSTOM)
-       install_custom_library(aws-cpp-sdk-${metadata.projectName})
-     else()
-       install (TARGETS aws-cpp-sdk-${metadata.projectName}
-                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
--               LIBRARY DESTINATION lib/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
--               RUNTIME DESTINATION bin/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
-+               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
-+               RUNTIME DESTINATION ${BINARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
-     endif()
-   endif()
+ set(INCLUDES
+   "${CMAKE_CURRENT_SOURCE_DIR}/include/"
+-  "${CORE_DIR}/include/"
++  
+ )
  
+ include_directories(${INCLUDES})
