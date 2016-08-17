@@ -1,0 +1,1919 @@
+diff -urN aws-sdk-cpp-old/android-build/cmakefiles/openssl-cmake/apps/CMakeLists.txt aws-sdk-cpp/android-build/cmakefiles/openssl-cmake/apps/CMakeLists.txt
+--- aws-sdk-cpp-old/android-build/cmakefiles/openssl-cmake/apps/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
++++ aws-sdk-cpp/android-build/cmakefiles/openssl-cmake/apps/CMakeLists.txt	2016-08-17 17:49:23.260472488 +0530
+@@ -39,5 +39,5 @@
+ add_executable ( openssl ${E_SRC} )
+ target_link_libraries ( openssl z crypto ssl )
+ 
+-install( TARGETS openssl RUNTIME DESTINATION bin/${SDK_INSTALL_BINARY_PREFIX}/${CMAKE_BUILD_TYPE} )
++install( TARGETS openssl RUNTIME DESTINATION ${BINARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${CMAKE_BUILD_TYPE} )
+ 
+diff -urN aws-sdk-cpp-old/android-build/cmakefiles/openssl-cmake/crypto/CMakeLists.txt aws-sdk-cpp/android-build/cmakefiles/openssl-cmake/crypto/CMakeLists.txt
+--- aws-sdk-cpp-old/android-build/cmakefiles/openssl-cmake/crypto/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
++++ aws-sdk-cpp/android-build/cmakefiles/openssl-cmake/crypto/CMakeLists.txt	2016-08-17 17:49:23.260472488 +0530
+@@ -218,6 +218,6 @@
+ 
+ install( FILES ${EXHEADERS} DESTINATION include/openssl )
+ 
+-install( TARGETS crypto RUNTIME DESTINATION bin/${SDK_INSTALL_BINARY_PREFIX}/${CMAKE_BUILD_TYPE}
+-                        LIBRARY DESTINATION lib/${SDK_INSTALL_BINARY_PREFIX}/${CMAKE_BUILD_TYPE}
+-                        ARCHIVE DESTINATION lib/${SDK_INSTALL_BINARY_PREFIX}/${CMAKE_BUILD_TYPE} )
++install( TARGETS crypto RUNTIME DESTINATION ${BINARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${CMAKE_BUILD_TYPE}
++                        LIBRARY DESTINATION ${LIBRARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${CMAKE_BUILD_TYPE}
++                        ARCHIVE DESTINATION ${LIBRARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${CMAKE_BUILD_TYPE} )
+diff -urN aws-sdk-cpp-old/android-build/cmakefiles/openssl-cmake/ssl/CMakeLists.txt aws-sdk-cpp/android-build/cmakefiles/openssl-cmake/ssl/CMakeLists.txt
+--- aws-sdk-cpp-old/android-build/cmakefiles/openssl-cmake/ssl/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
++++ aws-sdk-cpp/android-build/cmakefiles/openssl-cmake/ssl/CMakeLists.txt	2016-08-17 17:49:23.261472489 +0530
+@@ -42,6 +42,6 @@
+ install( FILES ssl.h ssl2.h ssl3.h ssl23.h tls1.h dtls1.h kssl.h srtp.h
+     DESTINATION include/openssl )
+ 
+-install( TARGETS ssl RUNTIME DESTINATION bin/${SDK_INSTALL_BINARY_PREFIX}/${CMAKE_BUILD_TYPE}
+-                     LIBRARY DESTINATION lib/${SDK_INSTALL_BINARY_PREFIX}/${CMAKE_BUILD_TYPE}
+-                     ARCHIVE DESTINATION lib/${SDK_INSTALL_BINARY_PREFIX}/${CMAKE_BUILD_TYPE} )
++install( TARGETS ssl RUNTIME DESTINATION ${BINARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${CMAKE_BUILD_TYPE}
++                     LIBRARY DESTINATION ${LIBRARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${CMAKE_BUILD_TYPE}
++                     ARCHIVE DESTINATION ${LIBRARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${CMAKE_BUILD_TYPE} )
+diff -urN aws-sdk-cpp-old/android-build/patches/curl/lib/CMakeLists.patch aws-sdk-cpp/android-build/patches/curl/lib/CMakeLists.patch
+--- aws-sdk-cpp-old/android-build/patches/curl/lib/CMakeLists.patch	2016-08-13 04:05:50.000000000 +0530
++++ aws-sdk-cpp/android-build/patches/curl/lib/CMakeLists.patch	2016-08-17 17:49:23.253472477 +0530
+@@ -5,8 +5,8 @@
+  endif()
+  
+ -install(TARGETS ${LIB_NAME}
+--  ARCHIVE DESTINATION lib
+--  LIBRARY DESTINATION lib
+--  RUNTIME DESTINATION bin)
+-+install( TARGETS ${LIB_NAME} ARCHIVE DESTINATION lib/${SDK_INSTALL_BINARY_PREFIX}/${CMAKE_BUILD_TYPE}
+-+                             LIBRARY DESTINATION lib/${SDK_INSTALL_BINARY_PREFIX}/${CMAKE_BUILD_TYPE} )
++-  ARCHIVE DESTINATION ${LIBRARY_DIRECTORY}
++-  LIBRARY DESTINATION ${LIBRARY_DIRECTORY}
++-  RUNTIME DESTINATION ${BINARY_DIRECTORY})
+++install( TARGETS ${LIB_NAME} ARCHIVE DESTINATION ${LIBRARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${CMAKE_BUILD_TYPE}
+++                             LIBRARY DESTINATION ${LIBRARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${CMAKE_BUILD_TYPE} )
+diff -urN aws-sdk-cpp-old/android-build/patches/curl/src/CMakeLists.patch aws-sdk-cpp/android-build/patches/curl/src/CMakeLists.patch
+--- aws-sdk-cpp-old/android-build/patches/curl/src/CMakeLists.patch	2016-08-13 04:05:50.000000000 +0530
++++ aws-sdk-cpp/android-build/patches/curl/src/CMakeLists.patch	2016-08-17 17:49:23.253472477 +0530
+@@ -4,6 +4,6 @@
+  
+  #INCLUDE(ModuleInstall OPTIONAL)
+  
+--install(TARGETS ${EXE_NAME} DESTINATION bin)
+-+install(TARGETS ${EXE_NAME} DESTINATION bin/${SDK_INSTALL_BINARY_PREFIX}/${CMAKE_BUILD_TYPE})
++-install(TARGETS ${EXE_NAME} DESTINATION ${BINARY_DIRECTORY})
+++install(TARGETS ${EXE_NAME} DESTINATION ${BINARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${CMAKE_BUILD_TYPE})
+ +
+diff -urN aws-sdk-cpp-old/aws-cpp-sdk-access-management/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-access-management/CMakeLists.txt
+--- aws-sdk-cpp-old/aws-cpp-sdk-access-management/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
++++ aws-sdk-cpp/aws-cpp-sdk-access-management/CMakeLists.txt	2016-08-17 17:49:23.421472727 +0530
+@@ -43,16 +43,16 @@
+ if(SIMPLE_INSTALL)
+     install (TARGETS aws-cpp-sdk-access-management
+             ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
+-            LIBRARY DESTINATION lib
+-            RUNTIME DESTINATION bin)
++            LIBRARY DESTINATION ${LIBRARY_DIRECTORY}
++            RUNTIME DESTINATION ${BINARY_DIRECTORY})
+ else()
+     if(PLATFORM_CUSTOM)
+         install_custom_library(aws-cpp-sdk-access-management)
+     else()
+         install (TARGETS aws-cpp-sdk-access-management
+                  ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-                 LIBRARY DESTINATION lib/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-                 RUNTIME DESTINATION bin/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
++                 LIBRARY DESTINATION ${LIBRARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
++                 RUNTIME DESTINATION ${BINARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
+     endif()
+ endif()
+ 
+diff -urN aws-sdk-cpp-old/aws-cpp-sdk-acm/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-acm/CMakeLists.txt
+--- aws-sdk-cpp-old/aws-cpp-sdk-acm/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
++++ aws-sdk-cpp/aws-cpp-sdk-acm/CMakeLists.txt	2016-08-17 17:49:25.666476061 +0530
+@@ -68,16 +68,16 @@
+   if(SIMPLE_INSTALL)
+       install (TARGETS aws-cpp-sdk-acm
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
+-               LIBRARY DESTINATION lib
+-               RUNTIME DESTINATION bin)
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY})
+   else()
+     if(PLATFORM_CUSTOM)
+       install_custom_library(aws-cpp-sdk-acm)
+     else()
+       install (TARGETS aws-cpp-sdk-acm
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               LIBRARY DESTINATION lib/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               RUNTIME DESTINATION bin/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
+     endif()
+   endif()
+ 
+diff -urN aws-sdk-cpp-old/aws-cpp-sdk-apigateway/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-apigateway/CMakeLists.txt
+--- aws-sdk-cpp-old/aws-cpp-sdk-apigateway/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
++++ aws-sdk-cpp/aws-cpp-sdk-apigateway/CMakeLists.txt	2016-08-17 17:49:25.018475099 +0530
+@@ -68,16 +68,16 @@
+   if(SIMPLE_INSTALL)
+       install (TARGETS aws-cpp-sdk-apigateway
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
+-               LIBRARY DESTINATION lib
+-               RUNTIME DESTINATION bin)
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY})
+   else()
+     if(PLATFORM_CUSTOM)
+       install_custom_library(aws-cpp-sdk-apigateway)
+     else()
+       install (TARGETS aws-cpp-sdk-apigateway
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               LIBRARY DESTINATION lib/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               RUNTIME DESTINATION bin/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
+     endif()
+   endif()
+ 
+diff -urN aws-sdk-cpp-old/aws-cpp-sdk-application-autoscaling/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-application-autoscaling/CMakeLists.txt
+--- aws-sdk-cpp-old/aws-cpp-sdk-application-autoscaling/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
++++ aws-sdk-cpp/aws-cpp-sdk-application-autoscaling/CMakeLists.txt	2016-08-17 17:49:24.760474715 +0530
+@@ -68,16 +68,16 @@
+   if(SIMPLE_INSTALL)
+       install (TARGETS aws-cpp-sdk-application-autoscaling
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
+-               LIBRARY DESTINATION lib
+-               RUNTIME DESTINATION bin)
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY})
+   else()
+     if(PLATFORM_CUSTOM)
+       install_custom_library(aws-cpp-sdk-application-autoscaling)
+     else()
+       install (TARGETS aws-cpp-sdk-application-autoscaling
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               LIBRARY DESTINATION lib/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               RUNTIME DESTINATION bin/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
+     endif()
+   endif()
+ 
+diff -urN aws-sdk-cpp-old/aws-cpp-sdk-autoscaling/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-autoscaling/CMakeLists.txt
+--- aws-sdk-cpp-old/aws-cpp-sdk-autoscaling/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
++++ aws-sdk-cpp/aws-cpp-sdk-autoscaling/CMakeLists.txt	2016-08-17 17:49:22.520471388 +0530
+@@ -68,16 +68,16 @@
+   if(SIMPLE_INSTALL)
+       install (TARGETS aws-cpp-sdk-autoscaling
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
+-               LIBRARY DESTINATION lib
+-               RUNTIME DESTINATION bin)
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY})
+   else()
+     if(PLATFORM_CUSTOM)
+       install_custom_library(aws-cpp-sdk-autoscaling)
+     else()
+       install (TARGETS aws-cpp-sdk-autoscaling
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               LIBRARY DESTINATION lib/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               RUNTIME DESTINATION bin/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
+     endif()
+   endif()
+ 
+diff -urN aws-sdk-cpp-old/aws-cpp-sdk-cloudformation/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-cloudformation/CMakeLists.txt
+--- aws-sdk-cpp-old/aws-cpp-sdk-cloudformation/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
++++ aws-sdk-cpp/aws-cpp-sdk-cloudformation/CMakeLists.txt	2016-08-17 17:49:25.265475465 +0530
+@@ -68,16 +68,16 @@
+   if(SIMPLE_INSTALL)
+       install (TARGETS aws-cpp-sdk-cloudformation
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
+-               LIBRARY DESTINATION lib
+-               RUNTIME DESTINATION bin)
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY})
+   else()
+     if(PLATFORM_CUSTOM)
+       install_custom_library(aws-cpp-sdk-cloudformation)
+     else()
+       install (TARGETS aws-cpp-sdk-cloudformation
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               LIBRARY DESTINATION lib/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               RUNTIME DESTINATION bin/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
+     endif()
+   endif()
+ 
+diff -urN aws-sdk-cpp-old/aws-cpp-sdk-cloudfront/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-cloudfront/CMakeLists.txt
+--- aws-sdk-cpp-old/aws-cpp-sdk-cloudfront/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
++++ aws-sdk-cpp/aws-cpp-sdk-cloudfront/CMakeLists.txt	2016-08-17 17:49:24.263473977 +0530
+@@ -68,16 +68,16 @@
+   if(SIMPLE_INSTALL)
+       install (TARGETS aws-cpp-sdk-cloudfront
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
+-               LIBRARY DESTINATION lib
+-               RUNTIME DESTINATION bin)
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY})
+   else()
+     if(PLATFORM_CUSTOM)
+       install_custom_library(aws-cpp-sdk-cloudfront)
+     else()
+       install (TARGETS aws-cpp-sdk-cloudfront
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               LIBRARY DESTINATION lib/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               RUNTIME DESTINATION bin/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
+     endif()
+   endif()
+ 
+diff -urN aws-sdk-cpp-old/aws-cpp-sdk-cloudhsm/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-cloudhsm/CMakeLists.txt
+--- aws-sdk-cpp-old/aws-cpp-sdk-cloudhsm/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
++++ aws-sdk-cpp/aws-cpp-sdk-cloudhsm/CMakeLists.txt	2016-08-17 17:49:26.048476628 +0530
+@@ -68,16 +68,16 @@
+   if(SIMPLE_INSTALL)
+       install (TARGETS aws-cpp-sdk-cloudhsm
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
+-               LIBRARY DESTINATION lib
+-               RUNTIME DESTINATION bin)
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY})
+   else()
+     if(PLATFORM_CUSTOM)
+       install_custom_library(aws-cpp-sdk-cloudhsm)
+     else()
+       install (TARGETS aws-cpp-sdk-cloudhsm
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               LIBRARY DESTINATION lib/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               RUNTIME DESTINATION bin/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
+     endif()
+   endif()
+ 
+diff -urN aws-sdk-cpp-old/aws-cpp-sdk-cloudsearch/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-cloudsearch/CMakeLists.txt
+--- aws-sdk-cpp-old/aws-cpp-sdk-cloudsearch/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
++++ aws-sdk-cpp/aws-cpp-sdk-cloudsearch/CMakeLists.txt	2016-08-17 17:49:23.081472222 +0530
+@@ -68,16 +68,16 @@
+   if(SIMPLE_INSTALL)
+       install (TARGETS aws-cpp-sdk-cloudsearch
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
+-               LIBRARY DESTINATION lib
+-               RUNTIME DESTINATION bin)
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY})
+   else()
+     if(PLATFORM_CUSTOM)
+       install_custom_library(aws-cpp-sdk-cloudsearch)
+     else()
+       install (TARGETS aws-cpp-sdk-cloudsearch
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               LIBRARY DESTINATION lib/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               RUNTIME DESTINATION bin/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
+     endif()
+   endif()
+ 
+diff -urN aws-sdk-cpp-old/aws-cpp-sdk-cloudsearchdomain/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-cloudsearchdomain/CMakeLists.txt
+--- aws-sdk-cpp-old/aws-cpp-sdk-cloudsearchdomain/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
++++ aws-sdk-cpp/aws-cpp-sdk-cloudsearchdomain/CMakeLists.txt	2016-08-17 17:49:24.425474218 +0530
+@@ -68,16 +68,16 @@
+   if(SIMPLE_INSTALL)
+       install (TARGETS aws-cpp-sdk-cloudsearchdomain
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
+-               LIBRARY DESTINATION lib
+-               RUNTIME DESTINATION bin)
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY})
+   else()
+     if(PLATFORM_CUSTOM)
+       install_custom_library(aws-cpp-sdk-cloudsearchdomain)
+     else()
+       install (TARGETS aws-cpp-sdk-cloudsearchdomain
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               LIBRARY DESTINATION lib/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               RUNTIME DESTINATION bin/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
+     endif()
+   endif()
+ 
+diff -urN aws-sdk-cpp-old/aws-cpp-sdk-cloudtrail/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-cloudtrail/CMakeLists.txt
+--- aws-sdk-cpp-old/aws-cpp-sdk-cloudtrail/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
++++ aws-sdk-cpp/aws-cpp-sdk-cloudtrail/CMakeLists.txt	2016-08-17 17:49:25.488475797 +0530
+@@ -68,16 +68,16 @@
+   if(SIMPLE_INSTALL)
+       install (TARGETS aws-cpp-sdk-cloudtrail
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
+-               LIBRARY DESTINATION lib
+-               RUNTIME DESTINATION bin)
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY})
+   else()
+     if(PLATFORM_CUSTOM)
+       install_custom_library(aws-cpp-sdk-cloudtrail)
+     else()
+       install (TARGETS aws-cpp-sdk-cloudtrail
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               LIBRARY DESTINATION lib/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               RUNTIME DESTINATION bin/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
+     endif()
+   endif()
+ 
+diff -urN aws-sdk-cpp-old/aws-cpp-sdk-codecommit/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-codecommit/CMakeLists.txt
+--- aws-sdk-cpp-old/aws-cpp-sdk-codecommit/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
++++ aws-sdk-cpp/aws-cpp-sdk-codecommit/CMakeLists.txt	2016-08-17 17:49:22.737471711 +0530
+@@ -68,16 +68,16 @@
+   if(SIMPLE_INSTALL)
+       install (TARGETS aws-cpp-sdk-codecommit
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
+-               LIBRARY DESTINATION lib
+-               RUNTIME DESTINATION bin)
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY})
+   else()
+     if(PLATFORM_CUSTOM)
+       install_custom_library(aws-cpp-sdk-codecommit)
+     else()
+       install (TARGETS aws-cpp-sdk-codecommit
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               LIBRARY DESTINATION lib/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               RUNTIME DESTINATION bin/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
+     endif()
+   endif()
+ 
+diff -urN aws-sdk-cpp-old/aws-cpp-sdk-codedeploy/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-codedeploy/CMakeLists.txt
+--- aws-sdk-cpp-old/aws-cpp-sdk-codedeploy/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
++++ aws-sdk-cpp/aws-cpp-sdk-codedeploy/CMakeLists.txt	2016-08-17 17:49:25.927476449 +0530
+@@ -68,16 +68,16 @@
+   if(SIMPLE_INSTALL)
+       install (TARGETS aws-cpp-sdk-codedeploy
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
+-               LIBRARY DESTINATION lib
+-               RUNTIME DESTINATION bin)
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY})
+   else()
+     if(PLATFORM_CUSTOM)
+       install_custom_library(aws-cpp-sdk-codedeploy)
+     else()
+       install (TARGETS aws-cpp-sdk-codedeploy
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               LIBRARY DESTINATION lib/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               RUNTIME DESTINATION bin/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
+     endif()
+   endif()
+ 
+diff -urN aws-sdk-cpp-old/aws-cpp-sdk-codepipeline/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-codepipeline/CMakeLists.txt
+--- aws-sdk-cpp-old/aws-cpp-sdk-codepipeline/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
++++ aws-sdk-cpp/aws-cpp-sdk-codepipeline/CMakeLists.txt	2016-08-17 17:49:23.513472863 +0530
+@@ -68,16 +68,16 @@
+   if(SIMPLE_INSTALL)
+       install (TARGETS aws-cpp-sdk-codepipeline
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
+-               LIBRARY DESTINATION lib
+-               RUNTIME DESTINATION bin)
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY})
+   else()
+     if(PLATFORM_CUSTOM)
+       install_custom_library(aws-cpp-sdk-codepipeline)
+     else()
+       install (TARGETS aws-cpp-sdk-codepipeline
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               LIBRARY DESTINATION lib/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               RUNTIME DESTINATION bin/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
+     endif()
+   endif()
+ 
+diff -urN aws-sdk-cpp-old/aws-cpp-sdk-cognito-identity/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-cognito-identity/CMakeLists.txt
+--- aws-sdk-cpp-old/aws-cpp-sdk-cognito-identity/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
++++ aws-sdk-cpp/aws-cpp-sdk-cognito-identity/CMakeLists.txt	2016-08-17 17:49:22.633471557 +0530
+@@ -68,16 +68,16 @@
+   if(SIMPLE_INSTALL)
+       install (TARGETS aws-cpp-sdk-cognito-identity
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
+-               LIBRARY DESTINATION lib
+-               RUNTIME DESTINATION bin)
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY})
+   else()
+     if(PLATFORM_CUSTOM)
+       install_custom_library(aws-cpp-sdk-cognito-identity)
+     else()
+       install (TARGETS aws-cpp-sdk-cognito-identity
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               LIBRARY DESTINATION lib/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               RUNTIME DESTINATION bin/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
+     endif()
+   endif()
+ 
+diff -urN aws-sdk-cpp-old/aws-cpp-sdk-cognito-idp/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-cognito-idp/CMakeLists.txt
+--- aws-sdk-cpp-old/aws-cpp-sdk-cognito-idp/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
++++ aws-sdk-cpp/aws-cpp-sdk-cognito-idp/CMakeLists.txt	2016-08-17 17:49:22.687471637 +0530
+@@ -68,16 +68,16 @@
+   if(SIMPLE_INSTALL)
+       install (TARGETS aws-cpp-sdk-cognito-idp
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
+-               LIBRARY DESTINATION lib
+-               RUNTIME DESTINATION bin)
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY})
+   else()
+     if(PLATFORM_CUSTOM)
+       install_custom_library(aws-cpp-sdk-cognito-idp)
+     else()
+       install (TARGETS aws-cpp-sdk-cognito-idp
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               LIBRARY DESTINATION lib/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               RUNTIME DESTINATION bin/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
+     endif()
+   endif()
+ 
+diff -urN aws-sdk-cpp-old/aws-cpp-sdk-cognito-sync/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-cognito-sync/CMakeLists.txt
+--- aws-sdk-cpp-old/aws-cpp-sdk-cognito-sync/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
++++ aws-sdk-cpp/aws-cpp-sdk-cognito-sync/CMakeLists.txt	2016-08-17 17:49:23.614473013 +0530
+@@ -68,16 +68,16 @@
+   if(SIMPLE_INSTALL)
+       install (TARGETS aws-cpp-sdk-cognito-sync
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
+-               LIBRARY DESTINATION lib
+-               RUNTIME DESTINATION bin)
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY})
+   else()
+     if(PLATFORM_CUSTOM)
+       install_custom_library(aws-cpp-sdk-cognito-sync)
+     else()
+       install (TARGETS aws-cpp-sdk-cognito-sync
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               LIBRARY DESTINATION lib/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               RUNTIME DESTINATION bin/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
+     endif()
+   endif()
+ 
+diff -urN aws-sdk-cpp-old/aws-cpp-sdk-config/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-config/CMakeLists.txt
+--- aws-sdk-cpp-old/aws-cpp-sdk-config/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
++++ aws-sdk-cpp/aws-cpp-sdk-config/CMakeLists.txt	2016-08-17 17:49:25.767476211 +0530
+@@ -68,16 +68,16 @@
+   if(SIMPLE_INSTALL)
+       install (TARGETS aws-cpp-sdk-config
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
+-               LIBRARY DESTINATION lib
+-               RUNTIME DESTINATION bin)
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY})
+   else()
+     if(PLATFORM_CUSTOM)
+       install_custom_library(aws-cpp-sdk-config)
+     else()
+       install (TARGETS aws-cpp-sdk-config
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               LIBRARY DESTINATION lib/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               RUNTIME DESTINATION bin/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
+     endif()
+   endif()
+ 
+diff -urN aws-sdk-cpp-old/aws-cpp-sdk-core/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-core/CMakeLists.txt
+--- aws-sdk-cpp-old/aws-cpp-sdk-core/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
++++ aws-sdk-cpp/aws-cpp-sdk-core/CMakeLists.txt	2016-08-17 17:49:25.993476547 +0530
+@@ -363,15 +363,15 @@
+ 
+ if(SIMPLE_INSTALL)
+     install (TARGETS aws-cpp-sdk-core ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
+-                                      LIBRARY DESTINATION lib
+-                                      RUNTIME DESTINATION bin)
++        LIBRARY DESTINATION ${LIBRARY_DIRECTORY}
++        RUNTIME DESTINATION ${BINARY_DIRECTORY})
+ else()
+     if(PLATFORM_CUSTOM)
+         install_custom_library(aws-cpp-sdk-core)
+     else()
+         install (TARGETS aws-cpp-sdk-core ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-                                          LIBRARY DESTINATION lib/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-                                          RUNTIME DESTINATION bin/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
++            LIBRARY DESTINATION ${LIBRARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
++            RUNTIME DESTINATION ${BINARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
+     endif()
+ endif()
+ 
+diff -urN aws-sdk-cpp-old/aws-cpp-sdk-datapipeline/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-datapipeline/CMakeLists.txt
+--- aws-sdk-cpp-old/aws-cpp-sdk-datapipeline/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
++++ aws-sdk-cpp/aws-cpp-sdk-datapipeline/CMakeLists.txt	2016-08-17 17:49:25.363475611 +0530
+@@ -68,16 +68,16 @@
+   if(SIMPLE_INSTALL)
+       install (TARGETS aws-cpp-sdk-datapipeline
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
+-               LIBRARY DESTINATION lib
+-               RUNTIME DESTINATION bin)
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY})
+   else()
+     if(PLATFORM_CUSTOM)
+       install_custom_library(aws-cpp-sdk-datapipeline)
+     else()
+       install (TARGETS aws-cpp-sdk-datapipeline
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               LIBRARY DESTINATION lib/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               RUNTIME DESTINATION bin/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
+     endif()
+   endif()
+ 
+diff -urN aws-sdk-cpp-old/aws-cpp-sdk-devicefarm/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-devicefarm/CMakeLists.txt
+--- aws-sdk-cpp-old/aws-cpp-sdk-devicefarm/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
++++ aws-sdk-cpp/aws-cpp-sdk-devicefarm/CMakeLists.txt	2016-08-17 17:49:25.205475376 +0530
+@@ -68,16 +68,16 @@
+   if(SIMPLE_INSTALL)
+       install (TARGETS aws-cpp-sdk-devicefarm
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
+-               LIBRARY DESTINATION lib
+-               RUNTIME DESTINATION bin)
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY})
+   else()
+     if(PLATFORM_CUSTOM)
+       install_custom_library(aws-cpp-sdk-devicefarm)
+     else()
+       install (TARGETS aws-cpp-sdk-devicefarm
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               LIBRARY DESTINATION lib/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               RUNTIME DESTINATION bin/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
+     endif()
+   endif()
+ 
+diff -urN aws-sdk-cpp-old/aws-cpp-sdk-directconnect/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-directconnect/CMakeLists.txt
+--- aws-sdk-cpp-old/aws-cpp-sdk-directconnect/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
++++ aws-sdk-cpp/aws-cpp-sdk-directconnect/CMakeLists.txt	2016-08-17 17:49:25.857476345 +0530
+@@ -68,16 +68,16 @@
+   if(SIMPLE_INSTALL)
+       install (TARGETS aws-cpp-sdk-directconnect
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
+-               LIBRARY DESTINATION lib
+-               RUNTIME DESTINATION bin)
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY})
+   else()
+     if(PLATFORM_CUSTOM)
+       install_custom_library(aws-cpp-sdk-directconnect)
+     else()
+       install (TARGETS aws-cpp-sdk-directconnect
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               LIBRARY DESTINATION lib/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               RUNTIME DESTINATION bin/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
+     endif()
+   endif()
+ 
+diff -urN aws-sdk-cpp-old/aws-cpp-sdk-dms/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-dms/CMakeLists.txt
+--- aws-sdk-cpp-old/aws-cpp-sdk-dms/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
++++ aws-sdk-cpp/aws-cpp-sdk-dms/CMakeLists.txt	2016-08-17 17:49:24.797474770 +0530
+@@ -68,16 +68,16 @@
+   if(SIMPLE_INSTALL)
+       install (TARGETS aws-cpp-sdk-dms
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
+-               LIBRARY DESTINATION lib
+-               RUNTIME DESTINATION bin)
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY})
+   else()
+     if(PLATFORM_CUSTOM)
+       install_custom_library(aws-cpp-sdk-dms)
+     else()
+       install (TARGETS aws-cpp-sdk-dms
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               LIBRARY DESTINATION lib/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               RUNTIME DESTINATION bin/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
+     endif()
+   endif()
+ 
+diff -urN aws-sdk-cpp-old/aws-cpp-sdk-ds/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-ds/CMakeLists.txt
+--- aws-sdk-cpp-old/aws-cpp-sdk-ds/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
++++ aws-sdk-cpp/aws-cpp-sdk-ds/CMakeLists.txt	2016-08-17 17:49:25.678476079 +0530
+@@ -68,16 +68,16 @@
+   if(SIMPLE_INSTALL)
+       install (TARGETS aws-cpp-sdk-ds
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
+-               LIBRARY DESTINATION lib
+-               RUNTIME DESTINATION bin)
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY})
+   else()
+     if(PLATFORM_CUSTOM)
+       install_custom_library(aws-cpp-sdk-ds)
+     else()
+       install (TARGETS aws-cpp-sdk-ds
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               LIBRARY DESTINATION lib/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               RUNTIME DESTINATION bin/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
+     endif()
+   endif()
+ 
+diff -urN aws-sdk-cpp-old/aws-cpp-sdk-dynamodb/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-dynamodb/CMakeLists.txt
+--- aws-sdk-cpp-old/aws-cpp-sdk-dynamodb/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
++++ aws-sdk-cpp/aws-cpp-sdk-dynamodb/CMakeLists.txt	2016-08-17 17:49:23.157472335 +0530
+@@ -68,16 +68,16 @@
+   if(SIMPLE_INSTALL)
+       install (TARGETS aws-cpp-sdk-dynamodb
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
+-               LIBRARY DESTINATION lib
+-               RUNTIME DESTINATION bin)
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY})
+   else()
+     if(PLATFORM_CUSTOM)
+       install_custom_library(aws-cpp-sdk-dynamodb)
+     else()
+       install (TARGETS aws-cpp-sdk-dynamodb
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               LIBRARY DESTINATION lib/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               RUNTIME DESTINATION bin/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
+     endif()
+   endif()
+ 
+diff -urN aws-sdk-cpp-old/aws-cpp-sdk-ec2/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-ec2/CMakeLists.txt
+--- aws-sdk-cpp-old/aws-cpp-sdk-ec2/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
++++ aws-sdk-cpp/aws-cpp-sdk-ec2/CMakeLists.txt	2016-08-17 17:49:22.753471735 +0530
+@@ -68,16 +68,16 @@
+   if(SIMPLE_INSTALL)
+       install (TARGETS aws-cpp-sdk-ec2
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
+-               LIBRARY DESTINATION lib
+-               RUNTIME DESTINATION bin)
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY})
+   else()
+     if(PLATFORM_CUSTOM)
+       install_custom_library(aws-cpp-sdk-ec2)
+     else()
+       install (TARGETS aws-cpp-sdk-ec2
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               LIBRARY DESTINATION lib/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               RUNTIME DESTINATION bin/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
+     endif()
+   endif()
+ 
+diff -urN aws-sdk-cpp-old/aws-cpp-sdk-ecr/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-ecr/CMakeLists.txt
+--- aws-sdk-cpp-old/aws-cpp-sdk-ecr/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
++++ aws-sdk-cpp/aws-cpp-sdk-ecr/CMakeLists.txt	2016-08-17 17:49:24.838474831 +0530
+@@ -68,16 +68,16 @@
+   if(SIMPLE_INSTALL)
+       install (TARGETS aws-cpp-sdk-ecr
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
+-               LIBRARY DESTINATION lib
+-               RUNTIME DESTINATION bin)
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY})
+   else()
+     if(PLATFORM_CUSTOM)
+       install_custom_library(aws-cpp-sdk-ecr)
+     else()
+       install (TARGETS aws-cpp-sdk-ecr
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               LIBRARY DESTINATION lib/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               RUNTIME DESTINATION bin/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
+     endif()
+   endif()
+ 
+diff -urN aws-sdk-cpp-old/aws-cpp-sdk-ecs/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-ecs/CMakeLists.txt
+--- aws-sdk-cpp-old/aws-cpp-sdk-ecs/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
++++ aws-sdk-cpp/aws-cpp-sdk-ecs/CMakeLists.txt	2016-08-17 17:49:24.495474322 +0530
+@@ -68,16 +68,16 @@
+   if(SIMPLE_INSTALL)
+       install (TARGETS aws-cpp-sdk-ecs
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
+-               LIBRARY DESTINATION lib
+-               RUNTIME DESTINATION bin)
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY})
+   else()
+     if(PLATFORM_CUSTOM)
+       install_custom_library(aws-cpp-sdk-ecs)
+     else()
+       install (TARGETS aws-cpp-sdk-ecs
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               LIBRARY DESTINATION lib/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               RUNTIME DESTINATION bin/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
+     endif()
+   endif()
+ 
+diff -urN aws-sdk-cpp-old/aws-cpp-sdk-elasticache/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-elasticache/CMakeLists.txt
+--- aws-sdk-cpp-old/aws-cpp-sdk-elasticache/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
++++ aws-sdk-cpp/aws-cpp-sdk-elasticache/CMakeLists.txt	2016-08-17 17:49:26.067476657 +0530
+@@ -68,16 +68,16 @@
+   if(SIMPLE_INSTALL)
+       install (TARGETS aws-cpp-sdk-elasticache
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
+-               LIBRARY DESTINATION lib
+-               RUNTIME DESTINATION bin)
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY})
+   else()
+     if(PLATFORM_CUSTOM)
+       install_custom_library(aws-cpp-sdk-elasticache)
+     else()
+       install (TARGETS aws-cpp-sdk-elasticache
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               LIBRARY DESTINATION lib/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               RUNTIME DESTINATION bin/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
+     endif()
+   endif()
+ 
+diff -urN aws-sdk-cpp-old/aws-cpp-sdk-elasticbeanstalk/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-elasticbeanstalk/CMakeLists.txt
+--- aws-sdk-cpp-old/aws-cpp-sdk-elasticbeanstalk/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
++++ aws-sdk-cpp/aws-cpp-sdk-elasticbeanstalk/CMakeLists.txt	2016-08-17 17:49:23.721473172 +0530
+@@ -68,16 +68,16 @@
+   if(SIMPLE_INSTALL)
+       install (TARGETS aws-cpp-sdk-elasticbeanstalk
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
+-               LIBRARY DESTINATION lib
+-               RUNTIME DESTINATION bin)
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY})
+   else()
+     if(PLATFORM_CUSTOM)
+       install_custom_library(aws-cpp-sdk-elasticbeanstalk)
+     else()
+       install (TARGETS aws-cpp-sdk-elasticbeanstalk
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               LIBRARY DESTINATION lib/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               RUNTIME DESTINATION bin/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
+     endif()
+   endif()
+ 
+diff -urN aws-sdk-cpp-old/aws-cpp-sdk-elasticfilesystem/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-elasticfilesystem/CMakeLists.txt
+--- aws-sdk-cpp-old/aws-cpp-sdk-elasticfilesystem/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
++++ aws-sdk-cpp/aws-cpp-sdk-elasticfilesystem/CMakeLists.txt	2016-08-17 17:49:25.159475308 +0530
+@@ -68,16 +68,16 @@
+   if(SIMPLE_INSTALL)
+       install (TARGETS aws-cpp-sdk-elasticfilesystem
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
+-               LIBRARY DESTINATION lib
+-               RUNTIME DESTINATION bin)
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY})
+   else()
+     if(PLATFORM_CUSTOM)
+       install_custom_library(aws-cpp-sdk-elasticfilesystem)
+     else()
+       install (TARGETS aws-cpp-sdk-elasticfilesystem
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               LIBRARY DESTINATION lib/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               RUNTIME DESTINATION bin/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
+     endif()
+   endif()
+ 
+diff -urN aws-sdk-cpp-old/aws-cpp-sdk-elasticloadbalancing/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-elasticloadbalancing/CMakeLists.txt
+--- aws-sdk-cpp-old/aws-cpp-sdk-elasticloadbalancing/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
++++ aws-sdk-cpp/aws-cpp-sdk-elasticloadbalancing/CMakeLists.txt	2016-08-17 17:49:25.435475718 +0530
+@@ -68,16 +68,16 @@
+   if(SIMPLE_INSTALL)
+       install (TARGETS aws-cpp-sdk-elasticloadbalancing
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
+-               LIBRARY DESTINATION lib
+-               RUNTIME DESTINATION bin)
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY})
+   else()
+     if(PLATFORM_CUSTOM)
+       install_custom_library(aws-cpp-sdk-elasticloadbalancing)
+     else()
+       install (TARGETS aws-cpp-sdk-elasticloadbalancing
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               LIBRARY DESTINATION lib/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               RUNTIME DESTINATION bin/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
+     endif()
+   endif()
+ 
+diff -urN aws-sdk-cpp-old/aws-cpp-sdk-elasticloadbalancingv2/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-elasticloadbalancingv2/CMakeLists.txt
+--- aws-sdk-cpp-old/aws-cpp-sdk-elasticloadbalancingv2/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
++++ aws-sdk-cpp/aws-cpp-sdk-elasticloadbalancingv2/CMakeLists.txt	2016-08-17 17:49:23.354472627 +0530
+@@ -68,16 +68,16 @@
+   if(SIMPLE_INSTALL)
+       install (TARGETS aws-cpp-sdk-elasticloadbalancingv2
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
+-               LIBRARY DESTINATION lib
+-               RUNTIME DESTINATION bin)
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY})
+   else()
+     if(PLATFORM_CUSTOM)
+       install_custom_library(aws-cpp-sdk-elasticloadbalancingv2)
+     else()
+       install (TARGETS aws-cpp-sdk-elasticloadbalancingv2
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               LIBRARY DESTINATION lib/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               RUNTIME DESTINATION bin/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
+     endif()
+   endif()
+ 
+diff -urN aws-sdk-cpp-old/aws-cpp-sdk-elasticmapreduce/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-elasticmapreduce/CMakeLists.txt
+--- aws-sdk-cpp-old/aws-cpp-sdk-elasticmapreduce/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
++++ aws-sdk-cpp/aws-cpp-sdk-elasticmapreduce/CMakeLists.txt	2016-08-17 17:49:25.883476383 +0530
+@@ -68,16 +68,16 @@
+   if(SIMPLE_INSTALL)
+       install (TARGETS aws-cpp-sdk-elasticmapreduce
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
+-               LIBRARY DESTINATION lib
+-               RUNTIME DESTINATION bin)
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY})
+   else()
+     if(PLATFORM_CUSTOM)
+       install_custom_library(aws-cpp-sdk-elasticmapreduce)
+     else()
+       install (TARGETS aws-cpp-sdk-elasticmapreduce
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               LIBRARY DESTINATION lib/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               RUNTIME DESTINATION bin/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
+     endif()
+   endif()
+ 
+diff -urN aws-sdk-cpp-old/aws-cpp-sdk-elastictranscoder/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-elastictranscoder/CMakeLists.txt
+--- aws-sdk-cpp-old/aws-cpp-sdk-elastictranscoder/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
++++ aws-sdk-cpp/aws-cpp-sdk-elastictranscoder/CMakeLists.txt	2016-08-17 17:49:23.635473044 +0530
+@@ -68,16 +68,16 @@
+   if(SIMPLE_INSTALL)
+       install (TARGETS aws-cpp-sdk-elastictranscoder
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
+-               LIBRARY DESTINATION lib
+-               RUNTIME DESTINATION bin)
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY})
+   else()
+     if(PLATFORM_CUSTOM)
+       install_custom_library(aws-cpp-sdk-elastictranscoder)
+     else()
+       install (TARGETS aws-cpp-sdk-elastictranscoder
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               LIBRARY DESTINATION lib/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               RUNTIME DESTINATION bin/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
+     endif()
+   endif()
+ 
+diff -urN aws-sdk-cpp-old/aws-cpp-sdk-email/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-email/CMakeLists.txt
+--- aws-sdk-cpp-old/aws-cpp-sdk-email/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
++++ aws-sdk-cpp/aws-cpp-sdk-email/CMakeLists.txt	2016-08-17 17:49:24.437474236 +0530
+@@ -68,16 +68,16 @@
+   if(SIMPLE_INSTALL)
+       install (TARGETS aws-cpp-sdk-email
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
+-               LIBRARY DESTINATION lib
+-               RUNTIME DESTINATION bin)
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY})
+   else()
+     if(PLATFORM_CUSTOM)
+       install_custom_library(aws-cpp-sdk-email)
+     else()
+       install (TARGETS aws-cpp-sdk-email
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               LIBRARY DESTINATION lib/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               RUNTIME DESTINATION bin/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
+     endif()
+   endif()
+ 
+diff -urN aws-sdk-cpp-old/aws-cpp-sdk-es/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-es/CMakeLists.txt
+--- aws-sdk-cpp-old/aws-cpp-sdk-es/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
++++ aws-sdk-cpp/aws-cpp-sdk-es/CMakeLists.txt	2016-08-17 17:49:23.141472311 +0530
+@@ -68,16 +68,16 @@
+   if(SIMPLE_INSTALL)
+       install (TARGETS aws-cpp-sdk-es
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
+-               LIBRARY DESTINATION lib
+-               RUNTIME DESTINATION bin)
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY})
+   else()
+     if(PLATFORM_CUSTOM)
+       install_custom_library(aws-cpp-sdk-es)
+     else()
+       install (TARGETS aws-cpp-sdk-es
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               LIBRARY DESTINATION lib/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               RUNTIME DESTINATION bin/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
+     endif()
+   endif()
+ 
+diff -urN aws-sdk-cpp-old/aws-cpp-sdk-events/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-events/CMakeLists.txt
+--- aws-sdk-cpp-old/aws-cpp-sdk-events/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
++++ aws-sdk-cpp/aws-cpp-sdk-events/CMakeLists.txt	2016-08-17 17:49:23.499472843 +0530
+@@ -68,16 +68,16 @@
+   if(SIMPLE_INSTALL)
+       install (TARGETS aws-cpp-sdk-events
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
+-               LIBRARY DESTINATION lib
+-               RUNTIME DESTINATION bin)
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY})
+   else()
+     if(PLATFORM_CUSTOM)
+       install_custom_library(aws-cpp-sdk-events)
+     else()
+       install (TARGETS aws-cpp-sdk-events
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               LIBRARY DESTINATION lib/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               RUNTIME DESTINATION bin/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
+     endif()
+   endif()
+ 
+diff -urN aws-sdk-cpp-old/aws-cpp-sdk-firehose/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-firehose/CMakeLists.txt
+--- aws-sdk-cpp-old/aws-cpp-sdk-firehose/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
++++ aws-sdk-cpp/aws-cpp-sdk-firehose/CMakeLists.txt	2016-08-17 17:49:24.774474736 +0530
+@@ -68,16 +68,16 @@
+   if(SIMPLE_INSTALL)
+       install (TARGETS aws-cpp-sdk-firehose
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
+-               LIBRARY DESTINATION lib
+-               RUNTIME DESTINATION bin)
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY})
+   else()
+     if(PLATFORM_CUSTOM)
+       install_custom_library(aws-cpp-sdk-firehose)
+     else()
+       install (TARGETS aws-cpp-sdk-firehose
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               LIBRARY DESTINATION lib/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               RUNTIME DESTINATION bin/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
+     endif()
+   endif()
+ 
+diff -urN aws-sdk-cpp-old/aws-cpp-sdk-gamelift/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-gamelift/CMakeLists.txt
+--- aws-sdk-cpp-old/aws-cpp-sdk-gamelift/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
++++ aws-sdk-cpp/aws-cpp-sdk-gamelift/CMakeLists.txt	2016-08-17 17:49:24.858474861 +0530
+@@ -68,16 +68,16 @@
+   if(SIMPLE_INSTALL)
+       install (TARGETS aws-cpp-sdk-gamelift
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
+-               LIBRARY DESTINATION lib
+-               RUNTIME DESTINATION bin)
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY})
+   else()
+     if(PLATFORM_CUSTOM)
+       install_custom_library(aws-cpp-sdk-gamelift)
+     else()
+       install (TARGETS aws-cpp-sdk-gamelift
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               LIBRARY DESTINATION lib/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               RUNTIME DESTINATION bin/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
+     endif()
+   endif()
+ 
+diff -urN aws-sdk-cpp-old/aws-cpp-sdk-glacier/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-glacier/CMakeLists.txt
+--- aws-sdk-cpp-old/aws-cpp-sdk-glacier/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
++++ aws-sdk-cpp/aws-cpp-sdk-glacier/CMakeLists.txt	2016-08-17 17:49:22.652471585 +0530
+@@ -68,16 +68,16 @@
+   if(SIMPLE_INSTALL)
+       install (TARGETS aws-cpp-sdk-glacier
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
+-               LIBRARY DESTINATION lib
+-               RUNTIME DESTINATION bin)
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY})
+   else()
+     if(PLATFORM_CUSTOM)
+       install_custom_library(aws-cpp-sdk-glacier)
+     else()
+       install (TARGETS aws-cpp-sdk-glacier
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               LIBRARY DESTINATION lib/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               RUNTIME DESTINATION bin/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
+     endif()
+   endif()
+ 
+diff -urN aws-sdk-cpp-old/aws-cpp-sdk-iam/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-iam/CMakeLists.txt
+--- aws-sdk-cpp-old/aws-cpp-sdk-iam/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
++++ aws-sdk-cpp/aws-cpp-sdk-iam/CMakeLists.txt	2016-08-17 17:49:24.311474048 +0530
+@@ -68,16 +68,16 @@
+   if(SIMPLE_INSTALL)
+       install (TARGETS aws-cpp-sdk-iam
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
+-               LIBRARY DESTINATION lib
+-               RUNTIME DESTINATION bin)
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY})
+   else()
+     if(PLATFORM_CUSTOM)
+       install_custom_library(aws-cpp-sdk-iam)
+     else()
+       install (TARGETS aws-cpp-sdk-iam
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               LIBRARY DESTINATION lib/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               RUNTIME DESTINATION bin/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
+     endif()
+   endif()
+ 
+diff -urN aws-sdk-cpp-old/aws-cpp-sdk-identity-management/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-identity-management/CMakeLists.txt
+--- aws-sdk-cpp-old/aws-cpp-sdk-identity-management/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
++++ aws-sdk-cpp/aws-cpp-sdk-identity-management/CMakeLists.txt	2016-08-17 17:49:25.362475610 +0530
+@@ -48,16 +48,16 @@
+ if(SIMPLE_INSTALL)
+     install (TARGETS aws-cpp-sdk-identity-management
+             ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
+-            LIBRARY DESTINATION lib
+-            RUNTIME DESTINATION bin)
++            LIBRARY DESTINATION ${LIBRARY_DIRECTORY}
++            RUNTIME DESTINATION ${BINARY_DIRECTORY})
+ else()
+     if(PLATFORM_CUSTOM)
+         install_custom_library(aws-cpp-sdk-identity-management)
+     else()
+         install (TARGETS aws-cpp-sdk-identity-management
+                  ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-                 LIBRARY DESTINATION lib/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-                 RUNTIME DESTINATION bin/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
++                 LIBRARY DESTINATION ${LIBRARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
++                 RUNTIME DESTINATION ${BINARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
+     endif()
+ endif()
+ 
+diff -urN aws-sdk-cpp-old/aws-cpp-sdk-importexport/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-importexport/CMakeLists.txt
+--- aws-sdk-cpp-old/aws-cpp-sdk-importexport/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
++++ aws-sdk-cpp/aws-cpp-sdk-importexport/CMakeLists.txt	2016-08-17 17:49:25.570475918 +0530
+@@ -68,16 +68,16 @@
+   if(SIMPLE_INSTALL)
+       install (TARGETS aws-cpp-sdk-importexport
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
+-               LIBRARY DESTINATION lib
+-               RUNTIME DESTINATION bin)
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY})
+   else()
+     if(PLATFORM_CUSTOM)
+       install_custom_library(aws-cpp-sdk-importexport)
+     else()
+       install (TARGETS aws-cpp-sdk-importexport
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               LIBRARY DESTINATION lib/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               RUNTIME DESTINATION bin/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
+     endif()
+   endif()
+ 
+diff -urN aws-sdk-cpp-old/aws-cpp-sdk-inspector/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-inspector/CMakeLists.txt
+--- aws-sdk-cpp-old/aws-cpp-sdk-inspector/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
++++ aws-sdk-cpp/aws-cpp-sdk-inspector/CMakeLists.txt	2016-08-17 17:49:23.424472731 +0530
+@@ -68,16 +68,16 @@
+   if(SIMPLE_INSTALL)
+       install (TARGETS aws-cpp-sdk-inspector
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
+-               LIBRARY DESTINATION lib
+-               RUNTIME DESTINATION bin)
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY})
+   else()
+     if(PLATFORM_CUSTOM)
+       install_custom_library(aws-cpp-sdk-inspector)
+     else()
+       install (TARGETS aws-cpp-sdk-inspector
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               LIBRARY DESTINATION lib/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               RUNTIME DESTINATION bin/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
+     endif()
+   endif()
+ 
+diff -urN aws-sdk-cpp-old/aws-cpp-sdk-iot/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-iot/CMakeLists.txt
+--- aws-sdk-cpp-old/aws-cpp-sdk-iot/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
++++ aws-sdk-cpp/aws-cpp-sdk-iot/CMakeLists.txt	2016-08-17 17:49:25.804476266 +0530
+@@ -68,16 +68,16 @@
+   if(SIMPLE_INSTALL)
+       install (TARGETS aws-cpp-sdk-iot
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
+-               LIBRARY DESTINATION lib
+-               RUNTIME DESTINATION bin)
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY})
+   else()
+     if(PLATFORM_CUSTOM)
+       install_custom_library(aws-cpp-sdk-iot)
+     else()
+       install (TARGETS aws-cpp-sdk-iot
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               LIBRARY DESTINATION lib/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               RUNTIME DESTINATION bin/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
+     endif()
+   endif()
+ 
+diff -urN aws-sdk-cpp-old/aws-cpp-sdk-kinesis/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-kinesis/CMakeLists.txt
+--- aws-sdk-cpp-old/aws-cpp-sdk-kinesis/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
++++ aws-sdk-cpp/aws-cpp-sdk-kinesis/CMakeLists.txt	2016-08-17 17:49:25.971476514 +0530
+@@ -68,16 +68,16 @@
+   if(SIMPLE_INSTALL)
+       install (TARGETS aws-cpp-sdk-kinesis
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
+-               LIBRARY DESTINATION lib
+-               RUNTIME DESTINATION bin)
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY})
+   else()
+     if(PLATFORM_CUSTOM)
+       install_custom_library(aws-cpp-sdk-kinesis)
+     else()
+       install (TARGETS aws-cpp-sdk-kinesis
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               LIBRARY DESTINATION lib/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               RUNTIME DESTINATION bin/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
+     endif()
+   endif()
+ 
+diff -urN aws-sdk-cpp-old/aws-cpp-sdk-kms/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-kms/CMakeLists.txt
+--- aws-sdk-cpp-old/aws-cpp-sdk-kms/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
++++ aws-sdk-cpp/aws-cpp-sdk-kms/CMakeLists.txt	2016-08-17 17:49:23.220472428 +0530
+@@ -68,16 +68,16 @@
+   if(SIMPLE_INSTALL)
+       install (TARGETS aws-cpp-sdk-kms
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
+-               LIBRARY DESTINATION lib
+-               RUNTIME DESTINATION bin)
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY})
+   else()
+     if(PLATFORM_CUSTOM)
+       install_custom_library(aws-cpp-sdk-kms)
+     else()
+       install (TARGETS aws-cpp-sdk-kms
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               LIBRARY DESTINATION lib/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               RUNTIME DESTINATION bin/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
+     endif()
+   endif()
+ 
+diff -urN aws-sdk-cpp-old/aws-cpp-sdk-lambda/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-lambda/CMakeLists.txt
+--- aws-sdk-cpp-old/aws-cpp-sdk-lambda/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
++++ aws-sdk-cpp/aws-cpp-sdk-lambda/CMakeLists.txt	2016-08-17 17:49:25.172475327 +0530
+@@ -68,16 +68,16 @@
+   if(SIMPLE_INSTALL)
+       install (TARGETS aws-cpp-sdk-lambda
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
+-               LIBRARY DESTINATION lib
+-               RUNTIME DESTINATION bin)
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY})
+   else()
+     if(PLATFORM_CUSTOM)
+       install_custom_library(aws-cpp-sdk-lambda)
+     else()
+       install (TARGETS aws-cpp-sdk-lambda
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               LIBRARY DESTINATION lib/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               RUNTIME DESTINATION bin/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
+     endif()
+   endif()
+ 
+diff -urN aws-sdk-cpp-old/aws-cpp-sdk-logs/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-logs/CMakeLists.txt
+--- aws-sdk-cpp-old/aws-cpp-sdk-logs/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
++++ aws-sdk-cpp/aws-cpp-sdk-logs/CMakeLists.txt	2016-08-17 17:49:25.306475526 +0530
+@@ -68,16 +68,16 @@
+   if(SIMPLE_INSTALL)
+       install (TARGETS aws-cpp-sdk-logs
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
+-               LIBRARY DESTINATION lib
+-               RUNTIME DESTINATION bin)
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY})
+   else()
+     if(PLATFORM_CUSTOM)
+       install_custom_library(aws-cpp-sdk-logs)
+     else()
+       install (TARGETS aws-cpp-sdk-logs
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               LIBRARY DESTINATION lib/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               RUNTIME DESTINATION bin/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
+     endif()
+   endif()
+ 
+diff -urN aws-sdk-cpp-old/aws-cpp-sdk-machinelearning/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-machinelearning/CMakeLists.txt
+--- aws-sdk-cpp-old/aws-cpp-sdk-machinelearning/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
++++ aws-sdk-cpp/aws-cpp-sdk-machinelearning/CMakeLists.txt	2016-08-17 17:49:25.386475645 +0530
+@@ -68,16 +68,16 @@
+   if(SIMPLE_INSTALL)
+       install (TARGETS aws-cpp-sdk-machinelearning
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
+-               LIBRARY DESTINATION lib
+-               RUNTIME DESTINATION bin)
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY})
+   else()
+     if(PLATFORM_CUSTOM)
+       install_custom_library(aws-cpp-sdk-machinelearning)
+     else()
+       install (TARGETS aws-cpp-sdk-machinelearning
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               LIBRARY DESTINATION lib/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               RUNTIME DESTINATION bin/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
+     endif()
+   endif()
+ 
+diff -urN aws-sdk-cpp-old/aws-cpp-sdk-marketplacecommerceanalytics/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-marketplacecommerceanalytics/CMakeLists.txt
+--- aws-sdk-cpp-old/aws-cpp-sdk-marketplacecommerceanalytics/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
++++ aws-sdk-cpp/aws-cpp-sdk-marketplacecommerceanalytics/CMakeLists.txt	2016-08-17 17:49:23.841473351 +0530
+@@ -68,16 +68,16 @@
+   if(SIMPLE_INSTALL)
+       install (TARGETS aws-cpp-sdk-marketplacecommerceanalytics
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
+-               LIBRARY DESTINATION lib
+-               RUNTIME DESTINATION bin)
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY})
+   else()
+     if(PLATFORM_CUSTOM)
+       install_custom_library(aws-cpp-sdk-marketplacecommerceanalytics)
+     else()
+       install (TARGETS aws-cpp-sdk-marketplacecommerceanalytics
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               LIBRARY DESTINATION lib/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               RUNTIME DESTINATION bin/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
+     endif()
+   endif()
+ 
+diff -urN aws-sdk-cpp-old/aws-cpp-sdk-meteringmarketplace/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-meteringmarketplace/CMakeLists.txt
+--- aws-sdk-cpp-old/aws-cpp-sdk-meteringmarketplace/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
++++ aws-sdk-cpp/aws-cpp-sdk-meteringmarketplace/CMakeLists.txt	2016-08-17 17:49:25.470475770 +0530
+@@ -68,16 +68,16 @@
+   if(SIMPLE_INSTALL)
+       install (TARGETS aws-cpp-sdk-meteringmarketplace
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
+-               LIBRARY DESTINATION lib
+-               RUNTIME DESTINATION bin)
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY})
+   else()
+     if(PLATFORM_CUSTOM)
+       install_custom_library(aws-cpp-sdk-meteringmarketplace)
+     else()
+       install (TARGETS aws-cpp-sdk-meteringmarketplace
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               LIBRARY DESTINATION lib/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               RUNTIME DESTINATION bin/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
+     endif()
+   endif()
+ 
+diff -urN aws-sdk-cpp-old/aws-cpp-sdk-mobileanalytics/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-mobileanalytics/CMakeLists.txt
+--- aws-sdk-cpp-old/aws-cpp-sdk-mobileanalytics/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
++++ aws-sdk-cpp/aws-cpp-sdk-mobileanalytics/CMakeLists.txt	2016-08-17 17:49:23.135472302 +0530
+@@ -68,16 +68,16 @@
+   if(SIMPLE_INSTALL)
+       install (TARGETS aws-cpp-sdk-mobileanalytics
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
+-               LIBRARY DESTINATION lib
+-               RUNTIME DESTINATION bin)
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY})
+   else()
+     if(PLATFORM_CUSTOM)
+       install_custom_library(aws-cpp-sdk-mobileanalytics)
+     else()
+       install (TARGETS aws-cpp-sdk-mobileanalytics
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               LIBRARY DESTINATION lib/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               RUNTIME DESTINATION bin/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
+     endif()
+   endif()
+ 
+diff -urN aws-sdk-cpp-old/aws-cpp-sdk-monitoring/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-monitoring/CMakeLists.txt
+--- aws-sdk-cpp-old/aws-cpp-sdk-monitoring/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
++++ aws-sdk-cpp/aws-cpp-sdk-monitoring/CMakeLists.txt	2016-08-17 17:49:25.331475563 +0530
+@@ -68,16 +68,16 @@
+   if(SIMPLE_INSTALL)
+       install (TARGETS aws-cpp-sdk-monitoring
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
+-               LIBRARY DESTINATION lib
+-               RUNTIME DESTINATION bin)
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY})
+   else()
+     if(PLATFORM_CUSTOM)
+       install_custom_library(aws-cpp-sdk-monitoring)
+     else()
+       install (TARGETS aws-cpp-sdk-monitoring
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               LIBRARY DESTINATION lib/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               RUNTIME DESTINATION bin/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
+     endif()
+   endif()
+ 
+diff -urN aws-sdk-cpp-old/aws-cpp-sdk-opsworks/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-opsworks/CMakeLists.txt
+--- aws-sdk-cpp-old/aws-cpp-sdk-opsworks/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
++++ aws-sdk-cpp/aws-cpp-sdk-opsworks/CMakeLists.txt	2016-08-17 17:49:25.578475930 +0530
+@@ -68,16 +68,16 @@
+   if(SIMPLE_INSTALL)
+       install (TARGETS aws-cpp-sdk-opsworks
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
+-               LIBRARY DESTINATION lib
+-               RUNTIME DESTINATION bin)
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY})
+   else()
+     if(PLATFORM_CUSTOM)
+       install_custom_library(aws-cpp-sdk-opsworks)
+     else()
+       install (TARGETS aws-cpp-sdk-opsworks
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               LIBRARY DESTINATION lib/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               RUNTIME DESTINATION bin/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
+     endif()
+   endif()
+ 
+diff -urN aws-sdk-cpp-old/aws-cpp-sdk-queues/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-queues/CMakeLists.txt
+--- aws-sdk-cpp-old/aws-cpp-sdk-queues/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
++++ aws-sdk-cpp/aws-cpp-sdk-queues/CMakeLists.txt	2016-08-17 17:49:23.613473012 +0530
+@@ -48,16 +48,16 @@
+ if(SIMPLE_INSTALL)
+     install (TARGETS aws-cpp-sdk-queues
+             ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
+-            LIBRARY DESTINATION lib
+-            RUNTIME DESTINATION bin)
++            LIBRARY DESTINATION ${LIBRARY_DIRECTORY}
++            RUNTIME DESTINATION ${BINARY_DIRECTORY})
+ else()
+     if(PLATFORM_CUSTOM)
+         install_custom_library(aws-cpp-sdk-queues)
+     else()
+         install (TARGETS aws-cpp-sdk-queues
+                  ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-                 LIBRARY DESTINATION lib/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-                 RUNTIME DESTINATION bin/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
++                 LIBRARY DESTINATION ${LIBRARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
++                 RUNTIME DESTINATION ${BINARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
+     endif()
+ endif()
+ 
+diff -urN aws-sdk-cpp-old/aws-cpp-sdk-rds/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-rds/CMakeLists.txt
+--- aws-sdk-cpp-old/aws-cpp-sdk-rds/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
++++ aws-sdk-cpp/aws-cpp-sdk-rds/CMakeLists.txt	2016-08-17 17:49:24.629474521 +0530
+@@ -68,16 +68,16 @@
+   if(SIMPLE_INSTALL)
+       install (TARGETS aws-cpp-sdk-rds
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
+-               LIBRARY DESTINATION lib
+-               RUNTIME DESTINATION bin)
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY})
+   else()
+     if(PLATFORM_CUSTOM)
+       install_custom_library(aws-cpp-sdk-rds)
+     else()
+       install (TARGETS aws-cpp-sdk-rds
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               LIBRARY DESTINATION lib/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               RUNTIME DESTINATION bin/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
+     endif()
+   endif()
+ 
+diff -urN aws-sdk-cpp-old/aws-cpp-sdk-redshift/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-redshift/CMakeLists.txt
+--- aws-sdk-cpp-old/aws-cpp-sdk-redshift/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
++++ aws-sdk-cpp/aws-cpp-sdk-redshift/CMakeLists.txt	2016-08-17 17:49:23.261472489 +0530
+@@ -68,16 +68,16 @@
+   if(SIMPLE_INSTALL)
+       install (TARGETS aws-cpp-sdk-redshift
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
+-               LIBRARY DESTINATION lib
+-               RUNTIME DESTINATION bin)
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY})
+   else()
+     if(PLATFORM_CUSTOM)
+       install_custom_library(aws-cpp-sdk-redshift)
+     else()
+       install (TARGETS aws-cpp-sdk-redshift
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               LIBRARY DESTINATION lib/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               RUNTIME DESTINATION bin/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
+     endif()
+   endif()
+ 
+diff -urN aws-sdk-cpp-old/aws-cpp-sdk-route53/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-route53/CMakeLists.txt
+--- aws-sdk-cpp-old/aws-cpp-sdk-route53/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
++++ aws-sdk-cpp/aws-cpp-sdk-route53/CMakeLists.txt	2016-08-17 17:49:25.509475828 +0530
+@@ -68,16 +68,16 @@
+   if(SIMPLE_INSTALL)
+       install (TARGETS aws-cpp-sdk-route53
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
+-               LIBRARY DESTINATION lib
+-               RUNTIME DESTINATION bin)
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY})
+   else()
+     if(PLATFORM_CUSTOM)
+       install_custom_library(aws-cpp-sdk-route53)
+     else()
+       install (TARGETS aws-cpp-sdk-route53
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               LIBRARY DESTINATION lib/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               RUNTIME DESTINATION bin/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
+     endif()
+   endif()
+ 
+diff -urN aws-sdk-cpp-old/aws-cpp-sdk-route53domains/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-route53domains/CMakeLists.txt
+--- aws-sdk-cpp-old/aws-cpp-sdk-route53domains/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
++++ aws-sdk-cpp/aws-cpp-sdk-route53domains/CMakeLists.txt	2016-08-17 17:49:25.126475259 +0530
+@@ -68,16 +68,16 @@
+   if(SIMPLE_INSTALL)
+       install (TARGETS aws-cpp-sdk-route53domains
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
+-               LIBRARY DESTINATION lib
+-               RUNTIME DESTINATION bin)
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY})
+   else()
+     if(PLATFORM_CUSTOM)
+       install_custom_library(aws-cpp-sdk-route53domains)
+     else()
+       install (TARGETS aws-cpp-sdk-route53domains
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               LIBRARY DESTINATION lib/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               RUNTIME DESTINATION bin/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
+     endif()
+   endif()
+ 
+diff -urN aws-sdk-cpp-old/aws-cpp-sdk-s3/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-s3/CMakeLists.txt
+--- aws-sdk-cpp-old/aws-cpp-sdk-s3/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
++++ aws-sdk-cpp/aws-cpp-sdk-s3/CMakeLists.txt	2016-08-17 17:49:24.934474974 +0530
+@@ -68,16 +68,16 @@
+   if(SIMPLE_INSTALL)
+       install (TARGETS aws-cpp-sdk-s3
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
+-               LIBRARY DESTINATION lib
+-               RUNTIME DESTINATION bin)
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY})
+   else()
+     if(PLATFORM_CUSTOM)
+       install_custom_library(aws-cpp-sdk-s3)
+     else()
+       install (TARGETS aws-cpp-sdk-s3
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               LIBRARY DESTINATION lib/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               RUNTIME DESTINATION bin/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
+     endif()
+   endif()
+ 
+diff -urN aws-sdk-cpp-old/aws-cpp-sdk-sdb/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-sdb/CMakeLists.txt
+--- aws-sdk-cpp-old/aws-cpp-sdk-sdb/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
++++ aws-sdk-cpp/aws-cpp-sdk-sdb/CMakeLists.txt	2016-08-17 17:49:25.473475774 +0530
+@@ -68,16 +68,16 @@
+   if(SIMPLE_INSTALL)
+       install (TARGETS aws-cpp-sdk-sdb
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
+-               LIBRARY DESTINATION lib
+-               RUNTIME DESTINATION bin)
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY})
+   else()
+     if(PLATFORM_CUSTOM)
+       install_custom_library(aws-cpp-sdk-sdb)
+     else()
+       install (TARGETS aws-cpp-sdk-sdb
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               LIBRARY DESTINATION lib/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               RUNTIME DESTINATION bin/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
+     endif()
+   endif()
+ 
+diff -urN aws-sdk-cpp-old/aws-cpp-sdk-servicecatalog/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-servicecatalog/CMakeLists.txt
+--- aws-sdk-cpp-old/aws-cpp-sdk-servicecatalog/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
++++ aws-sdk-cpp/aws-cpp-sdk-servicecatalog/CMakeLists.txt	2016-08-17 17:49:23.468472797 +0530
+@@ -68,16 +68,16 @@
+   if(SIMPLE_INSTALL)
+       install (TARGETS aws-cpp-sdk-servicecatalog
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
+-               LIBRARY DESTINATION lib
+-               RUNTIME DESTINATION bin)
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY})
+   else()
+     if(PLATFORM_CUSTOM)
+       install_custom_library(aws-cpp-sdk-servicecatalog)
+     else()
+       install (TARGETS aws-cpp-sdk-servicecatalog
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               LIBRARY DESTINATION lib/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               RUNTIME DESTINATION bin/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
+     endif()
+   endif()
+ 
+diff -urN aws-sdk-cpp-old/aws-cpp-sdk-snowball/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-snowball/CMakeLists.txt
+--- aws-sdk-cpp-old/aws-cpp-sdk-snowball/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
++++ aws-sdk-cpp/aws-cpp-sdk-snowball/CMakeLists.txt	2016-08-17 17:49:24.908474935 +0530
+@@ -68,16 +68,16 @@
+   if(SIMPLE_INSTALL)
+       install (TARGETS aws-cpp-sdk-snowball
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
+-               LIBRARY DESTINATION lib
+-               RUNTIME DESTINATION bin)
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY})
+   else()
+     if(PLATFORM_CUSTOM)
+       install_custom_library(aws-cpp-sdk-snowball)
+     else()
+       install (TARGETS aws-cpp-sdk-snowball
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               LIBRARY DESTINATION lib/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               RUNTIME DESTINATION bin/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
+     endif()
+   endif()
+ 
+diff -urN aws-sdk-cpp-old/aws-cpp-sdk-sns/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-sns/CMakeLists.txt
+--- aws-sdk-cpp-old/aws-cpp-sdk-sns/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
++++ aws-sdk-cpp/aws-cpp-sdk-sns/CMakeLists.txt	2016-08-17 17:49:23.392472684 +0530
+@@ -68,16 +68,16 @@
+   if(SIMPLE_INSTALL)
+       install (TARGETS aws-cpp-sdk-sns
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
+-               LIBRARY DESTINATION lib
+-               RUNTIME DESTINATION bin)
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY})
+   else()
+     if(PLATFORM_CUSTOM)
+       install_custom_library(aws-cpp-sdk-sns)
+     else()
+       install (TARGETS aws-cpp-sdk-sns
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               LIBRARY DESTINATION lib/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               RUNTIME DESTINATION bin/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
+     endif()
+   endif()
+ 
+diff -urN aws-sdk-cpp-old/aws-cpp-sdk-sqs/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-sqs/CMakeLists.txt
+--- aws-sdk-cpp-old/aws-cpp-sdk-sqs/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
++++ aws-sdk-cpp/aws-cpp-sdk-sqs/CMakeLists.txt	2016-08-17 17:49:23.820473319 +0530
+@@ -68,16 +68,16 @@
+   if(SIMPLE_INSTALL)
+       install (TARGETS aws-cpp-sdk-sqs
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
+-               LIBRARY DESTINATION lib
+-               RUNTIME DESTINATION bin)
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY})
+   else()
+     if(PLATFORM_CUSTOM)
+       install_custom_library(aws-cpp-sdk-sqs)
+     else()
+       install (TARGETS aws-cpp-sdk-sqs
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               LIBRARY DESTINATION lib/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               RUNTIME DESTINATION bin/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
+     endif()
+   endif()
+ 
+diff -urN aws-sdk-cpp-old/aws-cpp-sdk-ssm/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-ssm/CMakeLists.txt
+--- aws-sdk-cpp-old/aws-cpp-sdk-ssm/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
++++ aws-sdk-cpp/aws-cpp-sdk-ssm/CMakeLists.txt	2016-08-17 17:49:23.782473263 +0530
+@@ -68,16 +68,16 @@
+   if(SIMPLE_INSTALL)
+       install (TARGETS aws-cpp-sdk-ssm
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
+-               LIBRARY DESTINATION lib
+-               RUNTIME DESTINATION bin)
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY})
+   else()
+     if(PLATFORM_CUSTOM)
+       install_custom_library(aws-cpp-sdk-ssm)
+     else()
+       install (TARGETS aws-cpp-sdk-ssm
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               LIBRARY DESTINATION lib/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               RUNTIME DESTINATION bin/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
+     endif()
+   endif()
+ 
+diff -urN aws-sdk-cpp-old/aws-cpp-sdk-storagegateway/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-storagegateway/CMakeLists.txt
+--- aws-sdk-cpp-old/aws-cpp-sdk-storagegateway/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
++++ aws-sdk-cpp/aws-cpp-sdk-storagegateway/CMakeLists.txt	2016-08-17 17:49:22.580471478 +0530
+@@ -68,16 +68,16 @@
+   if(SIMPLE_INSTALL)
+       install (TARGETS aws-cpp-sdk-storagegateway
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
+-               LIBRARY DESTINATION lib
+-               RUNTIME DESTINATION bin)
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY})
+   else()
+     if(PLATFORM_CUSTOM)
+       install_custom_library(aws-cpp-sdk-storagegateway)
+     else()
+       install (TARGETS aws-cpp-sdk-storagegateway
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               LIBRARY DESTINATION lib/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               RUNTIME DESTINATION bin/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
+     endif()
+   endif()
+ 
+diff -urN aws-sdk-cpp-old/aws-cpp-sdk-sts/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-sts/CMakeLists.txt
+--- aws-sdk-cpp-old/aws-cpp-sdk-sts/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
++++ aws-sdk-cpp/aws-cpp-sdk-sts/CMakeLists.txt	2016-08-17 17:49:25.348475589 +0530
+@@ -68,16 +68,16 @@
+   if(SIMPLE_INSTALL)
+       install (TARGETS aws-cpp-sdk-sts
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
+-               LIBRARY DESTINATION lib
+-               RUNTIME DESTINATION bin)
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY})
+   else()
+     if(PLATFORM_CUSTOM)
+       install_custom_library(aws-cpp-sdk-sts)
+     else()
+       install (TARGETS aws-cpp-sdk-sts
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               LIBRARY DESTINATION lib/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               RUNTIME DESTINATION bin/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
+     endif()
+   endif()
+ 
+diff -urN aws-sdk-cpp-old/aws-cpp-sdk-support/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-support/CMakeLists.txt
+--- aws-sdk-cpp-old/aws-cpp-sdk-support/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
++++ aws-sdk-cpp/aws-cpp-sdk-support/CMakeLists.txt	2016-08-17 17:49:23.698473138 +0530
+@@ -68,16 +68,16 @@
+   if(SIMPLE_INSTALL)
+       install (TARGETS aws-cpp-sdk-support
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
+-               LIBRARY DESTINATION lib
+-               RUNTIME DESTINATION bin)
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY})
+   else()
+     if(PLATFORM_CUSTOM)
+       install_custom_library(aws-cpp-sdk-support)
+     else()
+       install (TARGETS aws-cpp-sdk-support
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               LIBRARY DESTINATION lib/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               RUNTIME DESTINATION bin/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
+     endif()
+   endif()
+ 
+diff -urN aws-sdk-cpp-old/aws-cpp-sdk-swf/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-swf/CMakeLists.txt
+--- aws-sdk-cpp-old/aws-cpp-sdk-swf/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
++++ aws-sdk-cpp/aws-cpp-sdk-swf/CMakeLists.txt	2016-08-17 17:49:24.543474393 +0530
+@@ -68,16 +68,16 @@
+   if(SIMPLE_INSTALL)
+       install (TARGETS aws-cpp-sdk-swf
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
+-               LIBRARY DESTINATION lib
+-               RUNTIME DESTINATION bin)
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY})
+   else()
+     if(PLATFORM_CUSTOM)
+       install_custom_library(aws-cpp-sdk-swf)
+     else()
+       install (TARGETS aws-cpp-sdk-swf
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               LIBRARY DESTINATION lib/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               RUNTIME DESTINATION bin/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
+     endif()
+   endif()
+ 
+diff -urN aws-sdk-cpp-old/aws-cpp-sdk-transfer/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-transfer/CMakeLists.txt
+--- aws-sdk-cpp-old/aws-cpp-sdk-transfer/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
++++ aws-sdk-cpp/aws-cpp-sdk-transfer/CMakeLists.txt	2016-08-17 17:49:24.420474210 +0530
+@@ -49,16 +49,16 @@
+ if(SIMPLE_INSTALL)
+     install (TARGETS aws-cpp-sdk-transfer
+             ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
+-            LIBRARY DESTINATION lib
+-            RUNTIME DESTINATION bin)
++            LIBRARY DESTINATION ${LIBRARY_DIRECTORY}
++            RUNTIME DESTINATION ${BINARY_DIRECTORY})
+ else()
+     if(PLATFORM_CUSTOM)
+         install_custom_library(aws-cpp-sdk-transfer)
+     else()
+         install (TARGETS aws-cpp-sdk-transfer
+                  ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-                 LIBRARY DESTINATION lib/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-                RUNTIME DESTINATION bin/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
++                 LIBRARY DESTINATION ${LIBRARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
++                RUNTIME DESTINATION ${BINARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
+     endif()
+ endif()
+ 
+diff -urN aws-sdk-cpp-old/aws-cpp-sdk-waf/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-waf/CMakeLists.txt
+--- aws-sdk-cpp-old/aws-cpp-sdk-waf/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
++++ aws-sdk-cpp/aws-cpp-sdk-waf/CMakeLists.txt	2016-08-17 17:49:23.556472927 +0530
+@@ -68,16 +68,16 @@
+   if(SIMPLE_INSTALL)
+       install (TARGETS aws-cpp-sdk-waf
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
+-               LIBRARY DESTINATION lib
+-               RUNTIME DESTINATION bin)
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY})
+   else()
+     if(PLATFORM_CUSTOM)
+       install_custom_library(aws-cpp-sdk-waf)
+     else()
+       install (TARGETS aws-cpp-sdk-waf
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               LIBRARY DESTINATION lib/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               RUNTIME DESTINATION bin/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
+     endif()
+   endif()
+ 
+diff -urN aws-sdk-cpp-old/aws-cpp-sdk-workspaces/CMakeLists.txt aws-sdk-cpp/aws-cpp-sdk-workspaces/CMakeLists.txt
+--- aws-sdk-cpp-old/aws-cpp-sdk-workspaces/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
++++ aws-sdk-cpp/aws-cpp-sdk-workspaces/CMakeLists.txt	2016-08-17 17:49:24.244473949 +0530
+@@ -68,16 +68,16 @@
+   if(SIMPLE_INSTALL)
+       install (TARGETS aws-cpp-sdk-workspaces
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
+-               LIBRARY DESTINATION lib
+-               RUNTIME DESTINATION bin)
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY})
+   else()
+     if(PLATFORM_CUSTOM)
+       install_custom_library(aws-cpp-sdk-workspaces)
+     else()
+       install (TARGETS aws-cpp-sdk-workspaces
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               LIBRARY DESTINATION lib/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               RUNTIME DESTINATION bin/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
+     endif()
+   endif()
+ 
+diff -urN aws-sdk-cpp-old/CMakeLists.txt aws-sdk-cpp/CMakeLists.txt
+--- aws-sdk-cpp-old/CMakeLists.txt	2016-08-13 04:05:50.000000000 +0530
++++ aws-sdk-cpp/CMakeLists.txt	2016-08-17 17:54:32.909938877 +0530
+@@ -81,6 +81,7 @@
+     SET(PLATFORM_WINDOWS 1)
+ elseif("${TARGET_ARCH}" STREQUAL "LINUX")
+     SET(PLATFORM_LINUX 1)
++    include(GNUInstallDirs)
+ elseif("${TARGET_ARCH}" STREQUAL "APPLE")
+     SET(PLATFORM_APPLE 1)
+ elseif("${TARGET_ARCH}" STREQUAL "ANDROID")
+@@ -261,11 +262,18 @@
+ endif()
+ 
+ if(BUILD_SHARED_LIBS)
+-    SET(ARCHIVE_DIRECTORY "bin")
++    SET(ARCHIVE_DIRECTORY bin)
++    SET(BINARY_DIRECTORY bin)
++    SET(LIBRARY_DIRECTORY lib)
+     SET(LIBTYPE SHARED)
+     if(PLATFORM_WINDOWS)
+         SET(SUFFIX dll)
+     elseif(PLATFORM_LINUX OR PLATFORM_ANDROID)
++        if(PLATFORM_LINUX)
++            SET(ARCHIVE_DIRECTORY "${CMAKE_INSTALL_BINDIR}")
++            SET(BINARY_DIRECTORY "${CMAKE_INSTALL_BINDIR}")
++            SET(LIBRARY_DIRECTORY "${CMAKE_INSTALL_LIBDIR}")
++        endif()
+         SET(SUFFIX so)
+     elseif(PLATFORM_APPLE)
+         SET(SUFFIX dylib)
+diff -urN aws-sdk-cpp-old/code-generation/generator/src/main/resources/com/amazonaws/util/awsclientgenerator/velocity/cpp/CMakeFile.vm aws-sdk-cpp/code-generation/generator/src/main/resources/com/amazonaws/util/awsclientgenerator/velocity/cpp/CMakeFile.vm
+--- aws-sdk-cpp-old/code-generation/generator/src/main/resources/com/amazonaws/util/awsclientgenerator/velocity/cpp/CMakeFile.vm	2016-08-13 04:05:50.000000000 +0530
++++ aws-sdk-cpp/code-generation/generator/src/main/resources/com/amazonaws/util/awsclientgenerator/velocity/cpp/CMakeFile.vm	2016-08-17 17:49:23.856473373 +0530
+@@ -72,16 +72,16 @@
+   if(SIMPLE_INSTALL)
+       install (TARGETS aws-cpp-sdk-${metadata.projectName}
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}
+-               LIBRARY DESTINATION lib
+-               RUNTIME DESTINATION bin)
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY})
+   else()
+     if(PLATFORM_CUSTOM)
+       install_custom_library(aws-cpp-sdk-${metadata.projectName})
+     else()
+       install (TARGETS aws-cpp-sdk-${metadata.projectName}
+                ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               LIBRARY DESTINATION lib/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
+-               RUNTIME DESTINATION bin/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
++               LIBRARY DESTINATION ${LIBRARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME}
++               RUNTIME DESTINATION ${BINARY_DIRECTORY}/${SDK_INSTALL_BINARY_PREFIX}/${PLATFORM_INSTALL_QUALIFIER}/\${CMAKE_INSTALL_CONFIG_NAME})
+     endif()
+   endif()
+ 

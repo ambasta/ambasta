@@ -1,0 +1,18 @@
+diff -urN aws-sdk-cpp-old/CMakeLists.txt aws-sdk-cpp/CMakeLists.txt
+--- aws-sdk-cpp-old/CMakeLists.txt	2016-08-17 17:55:03.647985864 +0530
++++ aws-sdk-cpp/CMakeLists.txt	2016-08-17 17:55:25.296019037 +0530
+@@ -1083,9 +1083,11 @@
+ LIST(APPEND EXPORTS "aws-cpp-sdk-core")
+ 
+ foreach(SDK IN LISTS SDK_BUILD_LIST)
+-    SET(SDK_DIR "aws-cpp-sdk-${SDK}")
+-    add_subdirectory("${SDK_DIR}")
+-    LIST(APPEND EXPORTS "${SDK_DIR}")
++    if(NOT "${SDK}" STREQUAL "core")
++        SET(SDK_DIR "aws-cpp-sdk-${SDK}")
++        add_subdirectory("${SDK_DIR}")
++        LIST(APPEND EXPORTS "${SDK_DIR}")
++    endif()
+ endforeach()
+ 
+ #at this point, if user has specified some customized clients, generate them and add them to the build here.
