@@ -9,6 +9,7 @@ inherit aws-cpp-sdk
 DESCRIPTION="AWS SDK for C++"
 HOMEPAGE="https://github.com/aws/aws-sdk-cpp"
 
+KEYWORDS="~amd64 ~x86"
 
 LICENSE="Apache-2.0"
 KEYWORDS="~amd64 ~x86"

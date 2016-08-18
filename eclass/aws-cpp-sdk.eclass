@@ -5,15 +5,10 @@ IUSE="-static-libs -custom-memory-management +http"
 if [[ ${PV} == 9999 ]]; then
 	inherit git-r3
 	EGIT_REPO_URI="https://github.com/aws/aws-sdk-cpp.git"
+	EGIT_CLONE_TYPE=single
 else
 	SRC_URI="https://github.com/aws/aws-sdk-cpp/archive/${PV}.tar.gz -> aws-cpp-sdk-${PV}.tar.gz"
-	KEYWORDS="~amd64 ~x86"
-fi
-
-if [[ ${PV} == 9999 ]]; then
-EGIT_CLONE_TYPE=single
-else
-S="${WORKDIR}/aws-sdk-cpp-${PV}"
+	S="${WORKDIR}/aws-sdk-cpp-${PV}"
 fi
 
 # @FUNCTION: aws-cpp-sdk_src_prepare
