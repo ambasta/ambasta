@@ -11,7 +11,7 @@ HOMEPAGE="http://www.grpc.io/"
 
 if [[ ${PV} == 9999 ]]; then
 	inherit git-r3
-	EGIT_REPO_URI="https://github.com/grpc/grpc.git"
+	EGIT_REPO_URI="https://github.com/ambasta/grpc.git"
 else
 	SRC_URI=""
 	KEYWORDS="~amd64 ~x86"
@@ -22,12 +22,10 @@ SLOT=0
 
 KEYWORDS="~amd64 ~x86"
 IUSE="static-libs"
-DEPEND="dev-libs/protobuf"
+DEPEND=">=dev-libs/protobuf-3.0.0:0"
 
 EGIT_CLONE_TYPE=single
 EGIT_SUBMODULES=('third_party/nanopb')
-
-PATCHES=( "${FILESDIR}/cmake-protobuf.patch" )
 
 src_configure() {
 	local mycmakeargs=(
