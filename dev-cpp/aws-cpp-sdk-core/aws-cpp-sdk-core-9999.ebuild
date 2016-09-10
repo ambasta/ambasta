@@ -14,7 +14,7 @@ KEYWORDS="~amd64 ~x86"
 LICENSE="Apache-2.0"
 IUSE="-static-libs -custom-memory-management +http"
 SLOT=0
-DEPEND=">=dev-cpp/aws-cpp-sdk-core-${PV}"
+DEPEND=""
 
 if [[ ${PV} == 9999 ]]; then
     inherit git-r3
