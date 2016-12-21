@@ -2,30 +2,32 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Id$
 
-EAPI=6
+EAPI=5
+
 inherit eutils versionator
 
 SLOT="0"
+PV_STRING="$(get_version_component_range 4-6)"
+MY_PV="$(get_version_component_range 1-3)"
 
-KEYWORDS="~amd64 ~x86"
-SRC_URI="http://download.jetbrains.com/cpp/${PN}-${PV}.tar.gz"
+SRC_URI="http://download.jetbrains.com/cpp/CLion-${MY_PV}.tar.gz -> ${PN}-${MY_PV}.tar.gz"
 DESCRIPTION="A complete toolset for C and C++ development"
 HOMEPAGE="http://www.jetbrains.com/clion"
 
+KEYWORDS="~amd64 ~x86"
 LICENSE="IDEA
 	|| ( IDEA_Academic IDEA_Classroom IDEA_OpenSource IDEA_Personal )"
+
 IUSE=""
 
-RDEPEND="${DEPEND}
-	|| (
-		sys-devel/gdb
-		sys-devel/llvm[lldb]
-	)
-	dev-util/cmake
-	>=virtual/jdk-1.8.0"
-S="${WORKDIR}/${PN,,}-${PV}"
+RDEPEND="
+	${DEPEND}
+	sys-devel/gdb
+	dev-util/cmake"
 
-QA_PREBUILT="opt/${PN}-${PV}/*"
+S="${WORKDIR}/${PN}-${MY_PV}"
+
+QA_PREBUILT="opt/${PN}-${MY_PV}/*"
 
 src_prepare() {
 	if ! use amd64; then
@@ -42,31 +44,28 @@ src_prepare() {
 		rm -r plugins/tfsIntegration/lib/native/linux/x86 || die
 	fi
 
-	rm -r bin/cmake || die
-	rm license/CMake* || die
-	rm -r bin/gdb || die
-	rm license/GDB* || die
-	rm -r bin/lldb || die
-	rm license/LLDB* || die
+	local REMOVE_ME=(
+		bin/gdb
+	    bin/cmake
+	    license/GDB*
+	    license/CMake*
+		plugins/tfsIntegration/lib/native/hpux
+		plugins/tfsIntegration/lib/native/solaris
+	)
 
-	rm -r plugins/tfsIntegration/lib/native/aix || die
-	rm -r plugins/tfsIntegration/lib/native/freebsd || die
-	rm -r plugins/tfsIntegration/lib/native/hpux || die
-	rm -r plugins/tfsIntegration/lib/native/solaris || die
-	rm -r plugins/tfsIntegration/lib/native/macosx || die
-	rm -r plugins/tfsIntegration/lib/native/win32 || die
-	eapply_user
+	rm -r "${REMOVE_ME[@]}" || die
 }
 
 src_install() {
-	local dir="/opt/${PN}-${PV}"
+	local dir="/opt/${PN}-${MY_PV}"
 
 	insinto "${dir}"
 	doins -r *
 	fperms 755 "${dir}"/bin/{clion.sh,fsnotifier{,64}}
 
-	make_wrapper "${PN}" "${dir}/bin/${PN,,}.sh"
-	newicon "bin/${PN,,}.svg" "${PN}.svg"
+	make_wrapper "${PN}" "${dir}/bin/${PN}.sh"
+	newicon "bin/${PN}.svg" "${PN}.svg"
+	make_desktop_entry "${PN}" "clion" "${PN}" "Development;IDE;"
 
 	# recommended by: https://confluence.jetbrains.com/display/IDEADEV/Inotify+Watches+Limit
 	mkdir -p "${D}/etc/sysctl.d/" || die
