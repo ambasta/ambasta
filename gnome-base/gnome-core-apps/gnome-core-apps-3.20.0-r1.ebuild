@@ -46,10 +46,10 @@ RDEPEND="
 		>=gnome-extra/gnome-contacts-3.18.0
 		>=net-im/empathy-3.12.11
 		>=gnome-extra/gnome-user-docs-${PV}
+		cdr? ( >=app-cdr/brasero-3.12.1 )
 		>=gnome-extra/yelp-${PV} )
 
 	bluetooth? ( >=net-wireless/gnome-bluetooth-3.18.0 )
-	cdr? ( >=app-cdr/brasero-3.12.1 )
 
 	!gnome-base/gnome-applets
 "

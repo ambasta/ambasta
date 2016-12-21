@@ -35,7 +35,6 @@ RDEPEND="
 	>=media-gfx/gnome-font-viewer-${PV}
 	>=media-gfx/gnome-screenshot-${PV}
 	>=media-video/cheese-${PV}
-	>=net-analyzer/gnome-nettool-3.8
 	>=sys-apps/baobab-${PV}
 	>=sys-apps/gnome-disk-utility-${PV}
 
@@ -48,6 +47,7 @@ RDEPEND="
 		>=media-sound/sound-juicer-${PV}
 		>=net-misc/vinagre-${PV}
 		>=net-misc/vino-${PV}
+		>=net-analyzer/gnome-nettool-3.8
 		>=www-client/epiphany-${PV} )
 
 	games? (
