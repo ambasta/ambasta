@@ -4,9 +4,7 @@
 
 EAPI=6
 
-PYTHON_COMPAT=( python2_7 )
-
-inherit cmake-utils python-r1
+inherit cmake-utils
 
 DESCRIPTION="An advanced SAT Solver"
 HOMEPAGE="https://github.com/msoos/cryptominisat"
@@ -15,27 +13,22 @@ SRC_URI="https://github.com/msoos/${PN}/archive/${PV}.tar.gz"
 KEYWORDS="~amd64"
 
 LICENSE="MIT"
-IUSE="boost python test threads valgrind zlib"
+IUSE="boost test threads valgrind zlib"
 SLOT=0
 
 DEPEND="dev-util/xxd
 	sci-libs/m4ri
 	valgrind? ( dev-util/valgrind )
-	python? ( dev-python/lit )
-	${PYTHON_DEPS}"
+	dev-python/lit"
 
 RDEPEND="${DEPEND}"
 
 PATCHES=( "${FILESDIR}/${PN}-gnuinstalldirs.patch" )
 
 src_configure() {
-	if use python; then
-		python_setup
-	fi
-
 	local mycmakeargs=(
 		-DONLY_SIMPLE=$(usex boost OFF ON)
-		-DENABLE_PYTHON_INTERFACE=$(usex python ON OFF)
+		-DENABLE_PYTHON_INTERFACE=OFF
 		-DUSE_PTHREADS=$(usex threads ON OFF)
 		-DENABLE_TESTING=$(usex test ON OFF)
 		-DNOZLIB=$(usex zlib OFF ON)
