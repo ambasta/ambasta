@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE repositories SYSTEM "/dtd/repositories.dtd">
+<repositories xmlns="" version="1.0">
+  <repo quality="experimental" status="unofficial">
+    <name><![CDATA[ambasta]]></name>
+    <description lang="en"><![CDATA[Ambasta Overlay]]></description>
+    <homepage>github.com/ambasta/ambasta/</homepage>
+    <owner type="person">
+      <email>amit.prakash.ambasta@gmail.com</email>
+      <name><![CDATA[Amit Prakash Ambasta]]></name>
+    </owner>
+    <source type="git">https://github.com/ambasta/ambasta.git</source>
+    <feed>https://github.com/ambasta/ambasta/commits/master.atom</feed>
+  </repo>
+</repositories>
