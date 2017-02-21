@@ -1,0 +1,206 @@
+diff -urN mongo-cxx-driver/CMakeLists.txt mongo-cxx-driver-r3.1.1/CMakeLists.txt
+--- mongo-cxx-driver/CMakeLists.txt	2016-12-21 01:53:11.000000000 +0530
++++ mongo-cxx-driver-r3.1.1/CMakeLists.txt	2017-02-03 13:59:48.656515202 +0530
+@@ -40,6 +40,20 @@
+   message(WARNING "Unknown compiler... recklessly proceeding without a version check")
+ endif()
+ 
++SET(ARCHIVE_DIRECTORY "lib")
++SET(BINARY_DIRECTORY "bin")
++SET(INCLUDE_DIRECTORY "include")
++SET(DATA_DIRECTORY "share")
++
++if(CMAKE_HOST_UNIX)
++    include(GNUInstallDirs)
++
++    SET(ARCHIVE_DIRECTORY "${CMAKE_INSTALL_LIBDIR}")
++    SET(BINARY_DIRECTORY "${CMAKE_INSTALL_BINDIR}")
++    SET(INCLUDE_DIRECTORY "${CMAKE_INSTALL_INCLUDEDIR}")
++    SET(DATA_DIRECTORY "${CMAKE_INSTALL_DATAROOTDIR}")
++endif ()
++
+ set (CMAKE_SKIP_BUILD_RPATH false)
+ set (CMAKE_BUILD_WITH_INSTALL_RPATH false)
+ set (CMAKE_INSTALL_RPATH_USE_LINK_PATH true)
+diff -urN mongo-cxx-driver/src/bsoncxx/CMakeLists.txt mongo-cxx-driver-r3.1.1/src/bsoncxx/CMakeLists.txt
+--- mongo-cxx-driver/src/bsoncxx/CMakeLists.txt	2016-12-21 01:53:11.000000000 +0530
++++ mongo-cxx-driver-r3.1.1/src/bsoncxx/CMakeLists.txt	2017-02-03 14:07:32.204031888 +0530
+@@ -60,7 +60,7 @@
+ 
+ set(BSONCXX_VERSION ${BSONCXX_VERSION_MAJOR}.${BSONCXX_VERSION_MINOR}.${BSONCXX_VERSION_PATCH}${BSONCXX_VERSION_EXTRA})
+ set(BSONCXX_INLINE_NAMESPACE "v${BSONCXX_ABI_VERSION}")
+-set(BSONCXX_HEADER_INSTALL_DIR "include/bsoncxx/${BSONCXX_INLINE_NAMESPACE}" CACHE INTERNAL "")
++set(BSONCXX_HEADER_INSTALL_DIR "${INCLUDE_DIRECTORY}/bsoncxx" CACHE INTERNAL "")
+ 
+ set(LIBBSON_REQUIRED_VERSION 1.5.0)
+ set(LIBBSON_REQUIRED_ABI_VERSION 1.0)
+@@ -155,7 +155,7 @@
+ target_link_libraries(bsoncxx_static ${bsoncxx_libs})
+ target_link_libraries(bsoncxx PRIVATE ${bsoncxx_libs})
+ 
+-install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
++install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
+     DESTINATION ${BSONCXX_HEADER_INSTALL_DIR}
+     COMPONENT dev
+     FILES_MATCHING
+@@ -164,33 +164,33 @@
+ 
+ install(FILES
+     ${CMAKE_CURRENT_BINARY_DIR}/config/export.hpp
+-    DESTINATION ${BSONCXX_HEADER_INSTALL_DIR}/bsoncxx/config
++    DESTINATION ${BSONCXX_HEADER_INSTALL_DIR}/config
+     COMPONENT dev
+ )
+ 
+ if (BUILD_SHARED_LIBS)
+     install(TARGETS
+         bsoncxx
+-        RUNTIME DESTINATION bin COMPONENT runtime
+-        LIBRARY DESTINATION lib COMPONENT runtime
+-        ARCHIVE DESTINATION lib COMPONENT dev
++        RUNTIME DESTINATION ${BINARY_DIRECTORY} COMPONENT runtime
++        LIBRARY DESTINATION ${ARCHIVE_DIRECTORY} COMPONENT runtime
++        ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY} COMPONENT dev
+     )
+ endif()
+ 
+ install(TARGETS
+     bsoncxx_static
+-    ARCHIVE DESTINATION lib COMPONENT dev
++    ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY} COMPONENT dev
+ )
+ 
+ set(PACKAGE_INCLUDE_INSTALL_DIRS ${BSONCXX_HEADER_INSTALL_DIR})
+-set(PACKAGE_LIBRARY_INSTALL_DIRS lib)
++set(PACKAGE_LIBRARY_INSTALL_DIRS ${ARCHIVE_DIRECTORY})
+ set(PACKAGE_LIBRARIES bsoncxx)
+ 
+ include(CMakePackageConfigHelpers)
+ 
+ configure_package_config_file(
+   cmake/libbsoncxx-config.cmake.in ${CMAKE_CURRENT_BINARY_DIR}/libbsoncxx-config.cmake
+-  INSTALL_DESTINATION lib/cmake/libbsoncxx-${BSONCXX_VERSION}
++  INSTALL_DESTINATION ${LIBRARY_DIRECTORY}/CMake/libbsoncxx-${BSONCXX_VERSION}
+   PATH_VARS PACKAGE_INCLUDE_INSTALL_DIRS PACKAGE_LIBRARY_INSTALL_DIRS
+ )
+ 
+@@ -202,7 +202,7 @@
+ 
+ install(
+   FILES ${CMAKE_CURRENT_BINARY_DIR}/libbsoncxx-config.cmake ${CMAKE_CURRENT_BINARY_DIR}/libbsoncxx-config-version.cmake
+-  DESTINATION lib/cmake/libbsoncxx-${BSONCXX_VERSION}
++  DESTINATION ${DATA_DIRECTORY}/cmake/modules/
+ )
+ 
+ add_subdirectory(test)
+diff -urN mongo-cxx-driver/src/bsoncxx/config/CMakeLists.txt mongo-cxx-driver-r3.1.1/src/bsoncxx/config/CMakeLists.txt
+--- mongo-cxx-driver/src/bsoncxx/config/CMakeLists.txt	2016-12-21 01:53:11.000000000 +0530
++++ mongo-cxx-driver-r3.1.1/src/bsoncxx/config/CMakeLists.txt	2017-02-03 14:16:38.874689456 +0530
+@@ -30,7 +30,7 @@
+ install(FILES
+     ${CMAKE_CURRENT_BINARY_DIR}/config.hpp
+     ${CMAKE_CURRENT_BINARY_DIR}/version.hpp
+-    DESTINATION ${BSONCXX_HEADER_INSTALL_DIR}/bsoncxx/config
++    DESTINATION ${BSONCXX_HEADER_INSTALL_DIR}/config
+     COMPONENT dev
+ )
+ 
+@@ -42,6 +42,6 @@
+ 
+ install(FILES
+     "${CMAKE_CURRENT_BINARY_DIR}/libbsoncxx.pc"
+-    DESTINATION lib/pkgconfig
++    DESTINATION ${ARCHIVE_DIRECTORY}/pkgconfig
+     COMPONENT dev
+ )
+diff -urN mongo-cxx-driver/src/mongocxx/CMakeLists.txt mongo-cxx-driver-r3.1.1/src/mongocxx/CMakeLists.txt
+--- mongo-cxx-driver/src/mongocxx/CMakeLists.txt	2016-12-21 01:53:11.000000000 +0530
++++ mongo-cxx-driver-r3.1.1/src/mongocxx/CMakeLists.txt	2017-02-03 14:07:12.697969809 +0530
+@@ -34,7 +34,7 @@
+ 
+ set(MONGOCXX_VERSION ${MONGOCXX_VERSION_MAJOR}.${MONGOCXX_VERSION_MINOR}.${MONGOCXX_VERSION_PATCH}${MONGOCXX_VERSION_EXTRA})
+ set(MONGOCXX_INLINE_NAMESPACE "v${MONGOCXX_ABI_VERSION}")
+-set(MONGOCXX_HEADER_INSTALL_DIR "include/mongocxx/${MONGOCXX_INLINE_NAMESPACE}" CACHE INTERNAL "")
++set(MONGOCXX_HEADER_INSTALL_DIR "${INCLUDE_DIRECTORY}/mongocxx" CACHE INTERNAL "")
+ 
+ add_subdirectory(config)
+ 
+@@ -166,7 +166,7 @@
+ target_link_libraries(mongocxx_mocked bsoncxx_static ${mongocxx_libs})
+ target_link_libraries(mongocxx PUBLIC bsoncxx PRIVATE ${mongocxx_libs})
+ 
+-install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
++install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
+     DESTINATION ${MONGOCXX_HEADER_INSTALL_DIR}
+     COMPONENT dev
+     FILES_MATCHING
+@@ -175,33 +175,33 @@
+ 
+ install(FILES
+     ${CMAKE_CURRENT_BINARY_DIR}/config/export.hpp
+-    DESTINATION ${MONGOCXX_HEADER_INSTALL_DIR}/mongocxx/config
++    DESTINATION ${MONGOCXX_HEADER_INSTALL_DIR}/config
+     COMPONENT dev
+ )
+ 
+ if (BUILD_SHARED_LIBS)
+     install(TARGETS
+         mongocxx
+-        RUNTIME DESTINATION bin COMPONENT runtime
+-        LIBRARY DESTINATION lib COMPONENT runtime
+-        ARCHIVE DESTINATION lib COMPONENT dev
++        RUNTIME DESTINATION ${BINARY_DIRECTORY} COMPONENT runtime
++        LIBRARY DESTINATION ${ARCHIVE_DIRECTORY} COMPONENT runtime
++        ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY} COMPONENT dev
+     )
+ endif()
+ 
+ install(TARGETS
+     mongocxx_static
+-    ARCHIVE DESTINATION lib COMPONENT dev
++    ARCHIVE DESTINATION ${ARCHIVE_DIRECTORY} COMPONENT dev
+ )
+ 
+ set(PACKAGE_INCLUDE_INSTALL_DIRS ${MONGOCXX_HEADER_INSTALL_DIR})
+-set(PACKAGE_LIBRARY_INSTALL_DIRS lib)
++set(PACKAGE_LIBRARY_INSTALL_DIRS ${ARCHIVE_DIRECTORY})
+ set(PACKAGE_LIBRARIES mongocxx)
+ 
+ include(CMakePackageConfigHelpers)
+ 
+ configure_package_config_file(
+   cmake/libmongocxx-config.cmake.in ${CMAKE_CURRENT_BINARY_DIR}/libmongocxx-config.cmake
+-  INSTALL_DESTINATION lib/cmake/libmongocxx-${MONGOCXX_VERSION}
++  INSTALL_DESTINATION ${ARCHIVE_DIRECTORY}/CMake/libmongocxx-${MONGOCXX_VERSION}
+   PATH_VARS PACKAGE_INCLUDE_INSTALL_DIRS PACKAGE_LIBRARY_INSTALL_DIRS
+ )
+ 
+@@ -213,7 +213,7 @@
+ 
+ install(
+   FILES ${CMAKE_CURRENT_BINARY_DIR}/libmongocxx-config.cmake ${CMAKE_CURRENT_BINARY_DIR}/libmongocxx-config-version.cmake
+-  DESTINATION lib/cmake/libmongocxx-${MONGOCXX_VERSION}
++  DESTINATION ${DATA_DIRECTORY}/cmake/modules/
+ )
+ 
+ add_subdirectory(test)
+diff -urN mongo-cxx-driver/src/mongocxx/config/CMakeLists.txt mongo-cxx-driver-r3.1.1/src/mongocxx/config/CMakeLists.txt
+--- mongo-cxx-driver/src/mongocxx/config/CMakeLists.txt	2016-12-21 01:53:11.000000000 +0530
++++ mongo-cxx-driver-r3.1.1/src/mongocxx/config/CMakeLists.txt	2017-02-03 14:16:11.828609489 +0530
+@@ -30,7 +30,7 @@
+ install(FILES
+     ${CMAKE_CURRENT_BINARY_DIR}/config.hpp
+     ${CMAKE_CURRENT_BINARY_DIR}/version.hpp
+-    DESTINATION ${MONGOCXX_HEADER_INSTALL_DIR}/mongocxx/config
++    DESTINATION ${MONGOCXX_HEADER_INSTALL_DIR}/config
+     COMPONENT dev
+ )
+ 
+@@ -42,6 +42,6 @@
+ 
+ install(FILES
+     "${CMAKE_CURRENT_BINARY_DIR}/libmongocxx.pc"
+-    DESTINATION lib/pkgconfig
++    DESTINATION ${ARCHIVE_DIRECTORY}/pkgconfig
+     COMPONENT dev
+ )

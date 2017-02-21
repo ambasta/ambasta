@@ -19,9 +19,13 @@ S="${WORKDIR}/${PN}-r${PV}"
 
 DEPEND=">=dev-libs/mongo-c-driver-1.5.0"
 
+PATCHES=(
+	"${FILESDIR}"/mongo-cxx-driver-gnuinstalldirs.patch
+)
+
 multilib_src_configure() {
 	local mycmakeargs=(
- 		-DBUILD_SHARED_LIBS=$(usex static-libs)
+ 		-DBUILD_SHARED_LIBS=$(usex !static-libs)
 		-DCMAKE_CXX_STANDARD=14
 		-DBSONCXX_POLY_USE_STD_EXPERIMENTAL=1
 	)
