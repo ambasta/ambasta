@@ -130,7 +130,7 @@ src_install() {
 	done
 
 	doman debian/mongo*.1
-	dodoc README docs/building.md
+	odoc README docs/building.md
 
 	newinitd "${FILESDIR}/${PN}.initd-r2" ${PN}
 	newconfd "${FILESDIR}/${PN}.confd-r2" ${PN}

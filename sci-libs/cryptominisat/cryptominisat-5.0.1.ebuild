@@ -16,7 +16,10 @@ LICENSE="MIT"
 IUSE="boost test threads valgrind zlib"
 SLOT=0
 
-DEPEND="dev-util/xxd
+DEPEND="|| (
+		dev-util/xxd
+		app-editors/vim
+	)
 	sci-libs/m4ri
 	valgrind? ( dev-util/valgrind )
 	dev-python/lit"
