@@ -19,6 +19,7 @@ RDEPEND="|| (
     google? (
         media-fonts/croscorefonts
         media-fonts/droid
+		media-fonts/noto
         media-fonts/source-pro
     )
     libreoffice? (

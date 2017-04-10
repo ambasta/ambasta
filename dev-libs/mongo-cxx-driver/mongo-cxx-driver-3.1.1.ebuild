@@ -17,7 +17,9 @@ IUSE="static-libs"
 
 S="${WORKDIR}/${PN}-r${PV}"
 
-DEPEND=">=dev-libs/mongo-c-driver-1.5.0"
+DEPEND="
+	>=dev-libs/mongo-c-driver-1.5.0
+	dev-libs/boost"
 
 PATCHES=(
 	"${FILESDIR}"/mongo-cxx-driver-gnuinstalldirs.patch
@@ -26,8 +28,7 @@ PATCHES=(
 multilib_src_configure() {
 	local mycmakeargs=(
  		-DBUILD_SHARED_LIBS=$(usex !static-libs)
-		-DCMAKE_CXX_STANDARD=14
-		-DBSONCXX_POLY_USE_STD_EXPERIMENTAL=1
+		-DBSONCXX_POLY_USE_BOOST=1
 	)
 	cmake-utils_src_configure
 }
