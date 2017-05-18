@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<layman>
+    <overlay name="ambasta" quality="experimental" status="unofficial" type="git" src="git://github.com/ambasta/ambasta.git">
+        <link>//github.com/ambasta/ambasta</link>
+        <description> ambasta gentoo overlay </description>
+    </overlay>
+</layman>
