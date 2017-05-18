@@ -32,6 +32,7 @@ RDEPEND="
 	>=gnome-extra/gnome-tweak-tool-3.22.0
 	>=gnome-extra/gucharmap-9.0.2:2.90
 	>=gnome-extra/nautilus-sendto-3.8.4
+	gnome-extra/gnome-clocks
 	net-irc/polari
 
 	ambasta? (
