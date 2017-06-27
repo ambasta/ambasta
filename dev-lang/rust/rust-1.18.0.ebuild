@@ -70,13 +70,14 @@ S="${WORKDIR}/${MY_P}-src"
 src_prepare() {
 	use amd64 && CTARGET="x86_64-unknown-linux-gnu"
 	use x86 && CTARGET="i686-unknown-linux-gnu"
+	local rust_stage0_root="${S}"/build/"${CTARGET}"/stage0
+
+	local rust_stage0_name="RUST_STAGE0_${ARCH}"
+	local rust_stage0="${!rust_stage0_name}"
+
 	default
 
-	"${WORKDIR}/${RUST_STAGE0}/install.sh" \
-		--prefix="${WORKDIR}/stage0" \
-		--components=rust-std-${CTARGET},rustc,cargo \
-		--disable-ldconfig \
-		|| die
+	"${WORKDIR}/${rust_stage0}/install.sh" --prefix=/ --destdir="${rust_stage0_root}" --disable-ldconfig || die
 }
 
 src_configure() {
