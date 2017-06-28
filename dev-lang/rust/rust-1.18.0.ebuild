@@ -87,6 +87,9 @@ src_configure() {
     local c_compiler="$(tc-getBUILD_CC)"
     local cxx_compiler="$(tc-getBUILD_CXX)"
 
+	export CFG_DISABLE_LDCONFIG="notempty"
+	export LLVM_LINK_SHARED=1
+
     cat <<- EOF > ${S}/config.toml
 [llvm]
 optimize = $(toml_usex !debug)
