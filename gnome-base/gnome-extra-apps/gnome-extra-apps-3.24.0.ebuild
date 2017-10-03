@@ -18,62 +18,62 @@ KEYWORDS="~amd64 ~x86"
 RDEPEND="
 	>=gnome-base/gnome-core-libs-${PV}
 
-	>=sys-apps/baobab-3.22.1
-	>=media-video/cheese-3.22.1
-	>=gnome-base/dconf-editor-3.22.1
-	>=app-arch/file-roller-3.22.1
+	>=sys-apps/baobab-${PV}
+	>=media-video/cheese-${PV}
+	>=gnome-base/dconf-editor-3.22.3
+	>=app-arch/file-roller-${PV}
 	>=gnome-extra/gnome-calculator-${PV}
-	>=app-dicts/gnome-dictionary-3.20.0
-	>=sys-apps/gnome-disk-utility-3.22.1
-	>=media-gfx/gnome-font-viewer-3.22.0
+	>=app-dicts/gnome-dictionary-${PV}
+	>=sys-apps/gnome-disk-utility-${PV}
+	>=media-gfx/gnome-font-viewer-${PV}
 	>=gnome-extra/gnome-power-manager-${PV}
 	>=media-gfx/gnome-screenshot-3.22.0
 	>=gnome-extra/gnome-system-monitor-${PV}
-	>=gnome-extra/gnome-tweak-tool-3.22.0
-	>=gnome-extra/gucharmap-9.0.2:2.90
+	>=gnome-extra/gnome-tweak-tool-${PV}
+	>=gnome-extra/gucharmap-10:2.90
 	>=gnome-extra/nautilus-sendto-3.8.4
 	gnome-extra/gnome-clocks
 	net-irc/polari
 
 	ambasta? (
-		>=www-client/epiphany-3.22.2
+		>=www-client/epiphany-${PV}
 		>=mail-client/evolution-${PV}
-		>=gnome-extra/gnome-calendar-3.22.1
-		>=gnome-extra/gnome-characters-3.22.0
+		>=gnome-extra/gnome-calendar-${PV}
+		>=gnome-extra/gnome-characters-${PV}
 		>=net-analyzer/gnome-nettool-3.8.1
-		>=gnome-extra/gnome-weather-3.20.2
-		>=gnome-extra/sushi-3.21.91
-		>=media-sound/sound-juicer-3.22.1
+		>=gnome-extra/gnome-weather-${PV}
+		>=gnome-extra/sushi-${PV}
+		>=media-sound/sound-juicer-${PV}
 		>=net-misc/vinagre-3.22.0
 		>=net-misc/vino-3.22.0
 	)
 
 	games? (
-		>=games-puzzle/five-or-more-${PV}
+		>=games-puzzle/five-or-more-3.22.2
 		>=games-board/four-in-a-row-3.22.1
 		>=games-board/gnome-chess-${PV}
 		>=games-puzzle/gnome-klotski-3.22.1
 		>=games-board/gnome-mahjongg-3.22.0
 		>=games-board/gnome-mines-${PV}
-		>=games-arcade/gnome-nibbles-3.22.1
+		>=games-arcade/gnome-nibbles-${PV}
 		>=games-arcade/gnome-robots-3.22.1
-		>=games-puzzle/gnome-sudoku-3.22.2
+		>=games-puzzle/gnome-sudoku-${PV}
 		>=games-puzzle/gnome-taquin-3.22.0
 		>=games-puzzle/gnome-tetravex-3.22.0
 		>=games-puzzle/hitori-3.22.0
 		>=games-board/iagno-3.22.0
-		>=games-board/tali-3.22.0
-		>=games-puzzle/lightsoff-3.22.2
+		>=games-puzzle/lightsoff-$PV
 		>=games-puzzle/quadrapassel-3.22.0
 		>=games-puzzle/swell-foop-${PV}
+		>=games-board/tali-3.22.0
 	)
 	share? ( >=gnome-extra/gnome-user-share-3.18.3 )
-	shotwell? ( >=media-gfx/shotwell-0.24 )
+	shotwell? ( >=media-gfx/shotwell-0.26 )
 	tracker? (
-		>=app-misc/tracker-1.10.1
-		>=gnome-extra/gnome-documents-3.22.0
+		>=app-misc/tracker-1.12
+		>=gnome-extra/gnome-documents-${PV}
 		>=media-gfx/gnome-photos-${PV}
-		>=media-sound/gnome-music-3.22.1 )
+		>=media-sound/gnome-music-${PV} )
 "
 DEPEND=""
 S=${WORKDIR}

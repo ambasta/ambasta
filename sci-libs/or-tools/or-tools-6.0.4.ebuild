@@ -3,7 +3,7 @@
 
 EAPI=6
 
-inherit cmake-multilib
+inherit cmake-utils
 
 DESCRIPTION="Google's Operations Research tools"
 HOMEPAGE="https://developers.google.com/optimization/"
@@ -18,3 +18,11 @@ DEPEND="dev-libs/protobuf
 	dev-cpp/glog[gflags]
 	sci-libs/coinor-cbc"
 RDEPEND="${DEPEND}"
+
+src_configure() {
+	local mycmakeargs=(
+		"-DBUILD_CXX=ON"
+	)
+
+	cmake-utils_src_configure
+}

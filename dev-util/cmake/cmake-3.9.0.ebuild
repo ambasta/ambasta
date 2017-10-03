@@ -3,6 +3,7 @@
 
 EAPI=6
 
+CMAKE_MAKEFILE_GENERATOR="emake"
 CMAKE_REMOVE_MODULES="no"
 inherit bash-completion-r1 elisp-common toolchain-funcs eutils versionator cmake-utils virtualx flag-o-matic
 
@@ -14,14 +15,14 @@ SRC_URI="http://www.cmake.org/files/v$(get_version_component_range 1-2)/${MY_P}.
 
 LICENSE="CMake"
 SLOT="0"
-KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~amd64-linux ~arm-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~sparc-solaris ~x64-solaris ~x86-solaris"
-IUSE="doc emacs system-jsoncpp ncurses qt5"
+[[ "${PV}" = *_rc* ]] || \
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~m68k ~mips ~ppc64 ~s390 ~sh ~x86 ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~amd64-linux ~arm-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~sparc-solaris ~x64-solaris ~x86-solaris"
+IUSE="doc emacs server system-jsoncpp ncurses qt5"
 
 RDEPEND="
 	app-crypt/rhash
 	>=app-arch/libarchive-3.0.0:=
 	>=dev-libs/expat-2.0.1
-	>=dev-libs/libuv-1.0.0:=
 	>=net-misc/curl-7.21.5[ssl]
 	sys-libs/zlib
 	virtual/pkgconfig
@@ -32,6 +33,7 @@ RDEPEND="
 		dev-qt/qtgui:5
 		dev-qt/qtwidgets:5
 	)
+	server? ( >=dev-libs/libuv-1.0.0:= )
 	system-jsoncpp? ( >=dev-libs/jsoncpp-0.6.0_rc2:0= )
 "
 DEPEND="${RDEPEND}
@@ -45,19 +47,19 @@ SITEFILE="50${PN}-gentoo.el"
 PATCHES=(
 	# prefix
 	"${FILESDIR}"/${PN}-3.4.0_rc1-darwin-bundle.patch
-	"${FILESDIR}"/${PN}-3.0.0-prefix-dirs.patch
+	"${FILESDIR}"/${PN}-3.9.0_rc2-prefix-dirs.patch
 	"${FILESDIR}"/${PN}-3.1.0-darwin-isysroot.patch
 
 	# handle gentoo packaging in find modules
-	"${FILESDIR}"/${PN}-2.8.12.1-FindImageMagick.patch
+	"${FILESDIR}"/${PN}-3.9.0_rc2-FindImageMagick.patch
 	"${FILESDIR}"/${PN}-3.0.0-FindBLAS.patch
-	"${FILESDIR}"/${PN}-3.0.0-FindBoost-python.patch
+	"${FILESDIR}"/${PN}-3.8.0_rc2-FindBoost-python.patch
 	"${FILESDIR}"/${PN}-3.0.2-FindLAPACK.patch
 	"${FILESDIR}"/${PN}-3.5.2-FindQt4.patch
 
 	# respect python eclasses
 	"${FILESDIR}"/${PN}-2.8.10.2-FindPythonLibs.patch
-	"${FILESDIR}"/${PN}-3.1.0-FindPythonInterp.patch
+	"${FILESDIR}"/${PN}-3.9.0_rc2-FindPythonInterp.patch
 
 	# upstream fixes (can usually be removed with a version bump)
 )
@@ -110,9 +112,11 @@ cmake_src_test() {
 	#    CTest.updatecvs: which fails to commit as root
 	#    Fortran: requires fortran
 	#    Qt4Deploy, which tries to break sandbox and ignores prefix
+	#    RunCMake.CPack_RPM: breaks if app-arch/rpm is installed because
+	#        debugedit binary is not in the expected location
 	#    TestUpload, which requires network access
 	"${BUILD_DIR}"/bin/ctest ${ctestargs} \
-		-E "(BootstrapTest|BundleUtilities|CTest.UpdateCVS|Fortran|Qt4Deploy|TestUpload)" \
+		-E "(BootstrapTest|BundleUtilities|CTest.UpdateCVS|Fortran|Qt4Deploy|RunCMake.CPack_RPM|TestUpload)" \
 		|| die "Tests failed"
 
 	popd > /dev/null
@@ -146,6 +150,8 @@ src_configure() {
 		-DSPHINX_MAN=$(usex doc)
 		-DSPHINX_HTML=$(usex doc)
 		-DBUILD_CursesDialog="$(usex ncurses)"
+		-DCMake_ENABLE_SERVER_MODE="$(usex server)"
+		-DCMAKE_USE_LIBUV="$(usex server)"
 	)
 
 	if use qt5 ; then

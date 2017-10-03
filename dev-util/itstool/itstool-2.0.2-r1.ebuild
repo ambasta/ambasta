@@ -31,6 +31,5 @@ pkg_setup() {
 }
 
 src_prepare() {
-	python_fix_shebang .
 	epatch "${FILESDIR}"/${PN}-python3.patch
 }

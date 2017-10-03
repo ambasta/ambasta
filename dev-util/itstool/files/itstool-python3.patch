@@ -3,7 +3,7 @@ diff -urN itstool-2.0.2/itstool.in new/itstool.in
 +++ new/itstool.in	2015-01-07 20:43:42.690765318 +0530
 @@ -1,4 +1,4 @@
 -#!@PYTHON@ -s
-+#!/usr/bin/python3.4 -s
++#!/usr/bin/python3 -s
  #
  # Copyright (c) 2010-2013 Shaun McCance <shaunm@gnome.org>
  #
