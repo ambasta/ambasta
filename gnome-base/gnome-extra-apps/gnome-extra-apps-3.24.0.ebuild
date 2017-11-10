@@ -33,7 +33,6 @@ RDEPEND="
 	>=gnome-extra/gucharmap-10:2.90
 	>=gnome-extra/nautilus-sendto-3.8.4
 	gnome-extra/gnome-clocks
-	net-irc/polari
 
 	ambasta? (
 		>=www-client/epiphany-${PV}
@@ -44,6 +43,7 @@ RDEPEND="
 		>=gnome-extra/gnome-weather-${PV}
 		>=gnome-extra/sushi-${PV}
 		>=media-sound/sound-juicer-${PV}
+		net-irc/polari
 		>=net-misc/vinagre-3.22.0
 		>=net-misc/vino-3.22.0
 	)
