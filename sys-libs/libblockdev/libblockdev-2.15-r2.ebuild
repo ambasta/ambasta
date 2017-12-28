@@ -83,7 +83,7 @@ src_configure() {
 	)
 
 	if linux_config_exists; then
-		if !linux_chkconfig_present MODULE; then
+		if !(linux_chkconfig_present MODULE); then
 			myeconfargs+=(
 				--without-kmod
 			)
