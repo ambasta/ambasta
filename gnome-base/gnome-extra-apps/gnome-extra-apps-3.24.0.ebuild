@@ -32,7 +32,6 @@ RDEPEND="
 	>=gnome-extra/gnome-tweak-tool-${PV}
 	>=gnome-extra/gucharmap-10:2.90
 	>=gnome-extra/nautilus-sendto-3.8.4
-	gnome-extra/gnome-clocks
 
 	ambasta? (
 		>=www-client/epiphany-${PV}
