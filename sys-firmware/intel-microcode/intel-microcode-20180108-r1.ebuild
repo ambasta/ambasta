@@ -53,6 +53,7 @@ src_install() {
 	)
 	opts=(
 		${MICROCODE_SIGNATURES}
+		--scan-system
 		# be strict about what we are doing
 		--overwrite
 		--strict-checks
