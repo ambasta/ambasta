@@ -264,9 +264,8 @@ src_compile() {
 		# virtx ./mach build profiledbuild || die "virtx emake failed"
 	else
 		MOZ_MAKE_FLAGS="${MAKEOPTS}" SHELL="${SHELL:-${EPREFIX}/bin/bash}" \
-		./mach build realbuild
+		./mach build 
 	fi
-
 }
 
 src_install() {
