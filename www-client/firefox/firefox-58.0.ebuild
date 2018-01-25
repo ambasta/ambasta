@@ -225,12 +225,15 @@ src_configure() {
 	echo "mk_add_options MOZ_OBJDIR=${BUILD_OBJ_DIR}" >> "${S}"/.mozconfig
 	echo "mk_add_options XARGS=/usr/bin/xargs" >> "${S}"/.mozconfig
 
+	# Default mozilla_five_home no longer valid option
+	sed '/with-default-mozilla-five-home=/d' -i "${S}"/.mozconfig
+
 	# Finalize and report settings
 	mozconfig_final
 
 	# workaround for funky/broken upstream configure...
 	SHELL="${SHELL:-${EPREFIX}/bin/bash}" \
-	emake -f client.mk configure
+	./mach configure
 }
 
 src_compile() {
