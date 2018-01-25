@@ -313,7 +313,7 @@ src_install() {
 	done
 
 	MOZ_MAKE_FLAGS="${MAKEOPTS}" SHELL="${SHELL:-${EPREFIX}/bin/bash}" \
-	emake DESTDIR="${D}" install
+	DESTDIR="${D}" ./mach install
 
 	# Install language packs
 	mozlinguas_src_install
