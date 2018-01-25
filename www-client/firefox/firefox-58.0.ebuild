@@ -259,10 +259,10 @@ src_compile() {
 		[[ -n "${cards}" ]] && addpredict "${cards}"
 
 		MOZ_MAKE_FLAGS="${MAKEOPTS}" SHELL="${SHELL:-${EPREFIX}/bin/bash}" \
-		virtx ./mach profiledbuild || die "virtx emake failed"
+		virtx ./mach build profiledbuild || die "virtx emake failed"
 	else
 		MOZ_MAKE_FLAGS="${MAKEOPTS}" SHELL="${SHELL:-${EPREFIX}/bin/bash}" \
-		./mach realbuild
+		./mach build realbuild
 	fi
 
 }
