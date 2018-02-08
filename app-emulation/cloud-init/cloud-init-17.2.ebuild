@@ -56,7 +56,7 @@ python_test() {
 }
 
 python_install() {
-	distutils-r1_python_install "--init-system=sysvinit_openrc,systemd"
+	distutils-r1_python_install "--init-system=systemd"
 }
 
 python_install_all() {
