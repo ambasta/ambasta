@@ -4,7 +4,7 @@
 EAPI=6
 
 PYTHON_COMPAT=( python3_{4,5,6} )
-inherit autotools linux-info python-single-r1
+inherit autotools python-single-r1
 
 MY_PV="${PV}-1"
 MY_P="${PN}-${MY_PV}"
@@ -69,6 +69,7 @@ src_configure() {
 		--with-part
 		--with-python3
 		--without-mpath
+		--without-kmod
 		$(use_enable test tests)
 		$(use_with bcache)
 		$(use_with cryptsetup crypto)
@@ -78,14 +79,6 @@ src_configure() {
 		$(use_with lvm lvm-dbus)
 		$(use_with kbd)
 	)
-
-	if linux_config_exists; then
-		if !(linux_chkconfig_present MODULE); then
-			myeconfargs+=(
-				--without-kmod
-			)
-		fi
-	fi
 
 	econf "${myeconfargs[@]}"
 }
