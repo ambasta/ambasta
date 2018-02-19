@@ -10,7 +10,7 @@ if [[ ${PV} == 99999999* ]]; then
 	EGIT_REPO_URI="https://git.kernel.org/pub/scm/linux/kernel/git/firmware/${PN}.git"
 	KEYWORDS="~amd64 ~hppa ~ia64 ~ppc ~ppc64 ~x86"
 else
-	GIT_COMMIT="2a713be25a44bd6cec90d8affc54b246a2ca9c7b"
+	GIT_COMMIT="6d5131107f2ba67a13f469ac770a55f101ba654d"
 	SRC_URI="https://git.kernel.org/cgit/linux/kernel/git/firmware/linux-firmware.git/snapshot/linux-firmware-${GIT_COMMIT}.tar.gz -> ${P}.tar.gz
 		mirror://gentoo/microcode_amd_fam17h.tar.gz
 		https://dev.gentoo.org/~whissi/dist/${PN}/microcode_amd_fam17h.tar.gz"
