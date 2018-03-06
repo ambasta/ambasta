@@ -18,7 +18,7 @@ KEYWORDS="~amd64"
 RDEPEND="!<dev-db/mongodb-3.0.0[mms-agent]"
 DEPEND="${RDEPEND}"
 
-S="${WORKDIR}/mongodb-mms-monitoring-agent-${MY_PV}.linux_x86_64"
+S="${WORKDIR}/mongodb-mms-automation-agent-${MY_PV}.linux_x86_64"
 
 pkg_setup() {
 	enewgroup mongodb
