@@ -36,7 +36,7 @@ src_install() {
 	insinto /etc
 	doins automation-agent.config
 	rm automation-agent.config
-	dosym ../../local.config ${MY_D}/automation-agent.config
+	dosym ../../etc/automation-agent.config ${MY_D}/local.config
 
 	fowners -R mongodb:mongodb ${MY_D}
 }
