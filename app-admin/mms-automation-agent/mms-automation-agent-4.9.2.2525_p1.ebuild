@@ -34,9 +34,11 @@ src_install() {
 	fperms +x "${MY_D}"/mongodb-mms-automation-agent
 
 	insinto /etc
-	doins local.config
+	newins local.config automation-agent.config
 	rm local.config
-	dosym ../../etc/automation-agent.config ${MY_D}/local.config
+	dosym ../../etc/automation-agent.config ${MY_D}/automation-agent.config
+
+	systemd_dounit "${FILESDIR}/${PN}.service"
 
 	fowners -R mongodb:mongodb ${MY_D}
 }
