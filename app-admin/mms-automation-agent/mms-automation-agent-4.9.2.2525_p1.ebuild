@@ -34,8 +34,8 @@ src_install() {
 	fperms +x "${MY_D}"/mongodb-mms-automation-agent
 
 	insinto /etc
-	doins automation-agent.config
-	rm automation-agent.config
+	doins local.config
+	rm local.config
 	dosym ../../etc/automation-agent.config ${MY_D}/local.config
 
 	fowners -R mongodb:mongodb ${MY_D}
