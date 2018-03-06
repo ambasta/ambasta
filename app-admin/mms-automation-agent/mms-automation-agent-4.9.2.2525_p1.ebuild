@@ -3,7 +3,7 @@
 
 EAPI=6
 
-inherit eutils user
+inherit eutils user systemd
 
 MY_PV=${PV/_p/-}
 
