@@ -23,7 +23,7 @@ SLOT="0"
 KEYWORDS="~amd64"
 IUSE="monitoring +automation"
 
-REQUIRED_USE="|| ( monitoring )"
+REQUIRED_USE="|| ( automation monitoring )"
 
 RDEPEND="!<dev-db/mongodb-3.0.0[mms-agent]"
 DEPEND="${RDEPEND}"
