@@ -3,8 +3,7 @@ Description=MongoDB MMS Automation Agent
 After=network.target
 
 [Service]
-Type=simple
-ExecStart=/opt/mms-automation-agent/mongodb-mms-automation-agent -f /etc/mongodb-mms-automation-agent.config
+ExecStart=/opt/mms-automation-agent/mongodb-mms-automation-agent -f /etc/mongodb-mms-automation-agent.config -pidfilepath /var/run/mongodb-mms-automation/mongodb-mms-automation-agent.pid
 StandardOutput=syslog
 StandardError=syslog
 LimitFSIZE=infinity
@@ -16,6 +15,7 @@ LimitNPROC=64000
 LimitMEMLOCK=infinity
 User=mongodb
 TimeoutStopSec=30
+KillMode=process
 
 [Install]
 WantedBy=multi-user.target
