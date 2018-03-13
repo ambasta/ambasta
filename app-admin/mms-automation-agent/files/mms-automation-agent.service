@@ -3,6 +3,7 @@ Description=MongoDB MMS Automation Agent
 After=network.target
 
 [Service]
+Environment="PATH=/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin"
 ExecStart=/opt/mms-automation-agent/mongodb-mms-automation-agent -f /etc/mongodb-mms-automation-agent.config -pidfilepath /var/run/mongodb-mms-automation/mongodb-mms-automation-agent.pid
 StandardOutput=syslog
 StandardError=syslog
