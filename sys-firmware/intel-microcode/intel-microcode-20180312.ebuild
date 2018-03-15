@@ -8,10 +8,10 @@ inherit toolchain-funcs mount-boot
 # Find updates by searching and clicking the first link (hopefully it's the one):
 # http://www.intel.com/content/www/us/en/search.html?keyword=Processor+Microcode+Data+File
 
-NUM="27431"
+NUM="27591"
 DESCRIPTION="Intel IA32/IA64 microcode update data"
 HOMEPAGE="http://inertiawar.com/microcode/ https://downloadcenter.intel.com/Detail_Desc.aspx?DwnldID=${NUM}"
-SRC_URI="http://downloadmirror.intel.com/${NUM}/eng/microcode-${PV}.tgz"
+SRC_URI="https://downloadmirror.intel.com/${NUM}/eng/microcode-${PV}.tgz"
 
 LICENSE="intel-ucode"
 SLOT="0"
@@ -40,6 +40,7 @@ pkg_pretend() {
 		ewarn "MICROCODE_SIGNATURES is set!"
 		ewarn "The user has decided to install only a SUBSET of microcode."
 	fi
+	use initramfs && mount-boot_pkg_pretend
 }
 
 src_install() {
@@ -68,7 +69,7 @@ src_install() {
 	# rootfs is mounted.
 	use initramfs && dodir /boot && opts+=( --write-earlyfw="${ED%/}"/boot/intel-uc.img )
 	# split location:
-	use split-ucode && dodir /usr/lib/firmware/intel-ucode && opts+=( --write-firmware="${ED%/}"/usr/lib/firmware/intel-ucode )
+	use split-ucode && dodir /lib/firmware/intel-ucode && opts+=( --write-firmware="${ED%/}"/lib/firmware/intel-ucode )
 
 	iucode_tool \
 		"${opts[@]}" \
@@ -76,4 +77,20 @@ src_install() {
 		|| die "iucode_tool ${opts[@]} ${MICROCODE_SRC[@]}"
 
 	dodoc releasenote
+}
+
+pkg_preinst() {
+	use initramfs && mount-boot_pkg_preinst
+}
+
+pkg_prerm() {
+	use initramfs && mount-boot_pkg_prerm
+}
+
+pkg_postrm() {
+	use initramfs && mount-boot_pkg_postrm
+}
+
+pkg_postinst() {
+	use initramfs && mount-boot_pkg_postinst
 }
