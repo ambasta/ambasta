@@ -69,7 +69,7 @@ src_install() {
 	# rootfs is mounted.
 	use initramfs && dodir /boot && opts+=( --write-earlyfw="${ED%/}"/boot/intel-uc.img )
 	# split location:
-	use split-ucode && dodir /lib/firmware/intel-ucode && opts+=( --write-firmware="${ED%/}"/lib/firmware/intel-ucode )
+	use split-ucode && dodir /usr/lib/firmware/intel-ucode && opts+=( --write-firmware="${ED%/}"/usr/lib/firmware/intel-ucode )
 
 	iucode_tool \
 		"${opts[@]}" \
