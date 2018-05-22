@@ -4,7 +4,7 @@
 
 EAPI="5"
 GCONF_DEBUG="no"
-PYTHON_COMPAT=( python2_7 python3_4 python3_5)
+PYTHON_COMPAT=( python{2_7,3_4,3_5,3_6} )
 PYTHON_REQ_USE="xml"
 
 inherit gnome2 python-single-r1 systemd versionator
