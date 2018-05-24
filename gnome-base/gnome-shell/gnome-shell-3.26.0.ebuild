@@ -118,11 +118,11 @@ DEPEND="${COMMON_DEPEND}
 
 PATCHES=(
 	# Change favorites defaults, bug #479918
-	"${FILESDIR}"/${PN}-3.22.0-defaults.patch
+	# "${FILESDIR}"/${PN}-3.22.0-defaults.patch
 	# Fix automagic gnome-bluetooth dep, bug #398145
-	"${FILESDIR}"/${PN}-3.12-bluetooth-flag.patch
+	# "${FILESDIR}"/${PN}-3.12-bluetooth-flag.patch
 	# Add missing path to libmutter-clutter when building .gir, bug #597842
-	"${FILESDIR}"/${PN}-3.22.0-gir-build-fix.patch
+	# "${FILESDIR}"/${PN}-3.22.0-gir-build-fix.patch
 )
 
 src_configure() {
