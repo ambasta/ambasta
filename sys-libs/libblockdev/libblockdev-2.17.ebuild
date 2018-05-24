@@ -72,6 +72,7 @@ src_configure() {
 		--without-mpath
 		--without-nvdimm
 		--without-kmod
+		--without-kbd
 		$(use_enable test tests)
 		$(use_with bcache)
 		$(use_with cryptsetup crypto)
