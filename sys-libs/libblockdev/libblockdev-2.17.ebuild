@@ -15,7 +15,7 @@ SRC_URI="https://github.com/rhinstaller/${PN}/archive/${MY_PV}.tar.gz -> ${MY_P}
 LICENSE="LGPL-2+"
 SLOT="0"
 KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~ia64 ~mips ~ppc ~ppc64 ~sparc ~x86"
-IUSE="bcache +cryptsetup dmraid doc escrow lvm kbd test"
+IUSE="bcache +cryptsetup dmraid doc escrow lvm test"
 
 CDEPEND="
 	>=dev-libs/glib-2.42.2
@@ -37,7 +37,6 @@ CDEPEND="
 		sys-fs/lvm2
 		virtual/udev
 	)
-	kbd? ( >=sys-apps/kmod-19 )
 	${PYTHON_DEPS}
 "
 
@@ -72,6 +71,7 @@ src_configure() {
 		--with-part
 		--without-mpath
 		--without-nvdimm
+		--without-kmod
 		$(use_enable test tests)
 		$(use_with bcache)
 		$(use_with cryptsetup crypto)
@@ -80,7 +80,6 @@ src_configure() {
 		$(use_with escrow)
 		$(use_with lvm lvm)
 		$(use_with lvm lvm-dbus)
-		$(use_with kbd)
 		$(use_with python_single_target_python2_7 python2)
 		$(use_with !python_single_target_python2_7 python3)
 	)
