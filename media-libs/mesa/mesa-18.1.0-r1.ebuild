@@ -52,6 +52,7 @@ REQUIRED_USE="
 	gles2?  ( egl )
 	vaapi? ( gallium )
 	vdpau? ( gallium )
+	wayland? ( egl gbm )
 	vulkan? ( || ( video_cards_i965 video_cards_radeonsi )
 			  video_cards_radeonsi? ( llvm ) )
 	xa?  ( gallium )
@@ -381,6 +382,8 @@ multilib_src_configure() {
 		$(use_enable d3d9 nine) \
 		$(use_enable debug) \
 		$(use_enable dri3) \
+		$(use_enable egl) \
+		$(use_enable gbm) \
 		$(use_enable gles1) \
 		$(use_enable gles2) \
 		$(use_enable nptl glx-tls) \
