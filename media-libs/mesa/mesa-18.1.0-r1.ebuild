@@ -54,7 +54,6 @@ REQUIRED_USE="
 	vdpau? ( gallium )
 	vulkan? ( || ( video_cards_i965 video_cards_radeonsi )
 			  video_cards_radeonsi? ( llvm ) )
-	wayland? ( egl !gbm )
 	xa?  ( gallium )
 	video_cards_freedreno?  ( gallium )
 	video_cards_intel?  ( classic )
@@ -302,7 +301,7 @@ multilib_src_configure() {
 	fi
 
 	if use egl; then
-		myconf+=" --with-platforms=x11,surfaceless$($(use gbm || use wayland) && echo ",drm")"
+		myconf+=" --with-platforms=x11,surfaceless$(use gbm && echo ",drm")"
 	fi
 
 	if use gallium; then
@@ -382,7 +381,6 @@ multilib_src_configure() {
 		$(use_enable d3d9 nine) \
 		$(use_enable debug) \
 		$(use_enable dri3) \
-		$(use_enable gbm) \
 		$(use_enable gles1) \
 		$(use_enable gles2) \
 		$(use_enable nptl glx-tls) \
