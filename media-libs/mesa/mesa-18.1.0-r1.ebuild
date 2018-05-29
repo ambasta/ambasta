@@ -48,9 +48,9 @@ REQUIRED_USE="
 	llvm?   ( gallium )
 	opencl? ( gallium llvm )
 	openmax? ( gallium )
-	gles1?  ( egl )
-	gles2?  ( egl )
-	wayland? ( gbm )
+	gles1?  ( wayland )
+	gles2?  ( wayland )
+	wayland? ( gbm !egl )
 	vaapi? ( gallium )
 	vdpau? ( gallium )
 	vulkan? ( || ( video_cards_i965 video_cards_radeonsi )
@@ -219,6 +219,14 @@ DEPEND="${RDEPEND}
 	virtual/pkgconfig
 	valgrind? ( dev-util/valgrind )
 	x11-base/xorg-proto
+	egl? (
+		wayland? (
+			<dev-libs/wayland-1.15.0
+		)
+	)
+	wayland? (
+		>=dev-libs/wayland-1.15.0
+	)
 	vulkan? (
 		$(python_gen_any_dep ">=dev-python/mako-0.7.3[\${PYTHON_USEDEP}]")
 	)
@@ -301,7 +309,9 @@ multilib_src_configure() {
 		fi
 	fi
 
-	if use egl; then
+	if use wayland; then
+		myconf+=" --with-platforms=x11,surfaceless$(use gbm && echo ",drm")"
+	elif use egl; then
 		myconf+=" --with-platforms=x11,surfaceless$(use gbm && echo ",drm")"
 	fi
 
