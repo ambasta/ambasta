@@ -48,6 +48,8 @@ REQUIRED_USE="
 	llvm?   ( gallium )
 	opencl? ( gallium llvm )
 	openmax? ( gallium )
+	gles1?  ( egl )
+	gles2?  ( egl )
 	vaapi? ( gallium )
 	vdpau? ( gallium )
 	vulkan? ( || ( video_cards_i965 video_cards_radeonsi )
