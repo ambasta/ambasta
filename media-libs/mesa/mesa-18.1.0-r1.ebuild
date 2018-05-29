@@ -48,13 +48,13 @@ REQUIRED_USE="
 	llvm?   ( gallium )
 	opencl? ( gallium llvm )
 	openmax? ( gallium )
-	gles1?  ( wayland )
-	gles2?  ( wayland )
-	wayland? ( gbm !egl )
+	gles1?  ( egl )
+	gles2?  ( egl )
 	vaapi? ( gallium )
 	vdpau? ( gallium )
 	vulkan? ( || ( video_cards_i965 video_cards_radeonsi )
 			  video_cards_radeonsi? ( llvm ) )
+	wayland? ( gbm )
 	xa?  ( gallium )
 	video_cards_freedreno?  ( gallium )
 	video_cards_intel?  ( classic )
@@ -115,7 +115,7 @@ RDEPEND="
 	)
 	vdpau? ( >=x11-libs/libvdpau-1.1:=[${MULTILIB_USEDEP}] )
 	wayland? (
-		>=dev-libs/wayland-1.11.0:=[${MULTILIB_USEDEP}]
+		>=dev-libs/wayland-1.15.0:=[${MULTILIB_USEDEP}]
 		>=dev-libs/wayland-protocols-1.8
 	)
 	xvmc? ( >=x11-libs/libXvMC-1.0.8:=[${MULTILIB_USEDEP}] )
@@ -219,14 +219,6 @@ DEPEND="${RDEPEND}
 	virtual/pkgconfig
 	valgrind? ( dev-util/valgrind )
 	x11-base/xorg-proto
-	egl? (
-		wayland? (
-			<dev-libs/wayland-1.15.0
-		)
-	)
-	wayland? (
-		>=dev-libs/wayland-1.15.0
-	)
 	vulkan? (
 		$(python_gen_any_dep ">=dev-python/mako-0.7.3[\${PYTHON_USEDEP}]")
 	)
@@ -309,9 +301,7 @@ multilib_src_configure() {
 		fi
 	fi
 
-	if use wayland; then
-		myconf+=" --with-platforms=x11,surfaceless$(use gbm && echo ",drm")"
-	elif use egl; then
+	if use egl; then
 		myconf+=" --with-platforms=x11,surfaceless$(use gbm && echo ",drm")"
 	fi
 
@@ -392,7 +382,6 @@ multilib_src_configure() {
 		$(use_enable d3d9 nine) \
 		$(use_enable debug) \
 		$(use_enable dri3) \
-		$(use_enable egl) \
 		$(use_enable gbm) \
 		$(use_enable gles1) \
 		$(use_enable gles2) \
