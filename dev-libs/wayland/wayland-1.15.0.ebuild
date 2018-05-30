@@ -23,7 +23,7 @@ fi
 
 LICENSE="MIT"
 SLOT="0"
-IUSE="doc static-libs"
+IUSE="doc static-libs egl"
 
 RDEPEND=">=dev-libs/expat-2.1.0-r3:=[${MULTILIB_USEDEP}]
 	>=virtual/libffi-3.0.13-r1:=[${MULTILIB_USEDEP}]
