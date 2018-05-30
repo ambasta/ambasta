@@ -5,7 +5,7 @@ EAPI=6
 
 PYTHON_COMPAT=( python2_7 )
 
-inherit llvm multilib-minimal pax-utils python-any-r1
+inherit llvm meson multilib-minimal pax-utils python-any-r1
 
 OPENGL_DIR="xorg-x11"
 
@@ -349,7 +349,6 @@ multilib_src_configure() {
 		-Dglx=dri
 		-Dshared-glapi=true
 		-Dtexture-float=$(usex bindist false true)
-		-Dgallium-nine=$(usex d3d9 true false)
 		-Ddri3=$(usex dri3 true false)
 		-Degl=$(usex egl true false)
 		-Dgbm=$(usex gbm true false)
@@ -362,6 +361,10 @@ multilib_src_configure() {
 		-Dvulkan-drivers=${VULKAN_DRIVERS}
 	)
 	meson_src_configure
+}
+
+multilib_src_compile() {
+	meson_src_compile
 }
 
 multilib_src_install() {
