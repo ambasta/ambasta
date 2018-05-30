@@ -3,16 +3,9 @@
 
 EAPI=6
 
-EGIT_REPO_URI="https://anongit.freedesktop.org/git/mesa/mesa.git"
-
-if [[ ${PV} = 9999 ]]; then
-	GIT_ECLASS="git-r3"
-	EXPERIMENTAL="true"
-fi
-
 PYTHON_COMPAT=( python2_7 )
 
-inherit autotools llvm multilib-minimal python-any-r1 pax-utils ${GIT_ECLASS}
+inherit llvm multilib-minimal pax-utils python-any-r1
 
 OPENGL_DIR="xorg-x11"
 
@@ -21,12 +14,8 @@ MY_P="${P/_/-}"
 DESCRIPTION="OpenGL-like graphic library for Linux"
 HOMEPAGE="https://www.mesa3d.org/ https://mesa.freedesktop.org/"
 
-if [[ $PV == 9999 ]]; then
-	SRC_URI=""
-else
-	SRC_URI="https://mesa.freedesktop.org/archive/${MY_P}.tar.xz"
-	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~amd64-fbsd ~x86-fbsd ~amd64-linux ~arm-linux ~x86-linux ~sparc-solaris ~x64-solaris ~x86-solaris"
-fi
+SRC_URI="https://mesa.freedesktop.org/archive/${MY_P}.tar.xz"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~amd64-fbsd ~x86-fbsd ~amd64-linux ~arm-linux ~x86-linux ~sparc-solaris ~x64-solaris ~x86-solaris"
 
 LICENSE="MIT"
 SLOT="0"
@@ -223,12 +212,6 @@ DEPEND="${RDEPEND}
 		$(python_gen_any_dep ">=dev-python/mako-0.7.3[\${PYTHON_USEDEP}]")
 	)
 "
-[[ ${PV} == 9999 ]] && DEPEND+="
-	sys-devel/bison
-	sys-devel/flex
-	$(python_gen_any_dep ">=dev-python/mako-0.7.3[\${PYTHON_USEDEP}]")
-"
-
 S="${WORKDIR}/${MY_P}"
 EGIT_CHECKOUT_DIR=${S}
 
@@ -271,16 +254,12 @@ pkg_setup() {
 
 src_prepare() {
 	eapply_user
-	[[ ${PV} == 9999 ]] && eautoreconf
 }
 
 multilib_src_configure() {
-	local myconf
+	local emesonargs=()
 
 	if use classic; then
-		# Configurable DRI drivers
-		driver_enable swrast
-
 		# Intel code
 		driver_enable video_cards_i915 i915
 		driver_enable video_cards_i965 i965
@@ -302,20 +281,20 @@ multilib_src_configure() {
 	fi
 
 	if use egl; then
-		myconf+=" --with-platforms=x11,surfaceless$(use wayland && echo ",wayland")$(use gbm && echo ",drm")"
+		emesonargs+=( -Dplatforms=x11,surfaceless$(use wayland && echo ",wayland")$(use gbm && echo ",drm") )
 	fi
 
 	if use gallium; then
-		myconf+="
-			$(use_enable d3d9 nine)
-			$(use_enable llvm)
-			$(use_enable openmax omx-bellagio)
-			$(use_enable vaapi va)
-			$(use_enable vdpau)
-			$(use_enable xa)
-			$(use_enable xvmc)
-		"
-		use vaapi && myconf+=" --with-va-libdir=/usr/$(get_libdir)/va/drivers"
+		emesonargs+=(
+			-Dgallium-nine=$(usex d3d9 true false)
+			-Dllvm=$(usex llvm true false)
+			-Dgallium-omx=$(usex openmax bellagio disabled)
+			-Dgallium-va=$(usex vaapi true false)
+			-Dgallium-vdpau=$(usex vdpau true false)
+			-Dgallium-xa=$(usex xa true false)
+			-Dgallium-xvmc=$(usex xvmc true false)
+		)
+		use vaapi && emesonargs+=( -Dva-libs-path=/usr/$(get_libdir)/va/drivers )
 
 		gallium_enable swrast
 		gallium_enable video_cards_vc4 vc4
@@ -340,10 +319,9 @@ multilib_src_configure() {
 		gallium_enable video_cards_freedreno freedreno
 		# opencl stuff
 		if use opencl; then
-			myconf+="
-				$(use_enable opencl)
-				--with-clang-libdir="${EPREFIX}/usr/lib"
-				"
+			emesonargs+=(
+				-Dgallium-opencl="$(usex opencl standalone disabled)"
+			)
 		fi
 
 		gallium_enable video_cards_virgl virgl
@@ -354,57 +332,40 @@ multilib_src_configure() {
 		vulkan_enable video_cards_radeonsi radeon
 	fi
 
-	# x86 hardened pax_kernel needs glx-rts, bug 240956
-	if [[ ${ABI} == x86 ]]; then
-		myconf+=" $(use_enable pax_kernel glx-read-only-text)"
+	if [[ ${ABI} == x86* ]]; then
+		emesonargs+=( -Dasm=false )
 	fi
 
-	# on abi_x86_32 hardened we need to have asm disable
-	if [[ ${ABI} == x86* ]] && use pic; then
-		myconf+=" --disable-asm"
-	fi
-
-	if use gallium; then
-		myconf+=" $(use_enable osmesa gallium-osmesa)"
+	if use osmesa; then
+		emesonargs+=( -Dosmesa=$(usex gallium gallium classic) )
 	else
-		myconf+=" $(use_enable osmesa)"
+		emesonargs+=( -Dosmesa=none )
 	fi
 
 	# build fails with BSD indent, bug #428112
 	use userland_GNU || export INDENT=cat
 
-	ECONF_SOURCE="${S}" \
-	econf \
-		--enable-dri \
-		--enable-glx \
-		--enable-shared-glapi \
-		$(use_enable !bindist texture-float) \
-		$(use_enable d3d9 nine) \
-		$(use_enable debug) \
-		$(use_enable dri3) \
-		$(use_enable egl) \
-		$(use_enable gbm) \
-		$(use_enable gles1) \
-		$(use_enable gles2) \
-		$(use_enable nptl glx-tls) \
-		$(use_enable unwind libunwind) \
-		--enable-valgrind=$(usex valgrind auto no) \
-		--enable-llvm-shared-libs \
-		--disable-opencl-icd \
-		--with-dri-drivers=${DRI_DRIVERS} \
-		--with-gallium-drivers=${GALLIUM_DRIVERS} \
-		--with-vulkan-drivers=${VULKAN_DRIVERS} \
-		PYTHON2="${PYTHON}" \
-		${myconf}
+	emesonargs+=(
+		-Dglx=dri
+		-Dshared-glapi=true
+		-Dtexture-float=$(usex bindist false true)
+		-Dgallium-nine=$(usex d3d9 true false)
+		-Ddri3=$(usex dri3 true false)
+		-Degl=$(usex egl true false)
+		-Dgbm=$(usex gbm true false)
+		-Dgles1=$(usex gles1 true false)
+		-Dgles2=$(usex gles2 true false)
+		-Dlibunwind=$(usex unwind true false)
+		-Dvalgrind=$(usex valgrind auto false)
+		-Ddri-drivers=${DRI_DRIVERS}
+		-Dgallium-drivers=${GALLIUM_DRIVERS}
+		-Dvulkan-drivers=${VULKAN_DRIVERS}
+	)
+	meson_src_configure
 }
 
 multilib_src_install() {
-	emake install DESTDIR="${D}"
-
-	rm "${ED}/usr/$(get_libdir)/libwayland-egl.so" || die
-	rm "${ED}/usr/$(get_libdir)/libwayland-egl.so.1" || die
-	rm "${ED}/usr/$(get_libdir)/libwayland-egl.so.1.0.0" || die
-	rm "${ED}/usr/$(get_libdir)/pkgconfig/wayland-egl.pc" || die
+	meson_src_install
 
 	if use opencl; then
 		ebegin "Moving Gallium/Clover OpenCL implementation for dynamic switching"
@@ -435,17 +396,11 @@ multilib_src_install_all() {
 	if use !bindist; then
 		dodoc docs/patents.txt
 	fi
-}
 
-multilib_src_test() {
-	if use llvm; then
-		local llvm_tests='lp_test_arit lp_test_arit lp_test_blend lp_test_blend lp_test_conv lp_test_conv lp_test_format lp_test_format lp_test_printf lp_test_printf'
-		pushd src/gallium/drivers/llvmpipe >/dev/null || die
-		emake ${llvm_tests}
-		pax-mark m ${llvm_tests}
-		popd >/dev/null || die
-	fi
-	emake check
+	rm "${ED}/usr/$(get_libdir)/libwayland-egl.so" || die
+    rm "${ED}/usr/$(get_libdir)/libwayland-egl.so.1" || die
+    rm "${ED}/usr/$(get_libdir)/libwayland-egl.so.1.0.0" || die
+    rm "${ED}/usr/$(get_libdir)/pkgconfig/wayland-egl.pc" || die
 }
 
 pkg_postinst() {
