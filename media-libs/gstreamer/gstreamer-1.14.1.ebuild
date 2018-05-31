@@ -70,15 +70,12 @@ src_configure() {
  	meson_src_configure
 }
 
-multilib_src_compile() {
+src_compile() {
  	meson_src_compile
 }
 
-multilib_src_install() {
+src_install() {
  	meson_src_install
-}
-
-multilib_src_install_all() {
  	DOCS="AUTHORS ChangeLog NEWS MAINTAINERS README RELEASE"
  	einstalldocs
  	prune_libtool_files --modules
