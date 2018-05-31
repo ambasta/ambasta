@@ -51,8 +51,6 @@ src_configure() {
 
 	emesonargs+=(
 		-Ddisable_examples=true
- 		-Ddisable_gst_debug=true
- 		-Dlibrary_format=shared
  		-Ddisable_introspection=$(usex introspection false true)
 		-Duse_orc=$(usex orc yes no)
  		-Dwith-package-name=\"GStreamer ebuild for Gentoo\"
