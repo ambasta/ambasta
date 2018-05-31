@@ -55,8 +55,8 @@ src_configure() {
  		-Dlibrary_format=shared
  		-Ddisable_introspection=$(usex introspection false true)
 		-Duse_orc=$(usex orc yes no)
- 		-Dwith-package-name="GStreamer ebuild for Gentoo"
- 		-Dwith-package-origin="https://packages.gentoo.org/package/media-libs/gstreamer"
+ 		-Dwith-package-name=\"GStreamer ebuild for Gentoo\"
+ 		-Dwith-package-origin=\"https://packages.gentoo.org/package/media-libs/gstreamer\"
  		-Dlibexecdir="${EPREFIX}"/usr/$(get_libdir)
  	)
 
