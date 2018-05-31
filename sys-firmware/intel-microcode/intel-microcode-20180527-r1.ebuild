@@ -145,8 +145,7 @@ pkg_preinst() {
 	else
 		if use split-ucode; then
 			# Temporary /tmp/intel-ucode will become final /usr/lib/firmware/intel-ucode ...
-			dodir /usr/lib/firmware
-			mv "${ED%/}/tmp/intel-ucode" "${ED%/}/usr/lib/firmware" || die "Failed to install splitted ucodes!"
+			dodir /usr/lib/firmware && mv "${ED%/}/tmp/intel-ucode" "${ED%/}/usr/lib/firmware" || die "Failed to install splitted ucodes!"
 		fi
 	fi
 
