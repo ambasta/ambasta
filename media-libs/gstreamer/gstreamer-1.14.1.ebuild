@@ -48,6 +48,8 @@ src_configure() {
  		-Dlibexecdir="${EPREFIX}"/usr/$(get_libdir)
  		-Ddisable_gst_debug=true
  		-Ddisable_examples=true
+		-Dbuild_tools=true
+		-Ddisable_gtkdoc=true
  		-Dlibrary_format=shared
  		-Ddisable_libunwind=$(usex unwind false true)
  		-Ddisable_introspection=$(usex introspection false true)
