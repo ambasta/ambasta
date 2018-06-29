@@ -8,7 +8,7 @@ inherit linux-info toolchain-funcs mount-boot
 # Find updates by searching and clicking the first link (hopefully it's the one):
 # http://www.intel.com/content/www/us/en/search.html?keyword=Processor+Microcode+Data+File
 
-COLLECTION_SNAPSHOT="20180527"
+COLLECTION_SNAPSHOT="20180616"
 INTEL_SNAPSHOT="20180425"
 NUM="27776"
 DESCRIPTION="Intel IA32/IA64 microcode update data"
@@ -18,7 +18,7 @@ SRC_URI="https://downloadmirror.intel.com/${NUM}/eng/microcode-${INTEL_SNAPSHOT}
 
 LICENSE="intel-ucode"
 SLOT="0"
-KEYWORDS="-* ~amd64 ~x86"
+KEYWORDS="-* amd64 x86"
 IUSE="hostonly initramfs +split-ucode vanilla"
 REQUIRED_USE="|| ( initramfs split-ucode )"
 
@@ -144,8 +144,9 @@ pkg_preinst() {
 
 	else
 		if use split-ucode; then
-			# Temporary /tmp/intel-ucode will become final /usr/lib/firmware/intel-ucode ...
-			dodir /usr/lib/firmware && mv "${ED%/}/tmp/intel-ucode" "${ED%/}/usr/lib/firmware" || die "Failed to install splitted ucodes!"
+			# Temporary /tmp/intel-ucode will become final /lib/firmware/intel-ucode ...
+			dodir /lib/firmware
+			mv "${ED%/}/tmp/intel-ucode" "${ED%/}/usr/lib/firmware" || die "Failed to install splitted ucodes!"
 		fi
 	fi
 
@@ -205,7 +206,7 @@ pkg_postinst() {
 		ewarn "MICROCODE_BLACKLIST or MICROCODE_SIGNATURES, you maybe have unintentionally"
 		ewarn "re-enabled those microcodes...!"
 		ewarn ""
-		ewarn "Check ${EROOT%/}/usr/share/doc/${P}/releasenot* if your microcode update"
+		ewarn "Check \"${EROOT%/}/usr/share/doc/${PN}-*/releasenot*\" if your microcode update"
 		ewarn "requires additional kernel patches or not."
 	fi
 }
