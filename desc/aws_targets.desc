@@ -17,7 +17,6 @@ cloud9 - SDK Support for AWS cloud9
 clouddirectory - SDK Support for AWS clouddirectory
 cloudformation - SDK Support for AWS cloudformation
 cloudfront - SDK Support for AWS cloudfront
-cloudfront-integration-tests - SDK Support for AWS cloudfront-integration-tests
 cloudhsm - SDK Support for AWS cloudhsm
 cloudhsmv2 - SDK Support for AWS cloudhsmv2
 cloudsearch - SDK Support for AWS cloudsearch
@@ -29,14 +28,12 @@ codedeploy - SDK Support for AWS codedeploy
 codepipeline - SDK Support for AWS codepipeline
 codestar - SDK Support for AWS codestar
 cognito-identity - SDK Support for AWS cognito-identity
-cognitoidentity-integration-tests - SDK Support for AWS cognitoidentity-integration-tests
 cognito-idp - SDK Support for AWS cognito-idp
 cognito-sync - SDK Support for AWS cognito-sync
 comprehend - SDK Support for AWS comprehend
 config - SDK Support for AWS config
 connect - SDK Support for AWS connect
 core - SDK Support for AWS core
-core-tests - SDK Support for AWS core-tests
 cur - SDK Support for AWS cur
 datapipeline - SDK Support for AWS datapipeline
 dax - SDK Support for AWS dax
@@ -46,10 +43,8 @@ discovery - SDK Support for AWS discovery
 dms - SDK Support for AWS dms
 ds - SDK Support for AWS ds
 dynamodb - SDK Support for AWS dynamodb
-dynamodb-integration-tests - SDK Support for AWS dynamodb-integration-tests
 dynamodbstreams - SDK Support for AWS dynamodbstreams
 ec2 - SDK Support for AWS ec2
-ec2-integration-tests - SDK Support for AWS ec2-integration-tests
 ecr - SDK Support for AWS ecr
 ecs - SDK Support for AWS ecs
 eks - SDK Support for AWS eks
@@ -73,7 +68,6 @@ guardduty - SDK Support for AWS guardduty
 health - SDK Support for AWS health
 iam - SDK Support for AWS iam
 identity-management - SDK Support for AWS identity-management
-identity-management-tests - SDK Support for AWS identity-management-tests
 importexport - SDK Support for AWS importexport
 inspector - SDK Support for AWS inspector
 iot - SDK Support for AWS iot
@@ -89,7 +83,6 @@ kinesis-video-archived-media - SDK Support for AWS kinesis-video-archived-media
 kinesis-video-media - SDK Support for AWS kinesis-video-media
 kms - SDK Support for AWS kms
 lambda - SDK Support for AWS lambda
-lambda-integration-tests - SDK Support for AWS lambda-integration-tests
 lex - SDK Support for AWS lex
 lex-models - SDK Support for AWS lex-models
 lightsail - SDK Support for AWS lightsail
@@ -122,7 +115,6 @@ pricing - SDK Support for AWS pricing
 queues - SDK Support for AWS queues
 rds - SDK Support for AWS rds
 redshift - SDK Support for AWS redshift
-redshift-integration-tests - SDK Support for AWS redshift-integration-tests
 rekognition - SDK Support for AWS rekognition
 resource-groups - SDK Support for AWS resource-groups
 resourcegroupstaggingapi - SDK Support for AWS resourcegroupstaggingapi
@@ -130,9 +122,6 @@ route53 - SDK Support for AWS route53
 route53domains - SDK Support for AWS route53domains
 s3 - SDK Support for AWS s3
 s3-encryption - SDK Support for AWS s3-encryption
-s3-encryption-integration-tests - SDK Support for AWS s3-encryption-integration-tests
-s3-encryption-tests - SDK Support for AWS s3-encryption-tests
-s3-integration-tests - SDK Support for AWS s3-integration-tests
 sagemaker - SDK Support for AWS sagemaker
 sagemaker-runtime - SDK Support for AWS sagemaker-runtime
 sdb - SDK Support for AWS sdb
@@ -145,7 +134,6 @@ sms - SDK Support for AWS sms
 snowball - SDK Support for AWS snowball
 sns - SDK Support for AWS sns
 sqs - SDK Support for AWS sqs
-sqs-integration-tests - SDK Support for AWS sqs-integration-tests
 ssm - SDK Support for AWS ssm
 states - SDK Support for AWS states
 storagegateway - SDK Support for AWS storagegateway
@@ -153,10 +141,8 @@ sts - SDK Support for AWS sts
 support - SDK Support for AWS support
 swf - SDK Support for AWS swf
 text-to-speech - SDK Support for AWS text-to-speech
-text-to-speech-tests - SDK Support for AWS text-to-speech-tests
 transcribe - SDK Support for AWS transcribe
 transfer - SDK Support for AWS transfer
-transfer-tests - SDK Support for AWS transfer-tests
 translate - SDK Support for AWS translate
 waf - SDK Support for AWS waf
 waf-regional - SDK Support for AWS waf-regional
