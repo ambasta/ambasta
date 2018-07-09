@@ -1,166 +1,166 @@
-access-management - AWS Service for ${1}
-acm - AWS Service for ${1}
-acm-pca - AWS Service for ${1}
-alexaforbusiness - AWS Service for ${1}
-apigateway - AWS Service for ${1}
-application-autoscaling - AWS Service for ${1}
-appstream - AWS Service for ${1}
-appsync - AWS Service for ${1}
-athena - AWS Service for ${1}
-autoscaling - AWS Service for ${1}
-autoscaling-plans - AWS Service for ${1}
-AWSMigrationHub - AWS Service for ${1}
-batch - AWS Service for ${1}
-budgets - AWS Service for ${1}
-ce - AWS Service for ${1}
-cloud9 - AWS Service for ${1}
-clouddirectory - AWS Service for ${1}
-cloudformation - AWS Service for ${1}
-cloudfront - AWS Service for ${1}
-cloudfront-integration-tests - AWS Service for ${1}
-cloudhsm - AWS Service for ${1}
-cloudhsmv2 - AWS Service for ${1}
-cloudsearch - AWS Service for ${1}
-cloudsearchdomain - AWS Service for ${1}
-cloudtrail - AWS Service for ${1}
-codebuild - AWS Service for ${1}
-codecommit - AWS Service for ${1}
-codedeploy - AWS Service for ${1}
-codepipeline - AWS Service for ${1}
-codestar - AWS Service for ${1}
-cognito-identity - AWS Service for ${1}
-cognitoidentity-integration-tests - AWS Service for ${1}
-cognito-idp - AWS Service for ${1}
-cognito-sync - AWS Service for ${1}
-comprehend - AWS Service for ${1}
-config - AWS Service for ${1}
-connect - AWS Service for ${1}
-core - AWS Service for ${1}
-core-tests - AWS Service for ${1}
-cur - AWS Service for ${1}
-datapipeline - AWS Service for ${1}
-dax - AWS Service for ${1}
-devicefarm - AWS Service for ${1}
-directconnect - AWS Service for ${1}
-discovery - AWS Service for ${1}
-dms - AWS Service for ${1}
-ds - AWS Service for ${1}
-dynamodb - AWS Service for ${1}
-dynamodb-integration-tests - AWS Service for ${1}
-dynamodbstreams - AWS Service for ${1}
-ec2 - AWS Service for ${1}
-ec2-integration-tests - AWS Service for ${1}
-ecr - AWS Service for ${1}
-ecs - AWS Service for ${1}
-eks - AWS Service for ${1}
-elasticache - AWS Service for ${1}
-elasticbeanstalk - AWS Service for ${1}
-elasticfilesystem - AWS Service for ${1}
-elasticloadbalancing - AWS Service for ${1}
-elasticloadbalancingv2 - AWS Service for ${1}
-elasticmapreduce - AWS Service for ${1}
-elastictranscoder - AWS Service for ${1}
-email - AWS Service for ${1}
-es - AWS Service for ${1}
-events - AWS Service for ${1}
-firehose - AWS Service for ${1}
-fms - AWS Service for ${1}
-gamelift - AWS Service for ${1}
-glacier - AWS Service for ${1}
-glue - AWS Service for ${1}
-greengrass - AWS Service for ${1}
-guardduty - AWS Service for ${1}
-health - AWS Service for ${1}
-iam - AWS Service for ${1}
-identity-management - AWS Service for ${1}
-identity-management-tests - AWS Service for ${1}
-importexport - AWS Service for ${1}
-inspector - AWS Service for ${1}
-iot - AWS Service for ${1}
-iot1click-devices - AWS Service for ${1}
-iot1click-projects - AWS Service for ${1}
-iotanalytics - AWS Service for ${1}
-iot-data - AWS Service for ${1}
-iot-jobs-data - AWS Service for ${1}
-kinesis - AWS Service for ${1}
-kinesisanalytics - AWS Service for ${1}
-kinesisvideo - AWS Service for ${1}
-kinesis-video-archived-media - AWS Service for ${1}
-kinesis-video-media - AWS Service for ${1}
-kms - AWS Service for ${1}
-lambda - AWS Service for ${1}
-lambda-integration-tests - AWS Service for ${1}
-lex - AWS Service for ${1}
-lex-models - AWS Service for ${1}
-lightsail - AWS Service for ${1}
-logs - AWS Service for ${1}
-machinelearning - AWS Service for ${1}
-macie - AWS Service for ${1}
-marketplacecommerceanalytics - AWS Service for ${1}
-marketplace-entitlement - AWS Service for ${1}
-mediaconvert - AWS Service for ${1}
-medialive - AWS Service for ${1}
-mediapackage - AWS Service for ${1}
-mediastore - AWS Service for ${1}
-mediastore-data - AWS Service for ${1}
-mediatailor - AWS Service for ${1}
-meteringmarketplace - AWS Service for ${1}
-mobile - AWS Service for ${1}
-mobileanalytics - AWS Service for ${1}
-monitoring - AWS Service for ${1}
-mq - AWS Service for ${1}
-mturk-requester - AWS Service for ${1}
-neptune - AWS Service for ${1}
-opsworks - AWS Service for ${1}
-opsworkscm - AWS Service for ${1}
-organizations - AWS Service for ${1}
-pi - AWS Service for ${1}
-pinpoint - AWS Service for ${1}
-polly - AWS Service for ${1}
-polly-sample - AWS Service for ${1}
-pricing - AWS Service for ${1}
-queues - AWS Service for ${1}
-rds - AWS Service for ${1}
-redshift - AWS Service for ${1}
-redshift-integration-tests - AWS Service for ${1}
-rekognition - AWS Service for ${1}
-resource-groups - AWS Service for ${1}
-resourcegroupstaggingapi - AWS Service for ${1}
-route53 - AWS Service for ${1}
-route53domains - AWS Service for ${1}
-s3 - AWS Service for ${1}
-s3-encryption - AWS Service for ${1}
-s3-encryption-integration-tests - AWS Service for ${1}
-s3-encryption-tests - AWS Service for ${1}
-s3-integration-tests - AWS Service for ${1}
-sagemaker - AWS Service for ${1}
-sagemaker-runtime - AWS Service for ${1}
-sdb - AWS Service for ${1}
-secretsmanager - AWS Service for ${1}
-serverlessrepo - AWS Service for ${1}
-servicecatalog - AWS Service for ${1}
-servicediscovery - AWS Service for ${1}
-shield - AWS Service for ${1}
-sms - AWS Service for ${1}
-snowball - AWS Service for ${1}
-sns - AWS Service for ${1}
-sqs - AWS Service for ${1}
-sqs-integration-tests - AWS Service for ${1}
-ssm - AWS Service for ${1}
-states - AWS Service for ${1}
-storagegateway - AWS Service for ${1}
-sts - AWS Service for ${1}
-support - AWS Service for ${1}
-swf - AWS Service for ${1}
-text-to-speech - AWS Service for ${1}
-text-to-speech-tests - AWS Service for ${1}
-transcribe - AWS Service for ${1}
-transfer - AWS Service for ${1}
-transfer-tests - AWS Service for ${1}
-translate - AWS Service for ${1}
-waf - AWS Service for ${1}
-waf-regional - AWS Service for ${1}
-workdocs - AWS Service for ${1}
-workmail - AWS Service for ${1}
-workspaces - AWS Service for ${1}
-xray - AWS XRay support
+access-management - SDK Support for AWS access-management
+acm - SDK Support for AWS acm
+acm-pca - SDK Support for AWS acm-pca
+alexaforbusiness - SDK Support for AWS alexaforbusiness
+apigateway - SDK Support for AWS apigateway
+application-autoscaling - SDK Support for AWS application-autoscaling
+appstream - SDK Support for AWS appstream
+appsync - SDK Support for AWS appsync
+athena - SDK Support for AWS athena
+autoscaling - SDK Support for AWS autoscaling
+autoscaling-plans - SDK Support for AWS autoscaling-plans
+AWSMigrationHub - SDK Support for AWS AWSMigrationHub
+batch - SDK Support for AWS batch
+budgets - SDK Support for AWS budgets
+ce - SDK Support for AWS ce
+cloud9 - SDK Support for AWS cloud9
+clouddirectory - SDK Support for AWS clouddirectory
+cloudformation - SDK Support for AWS cloudformation
+cloudfront - SDK Support for AWS cloudfront
+cloudfront-integration-tests - SDK Support for AWS cloudfront-integration-tests
+cloudhsm - SDK Support for AWS cloudhsm
+cloudhsmv2 - SDK Support for AWS cloudhsmv2
+cloudsearch - SDK Support for AWS cloudsearch
+cloudsearchdomain - SDK Support for AWS cloudsearchdomain
+cloudtrail - SDK Support for AWS cloudtrail
+codebuild - SDK Support for AWS codebuild
+codecommit - SDK Support for AWS codecommit
+codedeploy - SDK Support for AWS codedeploy
+codepipeline - SDK Support for AWS codepipeline
+codestar - SDK Support for AWS codestar
+cognito-identity - SDK Support for AWS cognito-identity
+cognitoidentity-integration-tests - SDK Support for AWS cognitoidentity-integration-tests
+cognito-idp - SDK Support for AWS cognito-idp
+cognito-sync - SDK Support for AWS cognito-sync
+comprehend - SDK Support for AWS comprehend
+config - SDK Support for AWS config
+connect - SDK Support for AWS connect
+core - SDK Support for AWS core
+core-tests - SDK Support for AWS core-tests
+cur - SDK Support for AWS cur
+datapipeline - SDK Support for AWS datapipeline
+dax - SDK Support for AWS dax
+devicefarm - SDK Support for AWS devicefarm
+directconnect - SDK Support for AWS directconnect
+discovery - SDK Support for AWS discovery
+dms - SDK Support for AWS dms
+ds - SDK Support for AWS ds
+dynamodb - SDK Support for AWS dynamodb
+dynamodb-integration-tests - SDK Support for AWS dynamodb-integration-tests
+dynamodbstreams - SDK Support for AWS dynamodbstreams
+ec2 - SDK Support for AWS ec2
+ec2-integration-tests - SDK Support for AWS ec2-integration-tests
+ecr - SDK Support for AWS ecr
+ecs - SDK Support for AWS ecs
+eks - SDK Support for AWS eks
+elasticache - SDK Support for AWS elasticache
+elasticbeanstalk - SDK Support for AWS elasticbeanstalk
+elasticfilesystem - SDK Support for AWS elasticfilesystem
+elasticloadbalancing - SDK Support for AWS elasticloadbalancing
+elasticloadbalancingv2 - SDK Support for AWS elasticloadbalancingv2
+elasticmapreduce - SDK Support for AWS elasticmapreduce
+elastictranscoder - SDK Support for AWS elastictranscoder
+email - SDK Support for AWS email
+es - SDK Support for AWS es
+events - SDK Support for AWS events
+firehose - SDK Support for AWS firehose
+fms - SDK Support for AWS fms
+gamelift - SDK Support for AWS gamelift
+glacier - SDK Support for AWS glacier
+glue - SDK Support for AWS glue
+greengrass - SDK Support for AWS greengrass
+guardduty - SDK Support for AWS guardduty
+health - SDK Support for AWS health
+iam - SDK Support for AWS iam
+identity-management - SDK Support for AWS identity-management
+identity-management-tests - SDK Support for AWS identity-management-tests
+importexport - SDK Support for AWS importexport
+inspector - SDK Support for AWS inspector
+iot - SDK Support for AWS iot
+iot1click-devices - SDK Support for AWS iot1click-devices
+iot1click-projects - SDK Support for AWS iot1click-projects
+iotanalytics - SDK Support for AWS iotanalytics
+iot-data - SDK Support for AWS iot-data
+iot-jobs-data - SDK Support for AWS iot-jobs-data
+kinesis - SDK Support for AWS kinesis
+kinesisanalytics - SDK Support for AWS kinesisanalytics
+kinesisvideo - SDK Support for AWS kinesisvideo
+kinesis-video-archived-media - SDK Support for AWS kinesis-video-archived-media
+kinesis-video-media - SDK Support for AWS kinesis-video-media
+kms - SDK Support for AWS kms
+lambda - SDK Support for AWS lambda
+lambda-integration-tests - SDK Support for AWS lambda-integration-tests
+lex - SDK Support for AWS lex
+lex-models - SDK Support for AWS lex-models
+lightsail - SDK Support for AWS lightsail
+logs - SDK Support for AWS logs
+machinelearning - SDK Support for AWS machinelearning
+macie - SDK Support for AWS macie
+marketplacecommerceanalytics - SDK Support for AWS marketplacecommerceanalytics
+marketplace-entitlement - SDK Support for AWS marketplace-entitlement
+mediaconvert - SDK Support for AWS mediaconvert
+medialive - SDK Support for AWS medialive
+mediapackage - SDK Support for AWS mediapackage
+mediastore - SDK Support for AWS mediastore
+mediastore-data - SDK Support for AWS mediastore-data
+mediatailor - SDK Support for AWS mediatailor
+meteringmarketplace - SDK Support for AWS meteringmarketplace
+mobile - SDK Support for AWS mobile
+mobileanalytics - SDK Support for AWS mobileanalytics
+monitoring - SDK Support for AWS monitoring
+mq - SDK Support for AWS mq
+mturk-requester - SDK Support for AWS mturk-requester
+neptune - SDK Support for AWS neptune
+opsworks - SDK Support for AWS opsworks
+opsworkscm - SDK Support for AWS opsworkscm
+organizations - SDK Support for AWS organizations
+pi - SDK Support for AWS pi
+pinpoint - SDK Support for AWS pinpoint
+polly - SDK Support for AWS polly
+polly-sample - SDK Support for AWS polly-sample
+pricing - SDK Support for AWS pricing
+queues - SDK Support for AWS queues
+rds - SDK Support for AWS rds
+redshift - SDK Support for AWS redshift
+redshift-integration-tests - SDK Support for AWS redshift-integration-tests
+rekognition - SDK Support for AWS rekognition
+resource-groups - SDK Support for AWS resource-groups
+resourcegroupstaggingapi - SDK Support for AWS resourcegroupstaggingapi
+route53 - SDK Support for AWS route53
+route53domains - SDK Support for AWS route53domains
+s3 - SDK Support for AWS s3
+s3-encryption - SDK Support for AWS s3-encryption
+s3-encryption-integration-tests - SDK Support for AWS s3-encryption-integration-tests
+s3-encryption-tests - SDK Support for AWS s3-encryption-tests
+s3-integration-tests - SDK Support for AWS s3-integration-tests
+sagemaker - SDK Support for AWS sagemaker
+sagemaker-runtime - SDK Support for AWS sagemaker-runtime
+sdb - SDK Support for AWS sdb
+secretsmanager - SDK Support for AWS secretsmanager
+serverlessrepo - SDK Support for AWS serverlessrepo
+servicecatalog - SDK Support for AWS servicecatalog
+servicediscovery - SDK Support for AWS servicediscovery
+shield - SDK Support for AWS shield
+sms - SDK Support for AWS sms
+snowball - SDK Support for AWS snowball
+sns - SDK Support for AWS sns
+sqs - SDK Support for AWS sqs
+sqs-integration-tests - SDK Support for AWS sqs-integration-tests
+ssm - SDK Support for AWS ssm
+states - SDK Support for AWS states
+storagegateway - SDK Support for AWS storagegateway
+sts - SDK Support for AWS sts
+support - SDK Support for AWS support
+swf - SDK Support for AWS swf
+text-to-speech - SDK Support for AWS text-to-speech
+text-to-speech-tests - SDK Support for AWS text-to-speech-tests
+transcribe - SDK Support for AWS transcribe
+transfer - SDK Support for AWS transfer
+transfer-tests - SDK Support for AWS transfer-tests
+translate - SDK Support for AWS translate
+waf - SDK Support for AWS waf
+waf-regional - SDK Support for AWS waf-regional
+workdocs - SDK Support for AWS workdocs
+workmail - SDK Support for AWS workmail
+workspaces - SDK Support for AWS workspaces
+xray - SDK Support for AWS xray
