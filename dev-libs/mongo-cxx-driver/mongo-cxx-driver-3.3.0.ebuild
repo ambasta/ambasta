@@ -4,7 +4,7 @@
 
 EAPI=6
 
-inherit cmake-multilib
+inherit cmake-utils
 
 DESCRIPTION="C++ Driver for MongoDB "
 HOMEPAGE="https://mongodb.github.io/mongo-cxx-driver/"
@@ -13,22 +13,17 @@ SRC_URI="https://github.com/mongodb/${PN}/archive/r${PV}.tar.gz"
 LICENSE="Apache-2.0"
 SLOT="0"
 KEYWORDS="~amd64"
-IUSE="static-libs boost"
+IUSE="static-libs"
 
 S="${WORKDIR}/${PN}-r${PV}"
 
 DEPEND="
-	>=dev-libs/mongo-c-driver-1.10.0
-	dev-libs/boost"
+	>=dev-libs/mongo-c-driver-1.10.0"
 
-PATCHES=(
-	"${FILESDIR}"/mongo-cxx-driver-gnuinstalldirs.patch
-)
-
-multilib_src_configure() {
+src_configure() {
 	local mycmakeargs=(
+		-DCMAKE_CXX_STANDARD=17
  		-DBUILD_SHARED_LIBS=$(usex !static-libs)
-		-DBSONCXX_POLY_USE_BOOST=1
 	)
 	cmake-utils_src_configure
 }
