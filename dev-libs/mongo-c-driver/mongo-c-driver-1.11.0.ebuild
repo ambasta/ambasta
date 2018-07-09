@@ -33,7 +33,7 @@ src_configure() {
 		-DENABLE_TESTS=$(usex test)
 		-DENABLE_EXAMPLES=$(usex examples)
 		-DENABLE_CRYPTO_SYSTEM_PROFILE=$(usex !libressl)
-		-DENABLE_ZLIB=$(usex zlib)
+		-DENABLE_ZLIB=$(usex zlib SYSTEM AUTO)
 		-DENABLE_MAN_PAGES=$(usex man)
 		-DENABLE_HTML_DOCS=$(usex doc)
 		-DENABLE_SASL=$(usex sasl)
