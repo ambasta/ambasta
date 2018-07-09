@@ -18,7 +18,7 @@ ALL_AWS_TARGETS="access-management acm acm-pca alexaforbusiness apigateway appli
 for module in ${ALL_AWS_TARGETS}; do
 	IUSE_AWS_TARGETS+=" aws_targets_${module}"
 done
-IUSE="static-libs ${IUSE_AWS_TARGETS}"
+IUSE="static-libs test ${IUSE_AWS_TARGETS}"
 
 DEPEND=""
 RDEPEND="${DEPEND}"
@@ -26,6 +26,7 @@ RDEPEND="${DEPEND}"
 src_configure() {
 	local mycmakeargs=(
 		-DCPP_STANDARD=17
+		-DENABLE_TESTING=$(usex test)
  		-DBUILD_SHARED_LIBS=$(usex !static-libs)
 		-DBUILD_ONLY="${AWS_TARGETS// /;}"
 	)
