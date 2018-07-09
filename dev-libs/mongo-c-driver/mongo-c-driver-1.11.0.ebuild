@@ -36,7 +36,7 @@ src_configure() {
 		-DENABLE_ZLIB=$(usex zlib SYSTEM AUTO)
 		-DENABLE_MAN_PAGES=$(usex man)
 		-DENABLE_HTML_DOCS=$(usex doc)
-		-DENABLE_SASL=$(usex sasl)
+		-DENABLE_SASL=$(usex sasl CYRUS OFF)
 		-DENABLE_SHM_COUNTERS=OFF
 		-DENABLE_BSON=ON
 		-DENABLE_SNAPPY=OFF
