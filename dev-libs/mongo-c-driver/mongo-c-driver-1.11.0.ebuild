@@ -4,7 +4,7 @@
 
 EAPI=6
 
-inherit cmake-multilib
+inherit cmake-utils
 
 DESCRIPTION="A high-performance MongoDB driver for C"
 HOMEPAGE="https://github.com/mongodb/mongo-c-driver/"
@@ -23,10 +23,11 @@ RDEPEND="!dev-libs/libbson
 	zlib? ( sys-libs/zlib )"
 DEPEND="${RDEPEND}
 	test? ( dev-db/mongodb )"
+REQUIRED_USE="test? ( static-libs )"
 
 DOCS=( NEWS README.rst )
 
-multilib_src_configure() {
+src_configure() {
 	local mycmakeargs=(
 		-DENABLE_STATIC=$(usex static-libs)
 		-DENABLE_TESTS=$(usex test)
@@ -36,11 +37,11 @@ multilib_src_configure() {
 		-DENABLE_MAN_PAGES=$(usex man)
 		-DENABLE_HTML_DOCS=$(usex doc)
 		-DENABLE_SASL=$(usex sasl)
-		-DENABLE_SHM_COUNTERS OFF
-		-DENABLE_BSON ON
-		-DENABLE_SNAPPY OFF
-		-DENABLE_EXTRA_ALIGNMENT ON
-		-DENABLE_RDTSCP ON
+		-DENABLE_SHM_COUNTERS=OFF
+		-DENABLE_BSON=ON
+		-DENABLE_SNAPPY=OFF
+		-DENABLE_EXTRA_ALIGNMENT=ON
+		-DENABLE_RDTSCP=ON
 	)
 	cmake-utils_src_configure
 }
