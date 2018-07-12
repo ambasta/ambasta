@@ -19,7 +19,7 @@ SRC_URI="https://downloadmirror.intel.com/${NUM}/eng/microcode-${INTEL_SNAPSHOT}
 LICENSE="intel-ucode"
 SLOT="0"
 KEYWORDS="-* amd64 x86"
-IUSE="hostonly initramfs +split-ucode vanilla"
+IUSE="hostonly initramfs +split-ucode vanilla split-usr"
 REQUIRED_USE="|| ( initramfs split-ucode )"
 
 DEPEND="sys-apps/iucode_tool"
