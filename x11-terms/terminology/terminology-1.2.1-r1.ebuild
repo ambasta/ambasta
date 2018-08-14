@@ -14,7 +14,7 @@ SLOT="0"
 KEYWORDS="~amd64 ~ppc ~ppc64 ~x86"
 IUSE="nls"
 
-RDEPEND=">=dev-libs/efl-1.20.0[eet,fontconfig,opengl]"
+RDEPEND=">=dev-libs/efl-1.20.0[eet,fontconfig]"
 DEPEND="
 	${RDEPEND}
 	virtual/pkgconfig
