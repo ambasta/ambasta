@@ -7,7 +7,7 @@ WANT_AUTOCONF="2.1"
 MOZ_ESR=""
 
 # This list can be updated with scripts/get_langs.sh from the mozilla overlay
-MOZ_LANGS=( en en-GB en-US )
+MOZ_LANGS=( en-US )
 
 # Convert the ebuild version to the upstream mozilla version, used by mozlinguas
 MOZ_PV="${PV/_alpha/a}" # Handle alpha for SRC_URI
@@ -26,7 +26,7 @@ MOZ_HTTP_URI="https://archive.mozilla.org/pub/${PN}/releases"
 MOZCONFIG_OPTIONAL_WIFI=1
 
 inherit check-reqs flag-o-matic toolchain-funcs eutils gnome2-utils llvm \
-		mozconfig-v6.60 pax-utils xdg-utils autotools mozlinguas-v2
+		mozconfig-v6.60a pax-utils xdg-utils autotools mozlinguas-v2
 
 DESCRIPTION="Firefox Web Browser"
 HOMEPAGE="http://www.mozilla.com/firefox"
@@ -134,7 +134,6 @@ src_prepare() {
 		sed -i \
 		-e '/^OS_LIBS += no_as_needed/d' \
 		-e '/^OS_LIBS += as_needed/d' \
-		"${S}"/widget/gtk/mozgtk/gtk2/moz.build \
 		"${S}"/widget/gtk/mozgtk/gtk3/moz.build \
 		|| die "sed failed to drop --as-needed for ia64"
 	fi
@@ -222,6 +221,7 @@ src_configure() {
 	# Default mozilla_five_home, system-hunspell no longer valid option
 	sed '/with-default-mozilla-five-home=/d' -i "${S}"/.mozconfig
 	sed '/enable-system-hunspell/d' -i "${S}"/.mozconfig
+	sed '/disable-stylo/d' -i "${S}"/.mozconfig
 
 	# Finalize and report settings
 	mozconfig_final
