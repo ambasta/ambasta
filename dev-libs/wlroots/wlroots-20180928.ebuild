@@ -7,7 +7,7 @@ inherit git-r3 meson
 
 DESCRIPTION="A modular Wayland compositor library"
 HOMEPAGE="http://swaywm.org"
-EGIT_COMMIT="28b0a40"
+EGIT_COMMIT="842368e"
 EGIT_REPO_URI="https://github.com/swaywm/wlroots.git"
 
 LICENSE="MIT"
