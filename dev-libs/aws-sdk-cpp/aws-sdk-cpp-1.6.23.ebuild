@@ -19,9 +19,9 @@ IUSE="static-libs test"
 
 for module in ${ALL_AWS_TARGETS}; do
 	if [ "$module" = "core" ]; then
-		IUSE="${IUSE} aws_targets_${module}"
+		IUSE="${IUSE} ${module}"
 	else
-		IUSE="${IUSE} -aws_targets_${module}"
+		IUSE="${IUSE} -${module}"
 	fi
 done
 unset module
