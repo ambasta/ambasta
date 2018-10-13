@@ -60,7 +60,7 @@ src_configure() {
 
 	for module in ${MODULES}; do
 		if use ${module}; then
-			mybuildtargets="${mybuildtargets};${module}"
+			mybuildtargets+=${module}
 		fi
 	done
 
