@@ -58,9 +58,9 @@ RDEPEND="${DEPEND}"
 src_configure() {
 	local mybuildtargets="core"
 
-	for module in ${MODULES}; do
+	for module in ${MODULES[@]}; do
 		if use ${module}; then
-			mybuildtargets+=${module}
+			mybuildtargets+=";${module}"
 		fi
 	done
 
