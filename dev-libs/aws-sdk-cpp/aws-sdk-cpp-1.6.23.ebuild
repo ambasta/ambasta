@@ -49,11 +49,7 @@ MODULES=(
 	transcribe transfer translate waf waf-regional
 	workdocs workmail workspaces xray )
 
-IUSE="static-libs test"
-
-IUSE="${IUSE} ${MODULES[*]}"
-
-RDEPEND="${DEPEND}"
+IUSE="static-libs test ${MODULES[*]}"
 
 src_configure() {
 	local mybuildtargets="core"
