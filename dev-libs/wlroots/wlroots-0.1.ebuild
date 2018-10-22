@@ -11,7 +11,7 @@ LICENSE="MIT"
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
 IUSE="examples elogind pcap rootston systemd xwayland X"
-SRC_URI="https://github.com/swaywm/wlroots/archive/$(ver_cut 0-2).tar.gz"
+SRC_URI="https://github.com/swaywm/wlroots/archive/$(ver_cut 0-2).tar.gz -> ${P}.tar.gz"
 
 DEPEND="
 	>=dev-libs/wayland-1.15
