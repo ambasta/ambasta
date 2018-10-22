@@ -22,7 +22,7 @@ DEPEND=">=dev-libs/json-c-0.13
 	dev-libs/libinput
 	dev-libs/libpcre
 	dev-libs/wayland
-	>=dev-libs/wlroots-1.0
+	>=dev-libs/wlroots-0.1
 	x11-libs/cairo
 	logind? ( || (
 		sys-auth/elogind
