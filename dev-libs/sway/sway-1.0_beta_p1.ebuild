@@ -16,20 +16,21 @@ SRC_URI="https://github.com/swaywm/sway/archive/${MY_PV}.tar.gz -> ${P}.tar.gz"
 LICENSE="MIT"
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
-IUSE="gdk-pixbuf logind wallpapers xwayland"
+IUSE="gdk-pixbuf wallpapers xwayland"
 
 DEPEND=">=dev-libs/json-c-0.13
 	dev-libs/libinput
 	dev-libs/libpcre
 	dev-libs/wayland
+	>=dev-libs/wayland-protocols-1.14
 	>=dev-libs/wlroots-0.1
 	x11-libs/cairo
-	logind? ( || (
+	|| (
 		sys-auth/elogind
-		sys-apps/systemd ) )
+		sys-apps/systemd )
 	sys-libs/libcap
 	virtual/pam
-	gdk-pixbuf? ( x11-libs/gdk-pixbuf[jpeg] )
+	gdk-pixbuf? ( >=x11-libs/gdk-pixbuf-2.0[jpeg] )
 	xwayland? ( x11-libs/libxcb )
 	x11-libs/libxkbcommon
 	x11-libs/pango
@@ -41,10 +42,10 @@ S="${WORKDIR}/${PN}-${MY_PV}"
 src_configure() {
 	local emesonargs=(
 		-Duse_rpath=false
-		-Ddefault_wallpaper=$(usex wallpapers true false)
-		-Dzsh_completiosn=false
-		-Dbash_completions=false
-		-Dfish_completions=false
+		-Dzsh-completions=false
+		-Dbash-completions=false
+		-Dfish-completions=false
+		-Ddefault-wallpaper=$(usex wallpapers true false)
 		-Denable-xwayland=$(usex xwayland true false)
 	)
 	meson_src_configure
