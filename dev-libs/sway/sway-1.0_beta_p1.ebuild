@@ -16,7 +16,7 @@ SRC_URI="https://github.com/swaywm/sway/archive/${MY_PV}.tar.gz -> ${P}.tar.gz"
 LICENSE="MIT"
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
-IUSE="gdk-pixbuf logind wallpapers xwayland zsh-completion"
+IUSE="gdk-pixbuf logind wallpapers xwayland"
 
 DEPEND=">=dev-libs/json-c-0.13
 	dev-libs/libinput
@@ -40,9 +40,12 @@ S="${WORKDIR}/${PN}-${MY_PV}"
 
 src_configure() {
 	local emesonargs=(
-		-Denable-xwayland=$(usex xwayland true false)
+		-Duse_rpath=false
 		-Ddefault_wallpaper=$(usex wallpapers true false)
-		-Dzsh_completions=$(usex zsh-completion true false)
+		-Dzsh_completiosn=false
+		-Dbash_completions=false
+		-Dfish_completions=false
+		-Denable-xwayland=$(usex xwayland true false)
 	)
 	meson_src_configure
 }
