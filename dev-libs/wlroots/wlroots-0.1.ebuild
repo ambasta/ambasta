@@ -10,9 +10,10 @@ HOMEPAGE="http://swaywm.org"
 LICENSE="MIT"
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
-IUSE="examples elogind pcap rootston systemd xwayland X"
+IUSE="logind elogind pcap rootston systemd xwayland X"
 SRC_URI="https://github.com/swaywm/wlroots/archive/$(ver_cut 0-2).tar.gz -> ${P}.tar.gz"
 
+REQUIRED_USE="^^ ( elogind systemd )"
 DEPEND="
 	>=dev-libs/wayland-1.15
 	media-libs/mesa[egl,gbm,gles2]
@@ -25,6 +26,7 @@ DEPEND="
 	elogind? ( sys-auth/elogind )
 	systemd? ( sys-apps/systemd )
 	xwayland? (
+		x11-base/xorg-server[wayland]
 		x11-libs/libxcb
 		x11-libs/libxkbcommon
 		x11-libs/xcb-util
@@ -40,13 +42,14 @@ RDEPEND="${DEPEND}"
 
 src_configure() {
 	local emesonargs=(
-		-Denable-libcap=$(usex pcap true false)
-		-Denable-systemd=$(usex systemd true false)
-		-Denable-elogind=$(usex elogind true false)
-		-Denable-xwayland=$(usex xwayland true false)
-		-Denable-x11_backend=$(usex X true false)
-		-Denable-rootston=$(usex rootston true false)
-		-Denable-examples=$(usex examples true false)
+		-Dlibcap=$(usex pcap enabled disabled)
+		-Dlogind=$(usex logind enabled disabled)
+		-Dlogind-provider=$(usex systemd systemd elogind)
+		-Dxwayland=$(usex xwayland enabled disabled)
+		-Dx11-backend=$(usex X enabled disabled)
+		-Drootston=$(usex rootston true false)
+		-Dexamples=false
+		-Dxcb-xkb=$(usex xwayland enabled $(usex X enabled disabled) )
 	)
 	meson_src_configure
 }
