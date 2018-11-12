@@ -1,22 +1,20 @@
 # Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
-
-inherit eutils versionator
+EAPI=7
 
 DESCRIPTION="JavaScript IDE for client- and server-side development with Node.js"
 HOMEPAGE="http://www.jetbrains.com/webstorm"
-SRC_URI="http://download.jetbrains.com/${PN}/WebStorm-$(get_version_component_range 1-3).tar.gz"
+SRC_URI="http://download.jetbrains.com/${PN}/WebStorm-$(ver_cut 4-6).tar.gz"
 
 LICENSE="WebStorm WebStorm_Academic WebStorm_Classroom WebStorm_OpenSource WebStorm_personal"
-SLOT="$(get_major_version)"
+SLOT="$(ver_cut 1)"
 KEYWORDS="~amd64 ~x86"
 IUSE=""
 
 RDEPEND=">=virtual/jdk-1.7"
 
-S="${WORKDIR}/WebStorm-$(get_version_component_range 4-6)"
+S="${WORKDIR}/WebStorm-$(ver_cut 4-6)"
 
 src_install() {
 	insinto "/opt/${PN}"
