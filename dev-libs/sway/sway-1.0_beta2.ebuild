@@ -24,7 +24,7 @@ SLOT="0"
 IUSE="elogind fish-completion +swaybar +swaybg +swaylock systemd +tray wallpapers X zsh-completion"
 REQUIRED_USE="?? ( elogind systemd )"
 
-RDEPEND="~dev-libs/wlroots-0.1[systemd=,elogind=,X=]
+RDEPEND=">=dev-libs/wlroots-0.1[systemd=,elogind=,X=]
 	>=dev-libs/json-c-0.13:0=
 	>=dev-libs/libinput-1.6.0:0=
 	dev-libs/libpcre
