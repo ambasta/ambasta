@@ -44,6 +44,4 @@ src_install() {
     fi
 
 	make_wrapper "${PN}" "${dir}/bin/${PN}.sh"
-	newicon "bin/${PN}.svg" "${PN}.svg"
-	make_desktop_entry "${PN}" "webstorm" "${PN}" "Development;IDE;"
 }
