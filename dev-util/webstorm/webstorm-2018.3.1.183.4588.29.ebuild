@@ -7,8 +7,8 @@ inherit eutils
 
 DESCRIPTION="JavaScript IDE for client- and server-side development with Node.js"
 HOMEPAGE="http://www.jetbrains.com/webstorm"
-# SRC_URI="http://download.jetbrains.com/${PN}/WebStorm-$(ver_cut 4-6).tar.gz"
-SRC_URI="http://download-cf.jetbrains.com/${PN}/WebStorm-$(ver_cut 1-2).tar.gz"
+SRC_URI="http://download.jetbrains.com/${PN}/WebStorm-$(ver_cut 4-6).tar.gz"
+# SRC_URI="http://download-cf.jetbrains.com/${PN}/WebStorm-$(ver_cut 1-2).tar.gz"
 
 LICENSE="WebStorm WebStorm_Academic WebStorm_Classroom WebStorm_OpenSource WebStorm_personal"
 SLOT="$(ver_cut 1)"
