@@ -3,7 +3,7 @@
 
 EAPI=7
 
-inherit eutils
+inherit desktop eutils
 
 DESCRIPTION="JavaScript IDE for client- and server-side development with Node.js"
 HOMEPAGE="http://www.jetbrains.com/webstorm"
@@ -46,5 +46,7 @@ src_install() {
         fi
     fi
 
-	make_wrapper "${PN}" "/opt/${PN}/bin/${PN}.sh"
+	make_wrapper ${PN} /opt/${PN}/bin/${PN}.sh
+	newicon bin/${PN}.svg ${PN}.svg
+	make_desktop_entry ${PN} ${PN} ${PN} "Development;IDE;"
 }
