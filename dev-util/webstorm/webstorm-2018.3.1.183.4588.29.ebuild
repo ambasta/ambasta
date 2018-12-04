@@ -38,13 +38,13 @@ src_prepare() {
 src_install() {
 	insinto "/opt/${PN}"
 	doins -r .
-	fperms 755 /opt/${PN}/bin/{${PN}.sh,fsnotifier{,64}}
+	fperms 755 /opt/${P}/bin/{${PN}.sh,fsnotifier{,64}}
 
 	if use custom-jdk; then
         if [[ -d jre64 ]]; then
-        fperms 755 "${dir}"/jre64/bin/{java,jjs,keytool,orbd,pack200,policytool,rmid,rmiregistry,servertool,tnameserv,unpack200}
+        fperms 755 /opt/${P}/jre64/bin/{java,jjs,keytool,orbd,pack200,policytool,rmid,rmiregistry,servertool,tnameserv,unpack200}
         fi
     fi
 
-	make_wrapper "${PN}" "${dir}/bin/${PN}.sh"
+	make_wrapper "${PN}" "/opt/${P}/bin/${PN}.sh"
 }
