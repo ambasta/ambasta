@@ -8,17 +8,20 @@ inherit eutils
 DESCRIPTION="JavaScript IDE for client- and server-side development with Node.js"
 HOMEPAGE="http://www.jetbrains.com/webstorm"
 SRC_URI="http://download.jetbrains.com/${PN}/WebStorm-$(ver_cut 4-6).tar.gz"
-# SRC_URI="http://download-cf.jetbrains.com/${PN}/WebStorm-$(ver_cut 1-2).tar.gz"
 
 LICENSE="WebStorm WebStorm_Academic WebStorm_Classroom WebStorm_OpenSource WebStorm_personal"
-SLOT="$(ver_cut 1)"
+
+
+SLOT="2018"
 KEYWORDS="~amd64 ~x86"
 IUSE="custom-jdk"
+
+RESTRICT="splitdebug"
+
 RDEPEND="!custom-jdk? ( virtual/jdk )"
 
-QA_PREBUILT="opt/${P}/*"
-
 S="${WORKDIR}/WebStorm-$(ver_cut 4-6)"
+
 
 src_prepare() {
 	default
@@ -31,11 +34,11 @@ src_prepare() {
 	rm -rv "${remove_me[@]}" || die
 }
 
+
 src_install() {
-	local dir="/opt/${P}"
-	insinto "${dir}"
-	doins -r *
-	fperms 755 "${dir}"/bin/{webstorm.sh,fsnotifier{,64}}
+	insinto "/opt/${PN}"
+	doins -r .
+	fperms 755 /opt/${PN}/bin/{${PN}.sh,fsnotifier{,64}}
 
 	if use custom-jdk; then
         if [[ -d jre64 ]]; then
