@@ -36,7 +36,7 @@ src_prepare() {
 src_install() {
 	insinto "/opt/${PN}"
 	doins -r .
-	fperms a+x /opt/${PN}/bin/{${PN}.sh,fsnotifier{,64},inspect.sh}
+	fperms a+x /opt/${PN}/bin/{pycharm.sh,fsnotifier{,64},inspect.sh}
 
 	if use custom-jdk; then
         if [[ -d jre64 ]]; then
