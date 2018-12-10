@@ -1,26 +1,26 @@
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2018 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
 inherit desktop eutils
 
-DESCRIPTION="JavaScript IDE for client- and server-side development with Node.js"
-HOMEPAGE="http://www.jetbrains.com/webstorm"
-SRC_URI="https://download.jetbrains.com/${PN}/WebStorm-$(ver_cut 4-6).tar.gz"
+DESCRIPTION="Intelligent Python IDE with unique code assistance and analysis"
+HOMEPAGE="http://www.jetbrains.com/pycharm/"
+SRC_URI="https://download.jetbrains.com/python/${PN}-$(ver_cut 4-6).tar.gz"
 
-LICENSE="WebStorm WebStorm_Academic WebStorm_Classroom WebStorm_OpenSource WebStorm_personal"
-
+LICENSE="PyCharm_Academic PyCharm_Classroom PyCharm PyCharm_OpenSource PyCharm_Preview"
 
 SLOT="2018"
 KEYWORDS="~amd64 ~x86"
 IUSE="custom-jdk"
 
-RESTRICT="splitdebug"
+RESTRICT="mirror strip splitdebug"
 
-RDEPEND="!custom-jdk? ( virtual/jdk )"
+RDEPEND="!custom-jdk? ( virtual/jdk )
+	dev-python/pip"
 
-S="${WORKDIR}/WebStorm-$(ver_cut 4-6)"
+S="${WORKDIR}/pycharm-$(ver_cut 1-2)"
 
 src_prepare() {
 	default
@@ -36,7 +36,7 @@ src_prepare() {
 src_install() {
 	insinto "/opt/${PN}"
 	doins -r .
-	fperms 755 /opt/${PN}/bin/{${PN}.sh,fsnotifier{,64},inspect.sh}
+	fperms a+x /opt/${PN}/bin/{${PN}.sh,fsnotifier{,64},inspect.sh}
 
 	if use custom-jdk; then
         if [[ -d jre64 ]]; then
