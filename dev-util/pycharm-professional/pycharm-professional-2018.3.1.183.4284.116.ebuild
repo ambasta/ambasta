@@ -44,7 +44,7 @@ src_install() {
         fi
     fi
 
-	make_wrapper ${PN} /opt/${PN}/bin/${PN}.sh
+	make_wrapper ${PN} /opt/${PN}/bin/pycharm.sh
 	newicon bin/${PN}.svg ${PN}.svg
 	make_desktop_entry ${PN} ${PN} ${PN} "Development;IDE;"
 }
