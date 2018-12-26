@@ -13,11 +13,11 @@ LICENSE="IDEA || ( IDEA_Academic IDEA_Classroom IDEA_OpenSource IDEA_Personal )"
 
 SLOT="2018"
 KEYWORDS="~amd64 ~x86"
-IUSE="custom-jdk"
+IUSE="system-jdk"
 
 RESTRICT="mirror strip splitdebug"
 
-RDEPEND="!custom-jdk? ( virtual/jdk )
+RDEPEND="system-jdk? ( virtual/jdk )
 	sys-devel/gdb
 	dev-util/cmake"
 
@@ -40,7 +40,9 @@ src_prepare() {
 	use ppc || remove_me+=( plugins/tfsIntegration/lib/native/linux/ppc )
 	use x86 || remove_me+=( plugins/tfsIntegration/lib/native/linux/x86 )
 
-	use custom-jdk || remove_me+=( jre64 )
+	if use system-jdk; then
+		remove_me+=( jre64 )
+	fi
 
 	rm -rv "${remove_me[@]}" || die
 }
@@ -50,9 +52,9 @@ src_install() {
 	doins -r .
 	fperms a+x /opt/${PN}/bin/{${PN}.sh,fsnotifier{,64},clang/linux/clang{d,-tidy},inspect.sh}
 
-	if use custom-jdk; then
+	if ! use system-jdk; then
         if [[ -d jre64 ]]; then
-        fperms 755 /opt/${PN}/jre64/bin/{java,jjs,keytool,orbd,pack200,policytool,rmid,rmiregistry,servertool,tnameserv,unpack200}
+        	fperms 755 /opt/${PN}/jre64/bin/{java,jjs,keytool,orbd,pack200,policytool,rmid,rmiregistry,servertool,tnameserv,unpack200}
         fi
     fi
 
