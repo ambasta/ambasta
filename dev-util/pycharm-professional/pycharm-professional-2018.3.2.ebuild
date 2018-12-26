@@ -20,8 +20,6 @@ RESTRICT="mirror strip splitdebug"
 RDEPEND="!custom-jdk? ( virtual/jdk )
 	dev-python/pip"
 
-S="${WORKDIR}/pycharm-$(ver_cut 1-2)"
-
 src_prepare() {
 	default
 
