@@ -77,6 +77,7 @@ src_configure() {
 		-DNO_ENCRYPTION=$(usex !ssl)
 		-DNO_HTTP_CLIENT=$(usex !http)
 		-DBUILD_ONLY="${mybuildtargets}"
+		-DCUSTOM_MEMORY_MANAGEMENT=0
 	)
 	cmake-utils_src_configure
 }
