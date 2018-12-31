@@ -29,7 +29,3 @@ pkg_setup() {
 	DOCS=(ChangeLog NEWS) # AUTHORS, README are empty
 	python-single-r1_pkg_setup
 }
-
-src_prepare() {
-	epatch "${FILESDIR}"/${PN}-python3.patch
-}
