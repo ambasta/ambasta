@@ -5,13 +5,15 @@ EAPI=7
 
 inherit desktop eutils
 
+MY_PN=${PN/-professional/}
+MY_P=${PN}-${PV}
+
 DESCRIPTION="Intelligent Python IDE with unique code assistance and analysis"
 HOMEPAGE="http://www.jetbrains.com/pycharm/"
-SRC_URI="https://download.jetbrains.com/cpp/${P}.tar.gz"
+SRC_URI="https://download.jetbrains.com/python/${P}.tar.gz"
 
 LICENSE="PyCharm_Academic PyCharm_Classroom PyCharm PyCharm_OpenSource PyCharm_Preview"
-
-SLOT="2018"
+SLOT="0"
 KEYWORDS="~amd64 ~x86"
 IUSE="system-jdk"
 
@@ -20,7 +22,7 @@ RESTRICT="mirror strip splitdebug"
 RDEPEND="system-jdk? ( virtual/jdk )
 	dev-python/pip"
 
-S="${WORKDIR}/pycharm-${PV}"
+S="${WORKDIR}/${MY_P}"
 
 src_prepare() {
 	default
@@ -46,7 +48,7 @@ src_install() {
         fi
     fi
 
-	make_wrapper ${PN} /opt/${PN}/bin/pycharm.sh
+	dosym /opt/${PN}/bin/${MY_PN}.sh /usr/bin/${PN}
 	newicon bin/pycharm.svg ${PN}.svg
 	make_desktop_entry ${PN} ${PN} ${PN} "Development;IDE;"
 }
