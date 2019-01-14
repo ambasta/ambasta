@@ -6,7 +6,7 @@ EAPI=7
 inherit desktop eutils
 
 MY_PN=${PN/-professional/}
-MY_P=${PN}-${PV}
+MY_P=${MY_PN}-${PV}
 
 DESCRIPTION="Intelligent Python IDE with unique code assistance and analysis"
 HOMEPAGE="http://www.jetbrains.com/pycharm/"
