@@ -55,7 +55,6 @@ CDEPEND="
 	dev-libs/atk
 	dev-libs/expat
 	>=x11-libs/cairo-1.10
-	>=x11-libs/gtk+-2.18:2
 	>=x11-libs/gtk+-3.4.0:3
 	x11-libs/gdk-pixbuf
 	>=x11-libs/pango-1.22.0
@@ -198,7 +197,6 @@ src_prepare() {
 		sed -i \
 		-e '/^OS_LIBS += no_as_needed/d' \
 		-e '/^OS_LIBS += as_needed/d' \
-		"${S}"/widget/gtk/mozgtk/gtk2/moz.build \
 		"${S}"/widget/gtk/mozgtk/gtk3/moz.build \
 		|| die "sed failed to drop --as-needed for ia64"
 	fi
