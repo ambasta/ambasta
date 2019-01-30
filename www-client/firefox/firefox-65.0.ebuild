@@ -410,12 +410,7 @@ src_configure() {
 
 	# use the gtk3 toolkit (the only one supported at this point)
 	# TODO: Will this result in automagic dependency on x11-libs/gtk+[wayland]?
-	if use wayland; then
-		mozconfig_annotate '' --enable-default-toolkit=cairo-gtk3-wayland
-		mozconfig_annotate '' --with-gl-provider=EGL
-	else
-		mozconfig_annotate '' --enable-default-toolkit=cairo-gtk3
-	fi
+	mozconfig_annotate '' --enable-default-toolkit=cairo-gtk3-wayland
 
 	mozconfig_use_enable startup-notification
 	mozconfig_use_enable system-sqlite
