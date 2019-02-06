@@ -10,7 +10,7 @@ else
 		# Version format: major.minor-beta.betanum
 		MY_PV=$(ver_cut 1-2)-$(ver_cut 3-4)
 		SRC_URI="https://github.com/swaywm/sway/archive/${MY_PV}.tar.gz -> ${P}.tar.gz"
-		S="${WORKDIR}/sway-${SWAY_PV}"
+		S="${WORKDIR}/sway-${MY_PV}"
 		KEYWORDS="~amd64 ~x86"
 fi
 
@@ -21,7 +21,7 @@ HOMEPAGE="https://swaywm.org"
 
 LICENSE="MIT"
 SLOT="0"
-IUSE="elogind fish-completion +pam +swaybar +swaybg +swayidle +swaylock +swaymsg +swaynag systemd +tray wallpapers X zsh-completion"
+IUSE="doc elogind fish-completion +pam +swaybar +swaybg +swayidle +swaylock +swaymsg +swaynag systemd +tray wallpapers X zsh-completion"
 REQUIRED_USE="?? ( elogind systemd )"
 
 RDEPEND="~dev-libs/wlroots-0.3[systemd=,elogind=,X=]
@@ -74,6 +74,7 @@ src_configure() {
 		$(meson_use X enable-xwayland)
 		"-Dbash-completions=true"
 		"-Dwerror=false"
+		"-Dman-pages=disabled"
 	)
 
 	meson_src_configure
