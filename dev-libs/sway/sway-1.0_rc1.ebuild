@@ -3,16 +3,11 @@
 
 EAPI=7
 
-if [[ ${PV} == 9999 ]] ; then
-		EGIT_REPO_URI="https://github.com/swaywm/sway.git"
-		inherit git-r3
-else
-		# Version format: major.minor-beta.betanum
-		MY_PV=$(ver_cut 1-2)-$(ver_cut 3-4)
-		SRC_URI="https://github.com/swaywm/sway/archive/${MY_PV}.tar.gz -> ${P}.tar.gz"
-		S="${WORKDIR}/sway-${MY_PV}"
-		KEYWORDS="~amd64 ~x86"
-fi
+# Version format: major.minor-beta.betanum
+MY_PV=$(ver_cut 1-2)-$(ver_cut 3-4)
+SRC_URI="https://github.com/swaywm/sway/archive/${MY_PV}.tar.gz -> ${P}.tar.gz"
+S="${WORKDIR}/sway-${MY_PV}"
+KEYWORDS="~amd64 ~x86"
 
 inherit eutils fcaps meson
 
@@ -21,7 +16,8 @@ HOMEPAGE="https://swaywm.org"
 
 LICENSE="MIT"
 SLOT="0"
-IUSE="doc elogind fish-completion +pam +swaybar +swaybg +swayidle +swaylock +swaymsg +swaynag systemd +tray wallpapers X zsh-completion"
+# IUSE="doc elogind fish-completion +pam +swaybar +swaybg +swayidle +swaylock +swaymsg +swaynag systemd +tray wallpapers X zsh-completion"
+IUSE="doc elogind fish-completion +pam +swaybar +swaybg +swaylock +swaymsg +swaynag systemd +tray wallpapers X zsh-completion"
 REQUIRED_USE="?? ( elogind systemd )"
 
 RDEPEND="~dev-libs/wlroots-0.3[systemd=,elogind=,X=]
@@ -37,10 +33,7 @@ RDEPEND="~dev-libs/wlroots-0.3[systemd=,elogind=,X=]
 	elogind? ( >=sys-auth/elogind-237 )
 	swaybar? ( x11-libs/gdk-pixbuf:2[jpeg] )
 	swaybg? ( x11-libs/gdk-pixbuf:2[jpeg] )
-	swaylock? (
-		pam? ( virtual/pam )
-		x11-libs/gdk-pixbuf:2[jpeg]
-	)
+	swaylock? ( dev-libs/swaylock )
 	systemd? ( >=sys-apps/systemd-237 )
 	tray? ( >=sys-apps/dbus-1.10 )
 	X? ( x11-libs/libxcb:0= )"
@@ -55,10 +48,6 @@ src_prepare() {
 
 	use swaybar || sed -e "s/subdir('swaybar')//g" -i meson.build || die
 	use swaybg || sed -e "s/subdir('swaybg')//g" -i meson.build || die
-	use swayidle || sed -e "s/subdir('swayidle')//g" -e "/swayidle.[0-9].scd/d" \
-		-e "/completions\/[a-z]\+\/_\?swayidle/d" -i meson.build || die
-	use swaylock || sed -e "s/subdir('swaylock')//g" -e "/swaylock.[0-9].scd/d" \
-		-e "/completions\/[a-z]\+\/_\?swaylock/d" -i meson.build || die
 	use swaymsg || sed -e "s/subdir('swaymsg')//g" -e "/swaymsg.[0-9].scd/d" \
 		-e "/completions\/[a-z]\+\/_\?swaymsg/d" -i meson.build || die
 	use swaynag || sed -e "s/subdir('swaynag')//g" -e "/swaynag.[0-9].scd/d" \
@@ -93,8 +82,5 @@ pkg_postinst() {
 		elog ""
 		elog "If you use ConsoleKit2, remember to launch sway using:"
 		elog "exec ck-launch-session ${dbus_cmd}sway"
-	fi
-	if use swaylock && ! use pam; then
-		fcaps cap_sys_admin usr/bin/swaylock
 	fi
 }
