@@ -40,25 +40,17 @@ IUSE="+ffmpeg +pulseaudio selinux startup-notification"
 
 DEPEND="app-arch/unzip"
 RDEPEND="dev-libs/atk
-	>=sys-apps/dbus-0.60
-	>=dev-libs/dbus-glib-0.72
-	>=dev-libs/glib-2.26:2
+	sys-apps/dbus
+	dev-libs/dbus-glib
+	dev-libs/glib
 	media-libs/fontconfig
-	>=media-libs/freetype-2.4.10
-	>=x11-libs/cairo-1.10[X]
+	media-libs/freetype
+	x11-libs/cairo
 	x11-libs/gdk-pixbuf
-	>=x11-libs/gtk+-3.4.0:3
-	x11-libs/libX11
-	x11-libs/libXcomposite
-	x11-libs/libXdamage
-	x11-libs/libXext
-	x11-libs/libXfixes
-	x11-libs/libXrender
-	x11-libs/libXt
-	>=x11-libs/pango-1.22.0
+	x11-libs/gtk+
+	x11-libs/pango
 	virtual/freedesktop-icon-theme
-	pulseaudio? ( !<media-sound/apulse-0.1.9
-		|| ( media-sound/pulseaudio media-sound/apulse ) )
+	pulseaudio? ( media-sound/pulseaudio )
 	ffmpeg? ( media-video/ffmpeg )
 	selinux? ( sec-policy/selinux-mozilla )
 "
