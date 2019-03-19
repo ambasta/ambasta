@@ -6,11 +6,7 @@ MOZ_ESR=0
 
 # Can be updated using scripts/get_langs.sh from mozilla overlay
 # Missing when bumped : be
-MOZ_LANGS=( ach af an ar as ast az bg bn-BD bn-IN br bs ca cs cy da de
-el en en-GB en-US en-ZA eo es-AR es-CL es-ES es-MX et eu fa fi fr fy-NL
-ga-IE gd gl gu-IN he hi-IN hr hsb hu hy-AM id is it ja kk km kn ko lt
-lv mai mk ml mr ms nb-NO nl nn-NO or pa-IN pl pt-BR pt-PT rm ro ru si sk sl
-son sq sr sv-SE ta te th tr uk uz vi xh zh-CN zh-TW )
+MOZ_LANGS=( en-US )
 
 # Convert the ebuild version to the upstream mozilla version, used by mozlinguas
 MOZ_PV="${PV/_beta/b}" # Handle beta for SRC_URI
@@ -40,15 +36,15 @@ IUSE="+ffmpeg +pulseaudio selinux startup-notification"
 
 DEPEND="app-arch/unzip"
 RDEPEND="dev-libs/atk
-	sys-apps/dbus
-	dev-libs/dbus-glib
-	dev-libs/glib
+	>=sys-apps/dbus-0.60
+	>=dev-libs/dbus-glib-0.72
+	>=dev-libs/glib-2.26:2
 	media-libs/fontconfig
-	media-libs/freetype
-	x11-libs/cairo
+	>=media-libs/freetype-2.4.10
+	>=x11-libs/cairo-1.10
 	x11-libs/gdk-pixbuf
-	x11-libs/gtk+
-	x11-libs/pango
+	>=x11-libs/gtk+-3.4.0:3
+	>=x11-libs/pango-1.22.0
 	virtual/freedesktop-icon-theme
 	pulseaudio? ( media-sound/pulseaudio )
 	ffmpeg? ( media-video/ffmpeg )
