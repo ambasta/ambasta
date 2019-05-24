@@ -8,7 +8,7 @@ DESCRIPTION="Dynamic menu library and client program inspired by dmenu"
 HOMEPAGE="https://github.com/Cloudef/bemenu"
 SRC_URI="https://github.com/Cloudef/${PN}/archive/${PV}.tar.gz -> ${P}.tar.gz"
 
-LICENSE="GPL-v3"
+LICENSE="GPL-3"
 SLOT="0"
 KEYWORDS="~amd64 ~arm ~hppa ~ppc ~ppc64 ~x86 ~x86-fbsd"
 IUSE="doc ncurses wayland X"
