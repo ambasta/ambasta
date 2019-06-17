@@ -57,6 +57,7 @@ DEPEND="${RDEPEND}
 PATCHES=(
 	"${FILESDIR}"/${PN}-0.14.2-flags.patch
 	"${FILESDIR}"/${PN}-0.11.0-svg-icon.patch
+	"${FILESDIR}"/${PN}-0.13.2-backends.patch
 )
 
 src_prepare() {
@@ -80,6 +81,7 @@ doecho() {
 
 src_compile() {
 	doecho "${EPYTHON}" setup.py \
+		--backend $(usex wayland $(usex X "auto" "wayland") $(usex X "x11" "auto"))\
 		--verbose $(usex debug --debug "") \
 		--libdir-name $(get_libdir) \
 		linux-package
