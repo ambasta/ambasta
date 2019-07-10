@@ -351,6 +351,7 @@ src_prepare() {
 		third_party/unrar
 		third_party/usrsctp
 		third_party/vulkan
+		third_party/wayland
 		third_party/web-animations-js
 		third_party/webdriver
 		third_party/webrtc
