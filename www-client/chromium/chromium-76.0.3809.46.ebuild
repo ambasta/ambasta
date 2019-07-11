@@ -241,10 +241,10 @@ src_configure() {
 	# TODO: freetype -- remove sources (https://bugs.chromium.org/p/pdfium/issues/detail?id=733).
 	myconf_gn+=" use_system_freetype=true"
 
-	myconf_gn+=" use_system_minigbm=false"
+	myconf_gn+=" use_system_minigbm=true"
 
 	# Enable ozone build
-	myconf_gn+=" use_ozone=true ozone_auto_platforms=false ozone_platform_gbm=true"
+	myconf_gn+=" use_ozone=true ozone_auto_platforms=false ozone_platform_gbm=false"
 
 	# See dependency logic in third_party/BUILD.gn
 	myconf_gn+=" use_system_harfbuzz=true"
