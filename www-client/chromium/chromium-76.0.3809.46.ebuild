@@ -15,50 +15,60 @@ SRC_URI="https://commondatastorage.googleapis.com/chromium-browser-official/${P}
 LICENSE="BSD"
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
-IUSE="+closure-compile cups gnome-keyring +hangouts kerberos neon pic +proprietary-codecs pulseaudio selinux +suid +system-ffmpeg system-freetype system-harfbuzz +system-icu system-libdrm +system-libvpx system-jpeg system-jpeg2 system-zlib wayland widevine +vulkan"
+IUSE="+closure-compile cups gnome-keyring +hangouts headless kerberos neon pic +proprietary-codecs pulseaudio selinux +suid +system-ffmpeg system-harfbuzz +system-icu +system-libvpx wayland widevine +vulkan X"
 RESTRICT="!system-ffmpeg? ( proprietary-codecs? ( bindist ) )"
+
+VIDEO_CARDS="amdgpu radeon"
+for card in ${VIDEO_CARDS}; do
+	IUSE_VIDEO_CARDS+=" video_cards_${card}"
+done
+
+USEFLAG_DEPEND="
+	cups? ( net-print/cups )
+	gnome-keyring? ( gnome-base/libgnome-keyring )
+	wayland? (
+		dev-libs/wayland
+	)
+	pulseaudio? ( media-sound/pulseaudio )
+	system-ffmpeg? (
+		media-libs/opus
+		media-video/ffmpeg
+		!net-fs/samba
+	)
+	system-icu? ( dev-libs/icu )
+	system-libvpx? ( media-libs/libvpx[postproc,svc] )
+	kerberos? ( virtual/krb5 )
+"
 
 COMMON_DEPEND="
 	app-arch/bzip2
+	app-arch/snappy
 	dev-libs/expat
 	dev-libs/glib
-	>=dev-libs/libxml2-2.9.4-r3:=[icu]
+	dev-libs/libxml2[icu]
 	dev-libs/libxslt
 	dev-libs/nspr
-	>=dev-libs/nss-3.26:=
-	>=dev-libs/re2-0.2016.11.01:=
-	>=media-libs/alsa-lib-1.0.19:=
+	dev-libs/nss
+	dev-libs/re2
+	media-libs/alsa-lib
+	media-libs/flac
 	media-libs/fontconfig
 	media-libs/freetype
-	>=media-libs/harfbuzz-2.2.0:0=[icu(-)]
+	media-libs/harfbuzz[icu(-)]
 	media-libs/libjpeg-turbo
 	media-libs/libpng
-	>=media-libs/openh264-1.6.0
-	cups? ( >=net-print/cups-1.3.11 )
-	gnome-keyring? ( >=gnome-base/libgnome-keyring-3.12 )
-	system-icu? ( >=dev-libs/icu-64 )
-	system-libvpx? ( media-libs/libvpx:=[postproc,svc] )
-	pulseaudio? ( media-sound/pulseaudio:= )
-	system-ffmpeg? (
-		>=media-video/ffmpeg-4:=
-		|| (
-			media-video/ffmpeg[-samba]
-			>=net-fs/samba-4.5.10-r1[-debug(-)]
-		)
-		!=net-fs/samba-4.5.12-r0
-		media-libs/opus:=
-	)
-	kerberos? ( virtual/krb5 )
+	media-libs/libwebp
+	media-libs/mesa[gbm]
+	media-libs/openh264
 	sys-apps/dbus
 	sys-apps/pciutils
+	sys-libs/zlib[minizip]
 	virtual/udev
 	x11-libs/cairo
 	x11-libs/gtk+
+	x11-libs/libdrm
 	x11-libs/pango
-	app-arch/snappy
-	media-libs/flac
-	>=media-libs/libwebp-0.4.0
-	sys-libs/zlib:=[minizip]
+	${USEFLAG_DEPEND}
 "
 # For nvidia-drivers blocker, see bug #413637 .
 RDEPEND="${COMMON_DEPEND}
@@ -228,12 +238,38 @@ src_configure() {
 
 	# Use system-provided libraries.
 	# TODO: freetype -- remove sources (https://bugs.chromium.org/p/pdfium/issues/detail?id=733).
-	myconf_gn+="use_system_freetype=$(usex freetype true false)"
-	# TODO: use_system_hunspell (upstream changes needed).
-	myconf_gn+="use_system_hunspell=$(usex hunspell true false)"
-	# TODO: use_system_protobuf (bug #525560).
-	# TODO: use_system_ssl (http://crbug.com/58087).
-	# TODO: use_system_sqlite (http://crbug.com/22208).
+	myconf_gn+="use_system_freetype=true"
+
+	myconf_gn+=" use_system_minigbm=true"
+
+	# Enable ozone build
+	myconf_gn+=" use_ozone=true ozone_auto_platforms=false ozone_platform_gbm=true"
+
+	# See dependency logic in third_party/BUILD.gn
+	myconf_gn+=" use_system_harfbuzz=true"
+	myconf_gn+=" use_system_libdrm=true"
+	myconf_gn+=" use_system_zlib=true"
+
+	myconf_gn+=" use_radeon_minigbm=$(usex video_cards_radeon true false)"
+
+	myconf_gn+=" use_system_libwayland=$(usex wayland true false)"
+	myconf_gn+=" use_wayland_gbm=$(usex wayland true false)"
+	myconf_gn+=" ozone_platform_wayland=$(usex wayland true false)"
+	myconf_gn+=" ozone_platform_x11=$(usex X true false)"
+	myconf_gn+=" ozone_platform_headless=$(usex headless true false)"
+
+	myconf_gn+=" use_system_libjpeg=true"
+	myconf_gn+=" use_system_libopenjpeg2=true"
+	myconf_gn+=" use_system_libpng=true"
+
+	myconf_gn+=" angle_enable_gl=true disable_histogram_support=true enable_background_contents=false enable_background_mode=fals eenable_mdns=false"
+	myconf_gn+=" enable_media_remoting=false enable_media_remoting_rpc=false enable_native_notifications=true enable_openscreen=false enable_reading_list=false"
+	myconf_gn+=" enable_remoting=false enable_reporting=false enable_vr=false"
+	myconf_gn+=" angle_enable_vulkan=$(usex vulkan true false) angle_enable_vulkan_validation_layers=$(usex vulkan true false) angle_shared_libvulkan=$(usex vulkan true false)"
+	myconf_gn+=" enable_vulkan=$(usex vulkan true false)"
+	myconf_gn+=" gtk_version=3 has_native_accessibility=false is_chrome_branded=false pgo_build=false"
+	myconf_gn+=" use_amdgpu_minigbm=$(usex video_cards_amdgpu true false)"
+	myconf_gn+=" use_aura=true use_base_test_suite=false use_bundled_fontconfig=false use_cxx11=true use_dawn=true use_dbus=true use_egl=true use_xkbcommon=true"
 
 	# libevent: https://bugs.gentoo.org/593458
 	local gn_system_libraries=(
@@ -254,6 +290,7 @@ src_configure() {
 		yasm
 		zlib
 	)
+
 	if use system-ffmpeg; then
 		gn_system_libraries+=( ffmpeg opus )
 	fi
@@ -265,9 +302,6 @@ src_configure() {
 	fi
 	build/linux/unbundle/replace_gn_files.py --system-libraries "${gn_system_libraries[@]}" || die
 
-	# See dependency logic in third_party/BUILD.gn
-	myconf_gn+=" use_system_harfbuzz=true"
-
 	# Optional dependencies.
 	myconf_gn+=" closure_compile=$(usex closure-compile true false)"
 	myconf_gn+=" enable_hangout_services_extension=$(usex hangouts true false)"
@@ -276,10 +310,6 @@ src_configure() {
 	myconf_gn+=" use_gnome_keyring=$(usex gnome-keyring true false)"
 	myconf_gn+=" use_kerberos=$(usex kerberos true false)"
 	myconf_gn+=" use_pulseaudio=$(usex pulseaudio true false)"
-	myconf_gn+=" use_ozone=$(usex ozone true false)"
-	myconf_gn+=" use_system_minigbm=$(usex ozone true false)"
-	myconf_gn+=" ozone_platform_x11=false"
-	myconf_gn+=" ozone_platform_headless=false"
 
 	# TODO: link_pulseaudio=true for GN.
 
@@ -448,7 +478,7 @@ src_install() {
 	insinto "${CHROMIUM_HOME}"
 	doins out/Release/*.bin
 	doins out/Release/*.pak
-	doins out/Release/*.so
+	# doins out/Release/*.so
 
 	if ! use system-icu; then
 		doins out/Release/icudtl.dat
