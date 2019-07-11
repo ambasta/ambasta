@@ -368,6 +368,7 @@ src_prepare() {
 		third_party/usb_ids
 		third_party/xdg-utils
 		third_party/yasm/run_yasm.py
+		third_party/tcmalloc
 	)
 	if ! use system-ffmpeg; then
 		keeplibs+=( third_party/ffmpeg third_party/opus )
@@ -378,9 +379,6 @@ src_prepare() {
 	if ! use system-libvpx; then
 		keeplibs+=( third_party/libvpx )
 		keeplibs+=( third_party/libvpx/source/libvpx/third_party/x86inc )
-	fi
-	if use tcmalloc; then
-		keeplibs+=( third_party/tcmalloc )
 	fi
 
 	# Remove most bundled libraries. Some are still needed.
