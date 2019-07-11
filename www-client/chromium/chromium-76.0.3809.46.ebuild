@@ -270,7 +270,7 @@ src_configure() {
 	myconf_gn+=" enable_vulkan=$(usex vulkan true false)"
 	myconf_gn+=" gtk_version=3 has_native_accessibility=false is_chrome_branded=false pgo_build=false"
 	myconf_gn+=" use_amdgpu_minigbm=$(usex video_cards_amdgpu true false)"
-	myconf_gn+=" use_aura=true use_base_test_suite=false use_bundled_fontconfig=false use_dawn=true use_dbus=true use_egl=true use_xkbcommon=true"
+	myconf_gn+=" use_aura=true use_base_test_suite=false use_bundled_fontconfig=false use_dawn=false use_dbus=true use_egl=true use_xkbcommon=true"
 
 	# libevent: https://bugs.gentoo.org/593458
 	local gn_system_libraries=(
