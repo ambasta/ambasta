@@ -263,7 +263,7 @@ src_configure() {
 	myconf_gn+=" use_system_libopenjpeg2=true"
 	myconf_gn+=" use_system_libpng=true"
 
-	myconf_gn+=" angle_enable_gl=true disable_histogram_support=true enable_background_contents=false enable_background_mode=fals eenable_mdns=false"
+	myconf_gn+=" angle_enable_gl=true disable_histogram_support=true enable_background_contents=false enable_background_mode=false eenable_mdns=false"
 	myconf_gn+=" enable_media_remoting=false enable_media_remoting_rpc=false enable_native_notifications=true enable_openscreen=false enable_reading_list=false"
 	myconf_gn+=" enable_remoting=false enable_reporting=false enable_vr=false"
 	myconf_gn+=" angle_enable_vulkan=$(usex vulkan true false) angle_enable_vulkan_validation_layers=$(usex vulkan true false) angle_shared_libvulkan=$(usex vulkan true false)"
