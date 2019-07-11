@@ -15,13 +15,14 @@ SRC_URI="https://commondatastorage.googleapis.com/chromium-browser-official/${P}
 LICENSE="BSD"
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
-IUSE="+closure-compile cups gnome-keyring +hangouts headless kerberos neon pic +proprietary-codecs pulseaudio selinux +suid +system-ffmpeg system-harfbuzz +system-icu +system-libvpx wayland widevine +vulkan X"
-RESTRICT="!system-ffmpeg? ( proprietary-codecs? ( bindist ) )"
 
 VIDEO_CARDS="amdgpu radeon"
 for card in ${VIDEO_CARDS}; do
 	IUSE_VIDEO_CARDS+=" video_cards_${card}"
 done
+
+IUSE="${IUSE_VIDEO_CARDS} +closure-compile cups gnome-keyring +hangouts headless kerberos neon pic +proprietary-codecs pulseaudio selinux +suid +system-ffmpeg system-harfbuzz +system-icu +system-libvpx wayland widevine +vulkan X"
+RESTRICT="!system-ffmpeg? ( proprietary-codecs? ( bindist ) )"
 
 USEFLAG_DEPEND="
 	cups? ( net-print/cups )
