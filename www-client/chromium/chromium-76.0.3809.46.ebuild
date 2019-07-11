@@ -239,7 +239,7 @@ src_configure() {
 
 	# Use system-provided libraries.
 	# TODO: freetype -- remove sources (https://bugs.chromium.org/p/pdfium/issues/detail?id=733).
-	myconf_gn+="use_system_freetype=true"
+	myconf_gn+=" use_system_freetype=true"
 
 	myconf_gn+=" use_system_minigbm=true"
 
