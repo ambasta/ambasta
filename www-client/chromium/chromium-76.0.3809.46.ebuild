@@ -6,7 +6,7 @@ PYTHON_COMPAT=( python2_7 )
 
 CHROMIUM_LANGS="en-GB"
 
-inherit check-reqs chromium-2 desktop flag-o-matic multilib ninja-utils pax-utils portability python-any-r1 readme.gentoo-r1 toolchain-funcs xdg-utils
+inherit check-reqs chromium-2 desktop flag-o-matic multilib ninja-utils pax-utils portability python-any-r1 readme.gentoo-r1 toolchain-funcs
 
 DESCRIPTION="Open-source version of Google Chrome web browser"
 HOMEPAGE="http://chromium.org/"
@@ -74,7 +74,6 @@ COMMON_DEPEND="
 # For nvidia-drivers blocker, see bug #413637 .
 RDEPEND="${COMMON_DEPEND}
 	!<www-plugins/chrome-binary-plugins-57
-	x11-misc/xdg-utils
 	virtual/opengl
 	virtual/ttf-fonts
 	selinux? ( sec-policy/selinux-chromium )
@@ -196,8 +195,6 @@ src_prepare() {
 		base/third_party/superfasthash
 		base/third_party/symbolize
 		base/third_party/valgrind
-		base/third_party/xdg_mime
-		base/third_party/xdg_user_dirs
 		buildtools/third_party/libc++
 		buildtools/third_party/libc++abi
 		chrome/third_party/mozilla_security_manager
@@ -366,7 +363,6 @@ src_prepare() {
 		third_party/adobe
 		third_party/speech-dispatcher
 		third_party/usb_ids
-		third_party/xdg-utils
 		third_party/yasm/run_yasm.py
 		third_party/tcmalloc
 	)
@@ -720,13 +716,6 @@ src_install() {
 	readme.gentoo_create_doc
 }
 
-pkg_postrm() {
-	xdg_icon_cache_update
-	xdg_desktop_database_update
-}
-
 pkg_postinst() {
-	xdg_icon_cache_update
-	xdg_desktop_database_update
 	readme.gentoo_print_elog
 }
