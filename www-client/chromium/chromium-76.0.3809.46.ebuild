@@ -21,7 +21,7 @@ for card in ${VIDEO_CARDS}; do
 	IUSE_VIDEO_CARDS+=" video_cards_${card}"
 done
 
-IUSE="${IUSE_VIDEO_CARDS} +closure-compile cups gnome-keyring +hangouts headless kerberos neon pic +proprietary-codecs pulseaudio selinux +suid +system-ffmpeg system-harfbuzz +system-icu +system-libvpx wayland widevine +vulkan X"
+IUSE="${IUSE_VIDEO_CARDS} cups gnome-keyring +hangouts headless kerberos neon pic +proprietary-codecs pulseaudio selinux +suid +system-ffmpeg system-harfbuzz +system-icu +system-libvpx wayland widevine +vulkan X"
 RESTRICT="!system-ffmpeg? ( proprietary-codecs? ( bindist ) )"
 
 USEFLAG_DEPEND="
@@ -98,7 +98,6 @@ BDEPEND="
 	sys-apps/hwids[usb(+)]
 	>=sys-devel/bison-2.4.3
 	sys-devel/flex
-	closure-compile? ( virtual/jre )
 	virtual/pkgconfig
 "
 
@@ -502,7 +501,7 @@ src_configure() {
 	build/linux/unbundle/replace_gn_files.py --system-libraries "${gn_system_libraries[@]}" || die
 
 	# Optional dependencies.
-	myconf_gn+=" closure_compile=$(usex closure-compile true false)"
+	myconf_gn+=" closure_compile=false"
 	myconf_gn+=" enable_hangout_services_extension=$(usex hangouts true false)"
 	myconf_gn+=" enable_widevine=$(usex widevine true false)"
 	myconf_gn+=" use_cups=$(usex cups true false)"
