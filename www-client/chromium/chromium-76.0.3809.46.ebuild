@@ -461,14 +461,14 @@ src_configure() {
 	myconf_gn+=" use_system_libopenjpeg2=true"
 	myconf_gn+=" use_system_libpng=true"
 
-	myconf_gn+=" angle_enable_gl=true disable_histogram_support=true enable_background_contents=false enable_background_mode=false enable_mdns=false"
+	myconf_gn+=" angle_enable_gl=true disable_histogram_support=true enable_background_contents=true enable_background_mode=false enable_mdns=true"
 	myconf_gn+=" enable_media_remoting=false enable_media_remoting_rpc=false enable_native_notifications=true enable_openscreen=false enable_reading_list=false"
 	myconf_gn+=" enable_remoting=false enable_reporting=false enable_vr=false"
 	myconf_gn+=" angle_enable_vulkan=$(usex vulkan true false) angle_enable_vulkan_validation_layers=$(usex vulkan true false) angle_shared_libvulkan=$(usex vulkan true false)"
 	myconf_gn+=" enable_vulkan=$(usex vulkan true false)"
 	myconf_gn+=" gtk_version=3 has_native_accessibility=false is_chrome_branded=false pgo_build=false"
 	myconf_gn+=" use_amdgpu_minigbm=$(usex video_cards_amdgpu true false)"
-	myconf_gn+=" use_aura=true use_base_test_suite=false use_bundled_fontconfig=false use_dawn=false use_dbus=true use_egl=true use_xkbcommon=true"
+	myconf_gn+=" use_aura=true use_base_test_suite=false use_dawn=false use_dbus=true use_egl=true use_xkbcommon=true"
 
 	# libevent: https://bugs.gentoo.org/593458
 	local gn_system_libraries=(
