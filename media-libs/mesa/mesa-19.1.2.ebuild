@@ -203,8 +203,6 @@ unset {LLVM,CLANG}_DEPSTR{,_AMDGPU}
 
 DEPEND="${RDEPEND}
 	valgrind? ( dev-util/valgrind )
-	x11-libs/libXrandr[${MULTILIB_USEDEP}]
-	x11-base/xorg-proto
 "
 BDEPEND="
 	${PYTHON_DEPS}
@@ -342,7 +340,7 @@ multilib_src_configure() {
 		fi
 	fi
 
-	emesonargs+=( -Dplatforms=x11,surfaceless$(use wayland && echo ",wayland")$(use gbm && echo ",drm") )
+	emesonargs+=( -Dplatforms=surfaceless$(use wayland && echo ",wayland")$(use gbm && echo ",drm") )
 
 	if use gallium; then
 		emesonargs+=(
