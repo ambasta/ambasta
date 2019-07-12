@@ -428,7 +428,7 @@ src_configure() {
 	myconf_gn+=" is_component_build=false"
 
 	# https://chromium.googlesource.com/chromium/src/+/lkcr/docs/jumbo.md
-	myconf_gn+=" use_jumbo_build=false"
+	myconf_gn+=" use_jumbo_build=true"
 
 	myconf_gn+=" use_allocator=\"tcmalloc\""
 
