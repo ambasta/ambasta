@@ -7,8 +7,6 @@ PYTHON_COMPAT=( python3_5 python3_6 python3_7 )
 
 inherit llvm meson multilib-minimal pax-utils python-any-r1
 
-OPENGL_DIR="xorg-x11"
-
 MY_P="${P/_/-}"
 
 DESCRIPTION="OpenGL-like graphic library for Linux"
@@ -68,7 +66,6 @@ REQUIRED_USE="
 	video_cards_vmware? ( gallium )
 "
 
-LIBDRM_DEPSTRING=">=x11-libs/libdrm-2.4.97"
 RDEPEND="
 	!app-eselect/eselect-mesa
 	>=dev-libs/expat-2.1.0-r3:=[${MULTILIB_USEDEP}]
@@ -99,33 +96,17 @@ RDEPEND="
 					dev-libs/libclc
 					virtual/libelf:0=[${MULTILIB_USEDEP}]
 				)
-		vaapi? (
-			>=x11-libs/libva-1.7.3:=[${MULTILIB_USEDEP}]
-			video_cards_nouveau? ( !<=x11-libs/libva-vdpau-driver-0.7.4-r3 )
-		)
-		vdpau? ( >=x11-libs/libvdpau-1.1:=[${MULTILIB_USEDEP}] )
-		xvmc? ( >=x11-libs/libXvMC-1.0.8:=[${MULTILIB_USEDEP}] )
 	)
 	wayland? (
 		>=dev-libs/wayland-1.15.0:=[${MULTILIB_USEDEP}]
 		>=dev-libs/wayland-protocols-1.8
 	)
-	${LIBDRM_DEPSTRING}[video_cards_freedreno?,video_cards_nouveau?,video_cards_vc4?,video_cards_vivante?,video_cards_vmware?,${MULTILIB_USEDEP}]
-
-	video_cards_intel? (
-		!video_cards_i965? ( ${LIBDRM_DEPSTRING}[video_cards_intel] )
-	)
-	video_cards_i915? ( ${LIBDRM_DEPSTRING}[video_cards_intel] )
 	vulkan-overlay? ( dev-util/glslang:0=[${MULTILIB_USEDEP}] )
 "
 for card in ${RADEON_CARDS}; do
 	RDEPEND="${RDEPEND}
-		video_cards_${card}? ( ${LIBDRM_DEPSTRING}[video_cards_radeon] )
 	"
 done
-RDEPEND="${RDEPEND}
-	video_cards_radeonsi? ( ${LIBDRM_DEPSTRING}[video_cards_amdgpu] )
-"
 
 # Please keep the LLVM dependency block separate. Since LLVM is slotted,
 # we need to *really* make sure we're not pulling one than more slot
@@ -340,7 +321,7 @@ multilib_src_configure() {
 		fi
 	fi
 
-	emesonargs+=( -Dplatforms=surfaceless$(use wayland && echo ",wayland")$(use gbm && echo ",drm") )
+	emesonargs+=( -Dplatforms=$(use wayland && echo ",wayland")$(use gbm && echo ",drm") )
 
 	if use gallium; then
 		emesonargs+=(
@@ -463,7 +444,7 @@ multilib_src_configure() {
 
 	emesonargs+=(
 		$(meson_use test build-tests)
-		-Dglx=disabled
+		-Dglx=dri
 		-Dshared-glapi=true
 		$(meson_use dri3)
 		$(meson_use egl)
@@ -499,12 +480,6 @@ multilib_src_install_all() {
 
 multilib_src_test() {
 	meson test -v -C "${BUILD_DIR}" -t 100
-}
-
-pkg_postinst() {
-	# Switch to the xorg implementation.
-	echo
-	eselect opengl set --use-old ${OPENGL_DIR}
 }
 
 # $1 - VIDEO_CARDS flag (check skipped for "--")
