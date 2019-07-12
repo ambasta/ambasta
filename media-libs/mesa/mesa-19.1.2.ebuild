@@ -321,7 +321,7 @@ multilib_src_configure() {
 		fi
 	fi
 
-	emesonargs+=( -Dplatforms=$(use wayland && echo ",wayland")$(use gbm && echo ",drm") )
+	emesonargs+=( -Dplatforms=$(use wayland && echo "wayland")$(use wayland && use gbm && echo ",")$(use gbm && echo "drm") )
 
 	if use gallium; then
 		emesonargs+=(
