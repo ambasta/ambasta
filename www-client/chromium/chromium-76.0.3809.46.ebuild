@@ -148,6 +148,7 @@ PATCHES=(
 	"${FILESDIR}/chromium-76-gcc-ambiguous-nodestructor.patch"
 	"${FILESDIR}/chromium-76-gcc-include.patch"
 	"${FILESDIR}/chromium-76-gcc-pure-virtual.patch"
+	"${FILESDIR}/0001-Remove-base-third_party-xdg_mime.patch"
 )
 
 pre_build_checks() {

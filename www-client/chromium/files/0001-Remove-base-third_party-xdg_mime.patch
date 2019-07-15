@@ -1,0 +1,24 @@
+From a9cca73893f06037cab4eea00a1f82ef14e2d03c Mon Sep 17 00:00:00 2001
+From: Amit Prakash Ambasta <amit.prakash.ambasta@gmail.com>
+Date: Mon, 15 Jul 2019 22:58:51 +0530
+Subject: [PATCH] Remove base/third_party/xdg_mime
+
+---
+ base/BUILD.gn | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/base/BUILD.gn b/base/BUILD.gn
+index 610e69eae..e72c4d295 100644
+--- a/base/BUILD.gn
++++ b/base/BUILD.gn
+@@ -1850,7 +1850,6 @@ jumbo_component("base") {
+     # of xdg_mime must be excluded due to licensing restrictions.
+     deps += [
+       "//base/third_party/symbolize",
+-      "//base/third_party/xdg_mime",
+       "//base/third_party/xdg_user_dirs",
+     ]
+   } else {
+-- 
+2.22.0
+
