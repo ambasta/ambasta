@@ -1,24 +1,47 @@
-From a9cca73893f06037cab4eea00a1f82ef14e2d03c Mon Sep 17 00:00:00 2001
+From 9d34d9b1d195e2458d26a48e7b5d51974f4b7325 Mon Sep 17 00:00:00 2001
 From: Amit Prakash Ambasta <amit.prakash.ambasta@gmail.com>
-Date: Mon, 15 Jul 2019 22:58:51 +0530
+Date: Mon, 15 Jul 2019 23:16:40 +0530
 Subject: [PATCH] Remove base/third_party/xdg_mime
 
 ---
- base/BUILD.gn | 1 -
- 1 file changed, 1 deletion(-)
+ base/BUILD.gn | 10 ----------
+ 1 file changed, 10 deletions(-)
 
 diff --git a/base/BUILD.gn b/base/BUILD.gn
-index 610e69eae..e72c4d295 100644
+index 610e69eae..0380643a4 100644
 --- a/base/BUILD.gn
 +++ b/base/BUILD.gn
-@@ -1850,7 +1850,6 @@ jumbo_component("base") {
+@@ -1837,10 +1837,6 @@ jumbo_component("base") {
+     all_dependent_configs += linux_configs
+ 
+     sources += [
+-      "nix/mime_util_xdg.cc",
+-      "nix/mime_util_xdg.h",
+-      "nix/xdg_util.cc",
+-      "nix/xdg_util.h",
+       "system/sys_info_linux.cc",
+     ]
+ 
+@@ -1850,8 +1846,6 @@ jumbo_component("base") {
      # of xdg_mime must be excluded due to licensing restrictions.
      deps += [
        "//base/third_party/symbolize",
 -      "//base/third_party/xdg_mime",
-       "//base/third_party/xdg_user_dirs",
+-      "//base/third_party/xdg_user_dirs",
      ]
    } else {
+     if (!is_android) {
+@@ -2943,10 +2937,6 @@ test("base_unittests") {
+     }
+   }
+ 
+-  if (is_desktop_linux) {
+-    sources += [ "nix/xdg_util_unittest.cc" ]
+-  }
+-
+   if (!use_glib) {
+     sources -= [ "message_loop/message_pump_glib_unittest.cc" ]
+   }
 -- 
 2.22.0
 
