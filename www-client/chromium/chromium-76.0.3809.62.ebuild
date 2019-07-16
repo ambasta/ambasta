@@ -57,6 +57,7 @@ COMMON_DEPEND="
 	media-libs/freetype
 	media-libs/harfbuzz[icu(-)]
 	media-libs/libjpeg-turbo
+	media-libs/openjpeg
 	media-libs/libpng
 	media-libs/libwebp
 	media-libs/mesa[gbm]
