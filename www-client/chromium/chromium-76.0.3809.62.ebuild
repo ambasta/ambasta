@@ -4,7 +4,7 @@
 EAPI=7
 PYTHON_COMPAT=( python2_7 )
 
-CHROMIUM_LANGS="en-GB"
+CHROMIUM_LANGS=""
 
 inherit check-reqs chromium-2 desktop flag-o-matic multilib ninja-utils pax-utils portability python-any-r1 readme.gentoo-r1 toolchain-funcs
 
@@ -148,7 +148,6 @@ PATCHES=(
 	"${FILESDIR}/chromium-76-gcc-ambiguous-nodestructor.patch"
 	"${FILESDIR}/chromium-76-gcc-include.patch"
 	"${FILESDIR}/chromium-76-gcc-pure-virtual.patch"
-	"${FILESDIR}/0001-Remove-base-third_party-xdg_mime.patch"
 )
 
 pre_build_checks() {
@@ -196,6 +195,8 @@ src_prepare() {
 		base/third_party/superfasthash
 		base/third_party/symbolize
 		base/third_party/valgrind
+		base/third_party/xdg_mime
+		base/third_party/xdg_user_dirs
 		buildtools/third_party/libc++
 		buildtools/third_party/libc++abi
 		chrome/third_party/mozilla_security_manager
@@ -364,6 +365,7 @@ src_prepare() {
 		third_party/adobe
 		third_party/speech-dispatcher
 		third_party/usb_ids
+		third_party/xdg-utils
 		third_party/yasm/run_yasm.py
 		third_party/tcmalloc
 	)
@@ -381,7 +383,6 @@ src_prepare() {
 	# Remove most bundled libraries. Some are still needed.
 	build/linux/unbundle/remove_bundled_libraries.py "${keeplibs[@]}" --do-remove || die
 }
-
 
 src_configure() {
 	# Calling this here supports resumption via FEATURES=keepwork
@@ -496,6 +497,9 @@ src_configure() {
 		gn_system_libraries+=( libvpx )
 	fi
 	build/linux/unbundle/replace_gn_files.py --system-libraries "${gn_system_libraries[@]}" || die
+
+	# See dependency logic in third_party/BUILD.gn
+	myconf_gn+=" use_system_harfbuzz=true"
 
 	# Optional dependencies.
 	myconf_gn+=" closure_compile=false"
@@ -673,7 +677,7 @@ src_install() {
 	insinto "${CHROMIUM_HOME}"
 	doins out/Release/*.bin
 	doins out/Release/*.pak
-	# doins out/Release/*.so
+	#doins out/Release/*.so
 
 	if ! use system-icu; then
 		doins out/Release/icudtl.dat
