@@ -1,14 +1,14 @@
-From 5610dc8481d630c237a1950ccf0108ff62c650d4 Mon Sep 17 00:00:00 2001
+From e26dac8862af342bb9493d2acd93025a408fd74c Mon Sep 17 00:00:00 2001
 From: Amit Prakash Ambasta <amit.prakash.ambasta@gmail.com>
 Date: Thu, 18 Jul 2019 19:13:40 +0530
 Subject: [PATCH] Allow system glfw
 
 ---
- setup.py | 284 +++++++++++++++++++++++++++++++++++--------------------
- 1 file changed, 182 insertions(+), 102 deletions(-)
+ setup.py | 287 +++++++++++++++++++++++++++++++++++--------------------
+ 1 file changed, 183 insertions(+), 104 deletions(-)
 
 diff --git a/setup.py b/setup.py
-index 591ed82..bfedb5f 100755
+index 398ed34..9a42541 100755
 --- a/setup.py
 +++ b/setup.py
 @@ -54,19 +54,23 @@ def error(text):
@@ -80,7 +80,7 @@ index 591ed82..bfedb5f 100755
      if ccver < (5, 2) and cc == 'gcc':
          missing_braces = '-Wno-missing-braces'
 @@ -201,11 +215,7 @@ def init_env(
-     optimize = df if debug or sanitize else '-O3'
+     optimize = ''
      sanitize_args = get_sanitize_args(cc, ccver) if sanitize else set()
      cppflags = os.environ.get(
 -        'OVERRIDE_CPPFLAGS', (
@@ -92,7 +92,17 @@ index 591ed82..bfedb5f 100755
      )
      cppflags = shlex.split(cppflags)
      for el in extra_logging:
-@@ -268,7 +278,9 @@ def kitty_env():
+@@ -226,8 +236,7 @@ def init_env(
+         sysconfig.get_config_var('CCSHARED')
+     )
+     ldflags = os.environ.get(
+-        'OVERRIDE_LDFLAGS',
+-        '-Wall ' + ' '.join(sanitize_args)
++        'OVERRIDE_LDFLAGS', '-Wall ' + ' '.join(sanitize_args)
+     )
+     ldflags = shlex.split(ldflags)
+     ldflags.append('-shared')
+@@ -268,7 +277,9 @@ def kitty_env():
      cflags.extend(pkg_config('harfbuzz', '--cflags-only-I'))
      font_libs.extend(pkg_config('harfbuzz', '--libs'))
      pylib = get_python_flags(cflags)
@@ -103,7 +113,7 @@ index 591ed82..bfedb5f 100755
      libpng = pkg_config('libpng', '--libs')
      ans.ldpaths += pylib + font_libs + gl_libs + libpng
      if is_macos:
-@@ -358,7 +370,8 @@ def parallel_run(todo, desc='Compiling {} ...'):
+@@ -358,7 +369,8 @@ def parallel_run(todo, desc='Compiling {} ...'):
              return
          pid, s = os.wait()
          name, cmd, w = workers.pop(pid, (None, None, None))
@@ -113,7 +123,7 @@ index 591ed82..bfedb5f 100755
              failed = name, cmd
  
      while items and failed is None:
-@@ -368,7 +381,9 @@ def parallel_run(todo, desc='Compiling {} ...'):
+@@ -368,7 +380,9 @@ def parallel_run(todo, desc='Compiling {} ...'):
                  print(' '.join(cmd))
              else:
                  print(desc.format(emphasis(name)))
@@ -124,7 +134,7 @@ index 591ed82..bfedb5f 100755
              workers[w.pid] = name, cmd, w
          wait()
      while len(workers):
-@@ -377,7 +392,9 @@ def parallel_run(todo, desc='Compiling {} ...'):
+@@ -377,7 +391,9 @@ def parallel_run(todo, desc='Compiling {} ...'):
          run_tool(failed[1])
  
  
@@ -135,7 +145,7 @@ index 591ed82..bfedb5f 100755
      prefix = os.path.basename(module)
      objects = [
          os.path.join(build_dir, prefix + '-' + os.path.basename(src) + '.o')
-@@ -396,7 +413,8 @@ def compile_c_extension(kenv, module, incremental, compilation_database, all_key
+@@ -396,7 +412,8 @@ def compile_c_extension(kenv, module, incremental, compilation_database, all_key
  
          if src == 'kitty/data-types.c':
              if os.path.exists('.git'):
@@ -145,7 +155,7 @@ index 591ed82..bfedb5f 100755
                  cppflags.append(define('KITTY_VCS_REV="{}"'.format(rev)))
          cmd = [kenv.cc, '-MMD'] + cppflags + kenv.cflags
          key = original_src, os.path.basename(dest)
-@@ -404,9 +422,7 @@ def compile_c_extension(kenv, module, incremental, compilation_database, all_key
+@@ -404,9 +421,7 @@ def compile_c_extension(kenv, module, incremental, compilation_database, all_key
          cmd_changed = compilation_database.get(key, [])[:-4] != cmd
          must_compile = not incremental or cmd_changed
          src = os.path.join(base, src)
@@ -156,7 +166,7 @@ index 591ed82..bfedb5f 100755
              cmd += ['-c', src] + ['-o', dest]
              compilation_database[key] = cmd
              todo[original_src] = cmd
-@@ -421,7 +437,9 @@ def compile_c_extension(kenv, module, incremental, compilation_database, all_key
+@@ -421,7 +436,9 @@ def compile_c_extension(kenv, module, incremental, compilation_database, all_key
          unsafe = {'-pthread', '-Werror', '-pedantic-errors'}
          linker_cflags = list(filter(lambda x: x not in unsafe, kenv.cflags))
          try:
@@ -167,7 +177,7 @@ index 591ed82..bfedb5f 100755
          except Exception:
              with suppress(EnvironmentError):
                  os.remove(dest)
-@@ -432,7 +450,9 @@ def compile_c_extension(kenv, module, incremental, compilation_database, all_key
+@@ -432,7 +449,9 @@ def compile_c_extension(kenv, module, incremental, compilation_database, all_key
  def find_c_files():
      ans, headers = [], []
      d = os.path.join(base, 'kitty')
@@ -178,7 +188,7 @@ index 591ed82..bfedb5f 100755
      for x in os.listdir(d):
          ext = os.path.splitext(x)[1]
          if ext in ('.c', '.m') and os.path.basename(x) not in exclude:
-@@ -446,29 +466,6 @@ def find_c_files():
+@@ -446,29 +465,6 @@ def find_c_files():
      return tuple(ans), tuple(headers)
  
  
@@ -208,7 +218,7 @@ index 591ed82..bfedb5f 100755
  def kittens_env():
      kenv = env.copy()
      cflags = kenv.cflags
-@@ -485,22 +482,39 @@ def compile_kittens(incremental, compilation_database, all_keys):
+@@ -485,22 +481,39 @@ def compile_kittens(incremental, compilation_database, all_keys):
      def list_files(q):
          return [os.path.relpath(x, base) for x in glob.glob(q)]
  
@@ -256,7 +266,7 @@ index 591ed82..bfedb5f 100755
  
  
  def build(args, native_optimizations=True):
-@@ -511,22 +525,27 @@ def build(args, native_optimizations=True):
+@@ -511,22 +524,27 @@ def build(args, native_optimizations=True):
      except FileNotFoundError:
          compilation_database = []
      all_keys = set()
@@ -293,7 +303,7 @@ index 591ed82..bfedb5f 100755
          with open('compile_commands.json', 'w') as f:
              json.dump(compilation_database, f, indent=2, sort_keys=True)
  
-@@ -549,7 +568,13 @@ def build_asan_launcher(args):
+@@ -549,7 +567,13 @@ def build_asan_launcher(args):
      run_tool(cmd, desc='Creating {} ...'.format(emphasis('asan-launcher')))
  
  
@@ -305,10 +315,10 @@ index 591ed82..bfedb5f 100755
 +    sh_launcher=False,
 +    for_freeze=False
 +):
-     cflags = '-Wall -Werror -fpie'.split()
+     cflags = '-Wall -fpie'.split()
      cppflags = []
      libs = []
-@@ -588,11 +613,13 @@ def copy_man_pages(ddir):
+@@ -588,11 +612,13 @@ def copy_man_pages(ddir):
          shutil.rmtree(os.path.join(mandir, 'man1'))
      src = os.path.join(base, 'docs/_build/man')
      if not os.path.exists(src):
@@ -324,7 +334,7 @@ index 591ed82..bfedb5f 100755
      shutil.copytree(src, os.path.join(mandir, 'man1'))
  
  
-@@ -603,11 +630,13 @@ def copy_html_docs(ddir):
+@@ -603,11 +629,13 @@ def copy_html_docs(ddir):
          shutil.rmtree(htmldir)
      src = os.path.join(base, 'docs/_build/html')
      if not os.path.exists(src):
@@ -340,7 +350,7 @@ index 591ed82..bfedb5f 100755
      shutil.copytree(src, htmldir)
  
  
-@@ -623,9 +652,16 @@ def compile_python(base_path):
+@@ -623,9 +651,16 @@ def compile_python(base_path):
              if f.rpartition('.')[-1] in ('pyc', 'pyo'):
                  os.remove(os.path.join(root, f))
      for optimize in (0, 1, 2):
@@ -359,7 +369,7 @@ index 591ed82..bfedb5f 100755
          compileall.compile_dir(base_path, **kwargs)
  
  
-@@ -651,32 +687,50 @@ def package(args, for_bundle=False, sh_launcher=False):
+@@ -651,32 +686,50 @@ def package(args, for_bundle=False, sh_launcher=False):
      def src_ignore(parent, entries):
          return [
              x for x in entries
@@ -412,14 +422,14 @@ index 591ed82..bfedb5f 100755
      if not is_macos:  # {{{ linux desktop gunk
          copy_man_pages(ddir)
          copy_html_docs(ddir)
--        icdir = os.path.join(ddir, 'share', 'icons', 'hicolor', '256x256', 'apps')
+-        icdir = os.path.join(ddir, 'share', 'icons', 'hicolor', 'scalable', 'apps')
 +        icdir = os.path.join(
-+            ddir, 'share', 'icons', 'hicolor', '256x256', 'apps'
++            ddir, 'share', 'icons', 'hicolor', 'scalable', 'apps'
 +        )
          safe_makedirs(icdir)
-         shutil.copy2('logo/kitty.png', icdir)
+         shutil.copy2('logo/kitty.svg', icdir)
          deskdir = os.path.join(ddir, 'share', 'applications')
-@@ -720,9 +774,10 @@ Categories=System;TerminalEmulator;
+@@ -720,9 +773,10 @@ Categories=System;TerminalEmulator;
              NSAppleScriptEnabled=False,
              # Needed for dark mode in Mojave when linking against older SDKs
              NSRequiresAquaSystemAppearance='NO',
@@ -433,7 +443,7 @@ index 591ed82..bfedb5f 100755
              CFBundleIconFile=appname + '.icns',
              NSHighResolutionCapable=True,
              NSSupportsAutomaticGraphicsSwitching=True,
-@@ -730,16 +785,26 @@ Categories=System;TerminalEmulator;
+@@ -730,16 +784,26 @@ Categories=System;TerminalEmulator;
              LSEnvironment={'KITTY_LAUNCHED_BY_LAUNCH_SERVICES': '1'},
              NSServices=[
                  {
@@ -466,7 +476,7 @@ index 591ed82..bfedb5f 100755
                  },
              ],
          )
-@@ -749,16 +814,25 @@ Categories=System;TerminalEmulator;
+@@ -749,16 +813,25 @@ Categories=System;TerminalEmulator;
          os.rename('../bin', 'MacOS')
          os.rename('../lib', 'Frameworks')
          if not os.path.exists(logo_dir):
@@ -495,7 +505,7 @@ index 591ed82..bfedb5f 100755
  # }}}
  
  
-@@ -787,7 +861,8 @@ def clean():
+@@ -787,7 +860,8 @@ def clean():
      safe_remove('build', 'compile_commands.json', 'linux-package', 'kitty.app')
      for root, dirs, files in os.walk('.'):
          remove_dirs = {d for d in dirs if d == '__pycache__'}
@@ -505,7 +515,7 @@ index 591ed82..bfedb5f 100755
          for f in files:
              ext = f.rpartition('.')[-1]
              if ext in ('so', 'dylib', 'pyc', 'pyo'):
-@@ -802,7 +877,9 @@ def option_parser():  # {{{
+@@ -802,7 +876,9 @@ def option_parser():  # {{{
          'action',
          nargs='?',
          default='build',
@@ -516,7 +526,7 @@ index 591ed82..bfedb5f 100755
          help='Action to perform (default is build)'
      )
      p.add_argument(
-@@ -812,16 +889,14 @@ def option_parser():  # {{{
+@@ -812,16 +888,14 @@ def option_parser():  # {{{
          help='Build extension modules with debugging symbols'
      )
      p.add_argument(
@@ -536,7 +546,7 @@ index 591ed82..bfedb5f 100755
          ' a special executable will be built for running the test suite. If you want to run normal kitty'
          ' with sanitization, use LD_PRELOAD=libasan.so (for gcc) and'
          ' LD_PRELOAD=/usr/lib/clang/4.0.0/lib/linux/libclang_rt.asan-x86_64.so (for clang, changing path as appropriate).'
-@@ -853,24 +928,29 @@ def option_parser():  # {{{
+@@ -853,24 +927,29 @@ def option_parser():  # {{{
      p.add_argument(
          '--libdir-name',
          default='lib',
