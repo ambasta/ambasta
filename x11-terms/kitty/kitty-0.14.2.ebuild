@@ -57,7 +57,7 @@ DEPEND="${RDEPEND}
 PATCHES=(
 	"${FILESDIR}"/${PN}-0.14.2-flags.patch
 	"${FILESDIR}"/${PN}-0.11.0-svg-icon.patch
-	"${FILESDIR}"/${PN}-0.13.2-backends.patch
+	"${FILESDIR}"/${PN}-system-glfw.patch
 )
 
 src_prepare() {
