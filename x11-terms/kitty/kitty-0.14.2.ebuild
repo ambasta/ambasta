@@ -81,7 +81,6 @@ doecho() {
 
 src_compile() {
 	doecho "${EPYTHON}" setup.py \
-		--backend $(usex wayland $(usex X "auto" "wayland") $(usex X "x11" "auto"))\
 		--verbose $(usex debug --debug "") \
 		--libdir-name $(get_libdir) \
 		linux-package
