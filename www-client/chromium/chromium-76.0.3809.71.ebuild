@@ -6,7 +6,7 @@ PYTHON_COMPAT=( python2_7 )
 
 CHROMIUM_LANGS=""
 
-inherit check-reqs chromium-2 desktop flag-o-matic multilib ninja-utils pax-utils portability python-any-r1 readme.gentoo-r1 toolchain-funcs
+inherit check-reqs chromium-2 desktop flag-o-matic multilib ninja-utils pax-utils portability python-any-r1 readme.gentoo-r1 toolchain-funcs xdg-utils
 
 DESCRIPTION="Open-source version of Google Chrome web browser"
 HOMEPAGE="http://chromium.org/"
@@ -21,55 +21,58 @@ for card in ${VIDEO_CARDS}; do
 	IUSE_VIDEO_CARDS+=" video_cards_${card}"
 done
 
-IUSE="${IUSE_VIDEO_CARDS} cups gnome-keyring +hangouts headless kerberos neon pic +proprietary-codecs pulseaudio selinux +suid +system-ffmpeg system-harfbuzz +system-icu +system-libvpx wayland widevine +vulkan X"
+IUSE="${IUSE_VIDEO_CARDS} closure-compile component-build cups gnome-keyring +hangouts jumbo-build headless kerberos neon opengl pic +proprietary-codecs pulseaudio selinux +suid +system-ffmpeg system-harfbuzz +system-icu +system-libvpx +tcmalloc wayland widevine +vulkan X"
 RESTRICT="!system-ffmpeg? ( proprietary-codecs? ( bindist ) )"
+REQUIRED_USE="component-build? ( !suid )"
 
 USEFLAG_DEPEND="
-	cups? ( net-print/cups )
-	gnome-keyring? ( gnome-base/libgnome-keyring )
+	cups? ( >=net-print/cups-1.3.11:= )
+	gnome-keyring? ( >=gnome-base/libgnome-keyring-3.12:= )
 	wayland? (
 		dev-libs/wayland
 	)
-	pulseaudio? ( media-sound/pulseaudio )
+	pulseaudio? ( media-sound/pulseaudio:= )
 	system-ffmpeg? (
-		media-libs/opus
-		media-video/ffmpeg
-		!net-fs/samba
+		>=media-video/ffmpeg-4:=
+		!=net-fs/samba-4.5.12-r0
+		media-libs/opus:=
 	)
-	system-icu? ( dev-libs/icu )
-	system-libvpx? ( media-libs/libvpx[postproc,svc] )
+	system-harfbuzz? (
+		>=media-libs/harfbuzz-2.2.0:0=[icu(-)]
+	)
+	system-icu? ( >=dev-libs/icu-64:= )
+	system-libvpx? ( media-libs/libvpx:=[postproc,svc] )
 	kerberos? ( virtual/krb5 )
 "
 
 COMMON_DEPEND="
-	app-arch/bzip2
-	app-arch/snappy
-	dev-libs/expat
-	dev-libs/glib
-	dev-libs/libxml2[icu]
-	dev-libs/libxslt
-	dev-libs/nspr
-	dev-libs/nss
-	dev-libs/re2
-	media-libs/alsa-lib
-	media-libs/flac
-	media-libs/fontconfig
-	media-libs/freetype
-	media-libs/harfbuzz[icu(-)]
-	media-libs/libjpeg-turbo
-	media-libs/openjpeg
-	media-libs/libpng
-	media-libs/libwebp
-	media-libs/mesa[gbm]
-	media-libs/openh264
-	sys-apps/dbus
-	sys-apps/pciutils
-	sys-libs/zlib[minizip]
+	app-arch/bzip2:=
+	app-arch/snappy:=
+	dev-libs/expat:=
+	dev-libs/glib:2
+	>=dev-libs/libxml2-2.9.4-r3:=[icu]
+	dev-libs/libxslt:=
+	dev-libs/nspr:=
+	>=dev-libs/nss-3.26:=
+	>=dev-libs/re2-0.2016.11.01:=
+	>=media-libs/alsa-lib-1.0.19:=
+	media-libs/fontconfig:=
+	media-libs/freetype:=
+	media-libs/libjpeg-turbo:=
+	media-libs/openjpeg:=
+	media-libs/libpng:=
+	>=media-libs/libwebp-0.4.0:=
+	>=media-libs/openh264-1.6.0:=
+	sys-apps/dbus:=
+	sys-apps/pciutils:=
+	sys-libs/zlib:=[minizip]
 	virtual/udev
-	x11-libs/cairo
-	x11-libs/gtk+
+	x11-libs/cairo:=
+	x11-libs/gdk-pixbuf:2
+	x11-libs/gtk+:3[X]
 	x11-libs/libdrm
-	x11-libs/pango
+	x11-libs/pango:=
+	media-libs/flac:=
 	${USEFLAG_DEPEND}
 "
 # For nvidia-drivers blocker, see bug #413637 .
@@ -78,13 +81,14 @@ RDEPEND="${COMMON_DEPEND}
 	virtual/opengl
 	virtual/ttf-fonts
 	selinux? ( sec-policy/selinux-chromium )
+	tcmalloc? ( !<x11-drivers/nvidia-drivers-331.20 )
 	widevine? ( www-plugins/chrome-binary-plugins[widevine(-)] )
 "
-# dev-vcs/git - https://bugs.gentoo.org/593476
-# sys-apps/sandbox - https://crbug.com/586444
 DEPEND="${COMMON_DEPEND}
 "
+# dev-vcs/git - https://bugs.gentoo.org/593476
 BDEPEND="
+	${PYTHON_DEPS}
 	>=app-arch/gzip-1.7
 	!arm? (
 		dev-lang/yasm
@@ -164,6 +168,9 @@ pre_build_checks() {
 	CHECKREQS_DISK_BUILD="7G"
 	if ( shopt -s extglob; is-flagq '-g?(gdb)?([1-9])' ); then
 		CHECKREQS_DISK_BUILD="25G"
+		if ! use component-build; then
+			CHECKREQS_MEMORY="16G"
+		fi
 	fi
 	check-reqs_pkg_setup
 }
@@ -340,7 +347,6 @@ src_prepare() {
 		third_party/unrar
 		third_party/usrsctp
 		third_party/vulkan
-		third_party/wayland
 		third_party/web-animations-js
 		third_party/webdriver
 		third_party/webrtc
@@ -368,7 +374,6 @@ src_prepare() {
 		third_party/usb_ids
 		third_party/xdg-utils
 		third_party/yasm/run_yasm.py
-		third_party/tcmalloc
 	)
 	if ! use system-ffmpeg; then
 		keeplibs+=( third_party/ffmpeg third_party/opus )
@@ -379,6 +384,10 @@ src_prepare() {
 	if ! use system-libvpx; then
 		keeplibs+=( third_party/libvpx )
 		keeplibs+=( third_party/libvpx/source/libvpx/third_party/x86inc )
+	fi
+
+	if use tcmalloc; then
+		keeplibs+=( third_party/tcmalloc )
 	fi
 
 	# Remove most bundled libraries. Some are still needed.
@@ -423,50 +432,45 @@ src_configure() {
 
 	# Component build isn't generally intended for use by end users. It's mostly useful
 	# for development and debugging.
-	myconf_gn+=" is_component_build=false"
+	myconf_gn+=" is_component_build=$(usex component-build true false)"
 
 	# https://chromium.googlesource.com/chromium/src/+/lkcr/docs/jumbo.md
-	myconf_gn+=" use_jumbo_build=false"
+	myconf_gn+=" use_jumbo_build=$(usex jumbo-build true false)"
 
-	myconf_gn+=" use_allocator=\"tcmalloc\""
+	myconf_gn+=" use_allocator=$(usex tcmalloc \"tcmalloc\" \"none\")"
 
 	# Disable nacl, we can't build without pnacl (http://crbug.com/269560).
 	myconf_gn+=" enable_nacl=false enable_nacl_nonsfi=false"
 
-	# Use system-provided libraries.
-	# TODO: freetype -- remove sources (https://bugs.chromium.org/p/pdfium/issues/detail?id=733).
 	myconf_gn+=" use_system_freetype=true"
-
-	myconf_gn+=" use_system_minigbm=true"
-
-	# Enable ozone build
-	myconf_gn+=" use_ozone=true ozone_auto_platforms=false ozone_platform_gbm=false"
-
-	# See dependency logic in third_party/BUILD.gn
-	myconf_gn+=" use_system_harfbuzz=true"
+	myconf_gn+=" use_system_harfbuzz=$(system-harfbuzz true false)"
 	myconf_gn+=" use_system_libdrm=true"
-	myconf_gn+=" use_system_zlib=true"
-
-	myconf_gn+=" use_radeon_minigbm=$(usex video_cards_radeon true false)"
-
-	myconf_gn+=" use_system_libwayland=$(usex wayland true false)"
-	myconf_gn+=" use_wayland_gbm=$(usex wayland true false)"
-	myconf_gn+=" ozone_platform_wayland=$(usex wayland true false)"
-	myconf_gn+=" ozone_platform_x11=$(usex X true false)"
-	myconf_gn+=" ozone_platform_headless=$(usex headless true false)"
-
 	myconf_gn+=" use_system_libjpeg=true"
 	myconf_gn+=" use_system_libopenjpeg2=true"
 	myconf_gn+=" use_system_libpng=true"
+	myconf_gn+=" use_system_libwayland=$(usex wayland true false)"
+	myconf_gn+=" use_system_zlib=true"
 
-	myconf_gn+=" angle_enable_gl=true disable_histogram_support=true enable_background_contents=true enable_background_mode=false enable_mdns=true"
-	myconf_gn+=" enable_media_remoting=false enable_media_remoting_rpc=false enable_native_notifications=true enable_openscreen=false enable_reading_list=false"
-	myconf_gn+=" enable_remoting=false enable_reporting=false enable_vr=false"
-	myconf_gn+=" angle_enable_vulkan=$(usex vulkan true false) angle_enable_vulkan_validation_layers=$(usex vulkan true false) angle_shared_libvulkan=$(usex vulkan true false)"
-	myconf_gn+=" enable_vulkan=$(usex vulkan true false)"
-	myconf_gn+=" gtk_version=3 has_native_accessibility=false is_chrome_branded=false pgo_build=false"
+	myconf_gn+=" use_ozone=true ozone_auto_platforms=false ozone_platform_gbm=false ozone_platform_wayland=$(usex wayland true false) ozone_platform_x11=$(usex X true false) ozone_platform_headless=$(usex headless true false)"
+	myconf_gn+=" use_system_minigbm=false"
 	myconf_gn+=" use_amdgpu_minigbm=$(usex video_cards_amdgpu true false)"
-	myconf_gn+=" use_aura=true use_base_test_suite=false use_dawn=false use_dbus=true use_egl=true use_xkbcommon=true"
+	myconf_gn+=" use_radeon_minigbm=$(usex video_cards_radeon true false)"
+	myconf_gn+=" use_wayland_gbm=$(usex wayland true false)"
+	myconf_gn+=" angle_enable_gl=$(usex opengl true false) pgo_build=$(usex pgo true false)"
+
+	if use vulkan; then
+		myconf_gn+=" angle_enable_vulkan=$(usex vulkan true false) angle_enable_vulkan_validation_layers=$(usex vulkan true false) angle_shared_libvulkan=$(usex vulkan true false) enable_vulkan=$(usex vulkan true false)"
+	fi
+	myconf_gn+=" enable_media_remoting=false enable_media_remoting_rpc=false enable_native_notifications=true enable_openscreen=false enable_reading_list=false enable_remoting=false enable_reporting=false enable_vr=false"
+	myconf_gn+=" gtk_version=3 has_native_accessibility=true is_chrome_branded=false"
+	myconf_gn+=" disable_histogram_support=true enable_background_contents=true enable_background_mode=false enable_mdns=true use_aura=false use_base_test_suite=false use_dawn=false use_dbus=true use_egl=true use_xkbcommon=true"
+	# Use system-provided libraries.
+	# TODO: freetype -- remove sources (https://bugs.chromium.org/p/pdfium/issues/detail?id=733).
+	# TODO: use_system_hunspell (upstream changes needed).
+	# TODO: use_system_libsrtp (bug #459932).
+	# TODO: use_system_protobuf (bug #525560).
+	# TODO: use_system_ssl (http://crbug.com/58087).
+	# TODO: use_system_sqlite (http://crbug.com/22208).
 
 	# libevent: https://bugs.gentoo.org/593458
 	local gn_system_libraries=(
@@ -487,7 +491,6 @@ src_configure() {
 		yasm
 		zlib
 	)
-
 	if use system-ffmpeg; then
 		gn_system_libraries+=( ffmpeg opus )
 	fi
@@ -503,7 +506,7 @@ src_configure() {
 	myconf_gn+=" use_system_harfbuzz=true"
 
 	# Optional dependencies.
-	myconf_gn+=" closure_compile=false"
+	myconf_gn+=" closure_compile=$(usex closure-compile true false)"
 	myconf_gn+=" enable_hangout_services_extension=$(usex hangouts true false)"
 	myconf_gn+=" enable_widevine=$(usex widevine true false)"
 	myconf_gn+=" use_cups=$(usex cups true false)"
@@ -678,7 +681,7 @@ src_install() {
 	insinto "${CHROMIUM_HOME}"
 	doins out/Release/*.bin
 	doins out/Release/*.pak
-	#doins out/Release/*.so
+	# doins out/Release/*.so
 
 	if ! use system-icu; then
 		doins out/Release/icudtl.dat
