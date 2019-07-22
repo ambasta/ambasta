@@ -443,7 +443,7 @@ src_configure() {
 	myconf_gn+=" enable_nacl=false enable_nacl_nonsfi=false"
 
 	myconf_gn+=" use_system_freetype=true"
-	myconf_gn+=" use_system_harfbuzz=$(system-harfbuzz true false)"
+	myconf_gn+=" use_system_harfbuzz=$(usex system-harfbuzz true false)"
 	myconf_gn+=" use_system_libdrm=true"
 	myconf_gn+=" use_system_libjpeg=true"
 	myconf_gn+=" use_system_libopenjpeg2=true"
