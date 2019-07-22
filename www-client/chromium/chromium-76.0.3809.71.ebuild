@@ -21,7 +21,7 @@ for card in ${VIDEO_CARDS}; do
 	IUSE_VIDEO_CARDS+=" video_cards_${card}"
 done
 
-IUSE="${IUSE_VIDEO_CARDS} closure-compile component-build cups gnome-keyring +hangouts jumbo-build headless kerberos neon opengl pic +proprietary-codecs pulseaudio selinux +suid +system-ffmpeg system-harfbuzz +system-icu +system-libvpx +tcmalloc wayland widevine +vulkan X"
+IUSE="${IUSE_VIDEO_CARDS} closure-compile component-build cups gnome-keyring +hangouts jumbo-build headless kerberos neon opengl pic pgo +proprietary-codecs pulseaudio selinux +suid +system-ffmpeg system-harfbuzz +system-icu +system-libvpx +tcmalloc wayland widevine +vulkan X"
 RESTRICT="!system-ffmpeg? ( proprietary-codecs? ( bindist ) )"
 REQUIRED_USE="component-build? ( !suid )"
 
