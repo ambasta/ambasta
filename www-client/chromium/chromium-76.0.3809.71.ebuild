@@ -302,6 +302,7 @@ src_prepare() {
 		third_party/markupsafe
 		third_party/mesa
 		third_party/metrics_proto
+		third_party/minigbm
 		third_party/modp_b64
 		third_party/nasm
 		third_party/node
@@ -454,7 +455,7 @@ src_configure() {
 	myconf_gn+=" use_system_zlib=true"
 
 	myconf_gn+=" use_ozone=true ozone_auto_platforms=false ozone_platform_gbm=false ozone_platform_wayland=$(usex wayland true false) ozone_platform_x11=$(usex X true false) ozone_platform_headless=$(usex headless true false)"
-	myconf_gn+=" use_system_minigbm=false"
+	myconf_gn+=" use_system_minigbm=true"
 	myconf_gn+=" use_amdgpu_minigbm=$(usex video_cards_amdgpu true false)"
 	myconf_gn+=" use_radeon_minigbm=$(usex video_cards_radeon true false)"
 	myconf_gn+=" use_wayland_gbm=$(usex wayland true false)"
