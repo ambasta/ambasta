@@ -6,7 +6,7 @@ PYTHON_COMPAT=( python2_7 )
 
 CHROMIUM_LANGS=""
 
-inherit check-reqs chromium-2 desktop flag-o-matic multilib ninja-utils pax-utils portability python-any-r1 readme.gentoo-r1 toolchain-funcs xdg-utils
+inherit check-reqs chromium-2 flag-o-matic ninja-utils pax-utils python-any-r1 readme.gentoo-r1 toolchain-funcs
 
 DESCRIPTION="Open-source version of Google Chrome web browser"
 HOMEPAGE="http://chromium.org/"
@@ -629,21 +629,9 @@ src_compile() {
 
 	#"${EPYTHON}" tools/clang/scripts/update.py --force-local-build --gcc-toolchain /usr --skip-checkout --use-system-cmake --without-android || die
 
-	# Build mksnapshot and pax-mark it.
-	local x
-	for x in mksnapshot v8_context_snapshot_generator; do
-		if tc-is-cross-compiler; then
-			eninja -C out/Release "host/${x}"
-			pax-mark m "out/Release/host/${x}"
-		else
-			eninja -C out/Release "${x}"
-			pax-mark m "out/Release/${x}"
-		fi
-	done
-
 	# Even though ninja autodetects number of CPUs, we respect
 	# user's options, for debugging with -j 1 or any other reason.
-	eninja -C out/Release chrome chromedriver
+	eninja -C out/Release chrome
 	use suid && eninja -C out/Release chrome_sandbox
 
 	pax-mark m out/Release/chrome
@@ -659,19 +647,9 @@ src_install() {
 		fperms 4755 "${CHROMIUM_HOME}/chrome-sandbox"
 	fi
 
-	doexe out/Release/chromedriver
-
 	local sedargs=( -e "s:/usr/lib/:/usr/$(get_libdir)/:g" )
 	sed "${sedargs[@]}" "${FILESDIR}/chromium-launcher-r3.sh" > chromium-launcher.sh || die
 	doexe chromium-launcher.sh
-
-	# It is important that we name the target "chromium-browser",
-	# xdg-utils expect it; bug #355517.
-	dosym "${CHROMIUM_HOME}/chromium-launcher.sh" /usr/bin/chromium-browser
-	# keep the old symlink around for consistency
-	dosym "${CHROMIUM_HOME}/chromium-launcher.sh" /usr/bin/chromium
-
-	dosym "${CHROMIUM_HOME}/chromedriver" /usr/bin/chromedriver
 
 	# Allow users to override command-line options, bug #357629.
 	insinto /etc/chromium
@@ -708,22 +686,6 @@ src_install() {
 		newicon -s ${size} "${branding}/product_logo_${size}.png" \
 			chromium-browser.png
 	done
-
-	local mime_types="text/html;text/xml;application/xhtml+xml;"
-	mime_types+="x-scheme-handler/http;x-scheme-handler/https;" # bug #360797
-	mime_types+="x-scheme-handler/ftp;" # bug #412185
-	mime_types+="x-scheme-handler/mailto;x-scheme-handler/webcal;" # bug #416393
-	make_desktop_entry \
-		chromium-browser \
-		"Chromium" \
-		chromium-browser \
-		"Network;WebBrowser" \
-		"MimeType=${mime_types}\nStartupWMClass=chromium-browser"
-	sed -e "/^Exec/s/$/ %U/" -i "${ED}"/usr/share/applications/*.desktop || die
-
-	# Install GNOME default application entry (bug #303100).
-	insinto /usr/share/gnome-control-center/default-apps
-	newins "${FILESDIR}"/chromium-browser.xml chromium-browser.xml
 
 	readme.gentoo_create_doc
 }

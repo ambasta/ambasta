@@ -14,6 +14,7 @@
 		<flag name="jumbo-build">Combine source files to speed up build process.</flag>
 		<flag name="pic">Disable optimized assembly code that is not PIC friendly</flag>
 		<flag name="proprietary-codecs">Enable proprietary codecs like H.264, MP3</flag>
+		<flag name="pgo">Enable profile guided optimization</flag>
 		<flag name="suid">Build the SUID sandbox, which is only needed on CONFIG_USER_NS=n kernels</flag>
 		<flag name="system-ffmpeg">Use system ffmpeg instead of the bundled one</flag>
 		<flag name="system-harfbuzz">Use system harfbuzz instead of the bundled one</flag>
