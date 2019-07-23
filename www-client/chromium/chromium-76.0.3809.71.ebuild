@@ -465,7 +465,7 @@ src_configure() {
 		myconf_gn+=" angle_enable_vulkan=$(usex vulkan true false) angle_enable_vulkan_validation_layers=$(usex vulkan true false) angle_shared_libvulkan=$(usex vulkan true false) enable_vulkan=$(usex vulkan true false)"
 	fi
 	myconf_gn+=" enable_media_remoting=false enable_media_remoting_rpc=false enable_native_notifications=true enable_openscreen=false enable_reading_list=false enable_remoting=false enable_reporting=false enable_vr=false"
-	myconf_gn+=" gtk_version=3 has_native_accessibility=true is_chrome_branded=false"
+	myconf_gn+=" gtk_version=3 has_native_accessibility=false is_chrome_branded=false"
 	myconf_gn+=" disable_histogram_support=true enable_background_contents=true enable_background_mode=false enable_mdns=true use_aura=true use_base_test_suite=false use_dawn=false use_dbus=true use_egl=true use_xkbcommon=true"
 	# Use system-provided libraries.
 	# TODO: freetype -- remove sources (https://bugs.chromium.org/p/pdfium/issues/detail?id=733).
