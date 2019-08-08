@@ -36,7 +36,7 @@ done
 IUSE="${IUSE_VIDEO_CARDS}
 	+classic d3d9 debug +dri3 +egl +gallium +gbm gles1 +gles2 +libglvnd +llvm
 	lm_sensors opencl osmesa pax_kernel pic selinux test unwind vaapi valgrind
-	vdpau vulkan vulkan-overlay wayland xa xvmc"
+	vdpau vulkan vulkan-overlay wayland X xa xvmc"
 
 REQUIRED_USE="
 	d3d9?   ( dri3 || ( video_cards_iris video_cards_r300 video_cards_r600 video_cards_radeonsi video_cards_nouveau video_cards_vmware ) )
@@ -66,6 +66,7 @@ REQUIRED_USE="
 	video_cards_vmware? ( gallium )
 "
 
+LIBDRM_DEPSTRING=">=x11-libs/libdrm-2.4.97"
 RDEPEND="
 	!app-eselect/eselect-mesa
 	>=dev-libs/expat-2.1.0-r3:=[${MULTILIB_USEDEP}]
@@ -76,6 +77,15 @@ RDEPEND="
 	)
 	!libglvnd? (
 		>=app-eselect/eselect-opengl-1.3.0
+	)
+	X? (
+		>=x11-libs/libX11-1.6.2:=[${MULTILIB_USEDEP}]
+		>=x11-libs/libxshmfence-1.1:=[${MULTILIB_USEDEP}]
+		>=x11-libs/libXdamage-1.1.4-r1:=[${MULTILIB_USEDEP}]
+		>=x11-libs/libXext-1.3.2:=[${MULTILIB_USEDEP}]
+		>=x11-libs/libXxf86vm-1.1.3:=[${MULTILIB_USEDEP}]
+		>=x11-libs/libxcb-1.13:=[${MULTILIB_USEDEP}]
+		x11-libs/libXfixes:=[${MULTILIB_USEDEP}]
 	)
 	gallium? (
 		unwind? ( sys-libs/libunwind[${MULTILIB_USEDEP}] )
@@ -96,17 +106,33 @@ RDEPEND="
 					dev-libs/libclc
 					virtual/libelf:0=[${MULTILIB_USEDEP}]
 				)
+		vaapi? (
+			>=x11-libs/libva-1.7.3:=[${MULTILIB_USEDEP}]
+			video_cards_nouveau? ( !<=x11-libs/libva-vdpau-driver-0.7.4-r3 )
+		)
+		vdpau? ( >=x11-libs/libvdpau-1.1:=[${MULTILIB_USEDEP}] )
+		xvmc? ( >=x11-libs/libXvMC-1.0.8:=[${MULTILIB_USEDEP}] )
 	)
 	wayland? (
 		>=dev-libs/wayland-1.15.0:=[${MULTILIB_USEDEP}]
 		>=dev-libs/wayland-protocols-1.8
 	)
+	${LIBDRM_DEPSTRING}[video_cards_freedreno?,video_cards_nouveau?,video_cards_vc4?,video_cards_vivante?,video_cards_vmware?,${MULTILIB_USEDEP}]
+
+	video_cards_intel? (
+		!video_cards_i965? ( ${LIBDRM_DEPSTRING}[video_cards_intel] )
+	)
+	video_cards_i915? ( ${LIBDRM_DEPSTRING}[video_cards_intel] )
 	vulkan-overlay? ( dev-util/glslang:0=[${MULTILIB_USEDEP}] )
 "
 for card in ${RADEON_CARDS}; do
 	RDEPEND="${RDEPEND}
+		video_cards_${card}? ( ${LIBDRM_DEPSTRING}[video_cards_radeon] )
 	"
 done
+RDEPEND="${RDEPEND}
+	video_cards_radeonsi? ( ${LIBDRM_DEPSTRING}[video_cards_amdgpu] )
+"
 
 # Please keep the LLVM dependency block separate. Since LLVM is slotted,
 # we need to *really* make sure we're not pulling one than more slot
@@ -184,6 +210,9 @@ unset {LLVM,CLANG}_DEPSTR{,_AMDGPU}
 
 DEPEND="${RDEPEND}
 	valgrind? ( dev-util/valgrind )
+	X? (
+		x11-libs/libXrandr[${MULTILIB_USEDEP}]
+		x11-base/xorg-proto )
 "
 BDEPEND="
 	${PYTHON_DEPS}
@@ -321,7 +350,7 @@ multilib_src_configure() {
 		fi
 	fi
 
-	emesonargs+=( -Dplatforms=$(use wayland && echo "wayland")$(use wayland && use gbm && echo ",")$(use gbm && echo "drm") )
+	emesonargs+=( -Dplatforms=x11,surfaceless$(use wayland && echo ",wayland")$(use gbm && echo ",drm") )
 
 	if use gallium; then
 		emesonargs+=(
@@ -444,7 +473,7 @@ multilib_src_configure() {
 
 	emesonargs+=(
 		$(meson_use test build-tests)
-		-Dglx=disabled
+		-Dglx=dri
 		-Dshared-glapi=true
 		$(meson_use dri3)
 		$(meson_use egl)
@@ -480,6 +509,14 @@ multilib_src_install_all() {
 
 multilib_src_test() {
 	meson test -v -C "${BUILD_DIR}" -t 100
+}
+
+pkg_postinst() {
+	if use opengl; then
+		# Switch to the xorg implementation.
+		echo
+		eselect opengl set --use-old ${OPENGL_DIR}
+	fi
 }
 
 # $1 - VIDEO_CARDS flag (check skipped for "--")
