@@ -473,7 +473,7 @@ multilib_src_configure() {
 
 	emesonargs+=(
 		$(meson_use test build-tests)
-		-Dglx=dri
+		-Dglx=$(usex X dri disabled)
 		-Dshared-glapi=true
 		$(meson_use dri3)
 		$(meson_use egl)
