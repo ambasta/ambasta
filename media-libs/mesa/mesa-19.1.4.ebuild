@@ -512,7 +512,7 @@ multilib_src_test() {
 }
 
 pkg_postinst() {
-	if use libglvnd; then
+	if !use libglvnd; then
 		# Switch to the xorg implementation.
 		echo
 		eselect opengl set --use-old ${OPENGL_DIR}
