@@ -35,6 +35,10 @@ DEPEND="${RDEPEND}
 
 S=${WORKDIR}/${MY_P}
 
+PATCHES=(
+	"${FILESDIR}/0001-Patches-for-gcr-non-ui.patch"
+)
+
 src_prepare() {
 	cmake-utils_src_prepare
 	vala_src_prepare
