@@ -25,7 +25,6 @@ RDEPEND="
 	dev-libs/libxml2
 	>=net-libs/libsoup-2.38:2.4[vala]
 	>=net-libs/webkit-gtk-2.16.6:4[introspection]
-	>=x11-libs/libnotify-0.7
 	>=x11-libs/gtk+-3.12.0:3
 "
 DEPEND="${RDEPEND}
