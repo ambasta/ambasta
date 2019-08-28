@@ -340,11 +340,6 @@ src_prepare() {
 		third_party/spirv-headers
 		third_party/SPIRV-Tools
 		third_party/sqlite
-		third_party/swiftshader
-		third_party/swiftshader/third_party/llvm-7.0
-		third_party/swiftshader/third_party/llvm-subzero
-		third_party/swiftshader/third_party/subzero
-		third_party/swiftshader/third_party/SPIRV-Headers/include/spirv/unified1
 		third_party/unrar
 		third_party/usrsctp
 		third_party/vulkan
@@ -642,7 +637,7 @@ src_compile() {
 
 	# Even though ninja autodetects number of CPUs, we respect
 	# user's options, for debugging with -j 1 or any other reason.
-	eninja -C out/Release chrome chromedriver
+	eninja -C out/Release chrome
 	use suid && eninja -C out/Release chrome_sandbox
 
 	pax-mark m out/Release/chrome
@@ -691,11 +686,6 @@ src_install() {
 
 	doins -r out/Release/locales
 	doins -r out/Release/resources
-
-	if [[ -d out/Release/swiftshader ]]; then
-		insinto "${CHROMIUM_HOME}/swiftshader"
-		doins out/Release/swiftshader/*.so
-	fi
 
 	# Install icons and desktop entry.
 	local branding size
