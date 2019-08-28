@@ -1,4 +1,4 @@
-# Copyright 1999-2019 Gentoo Authors
+# Copyright 2009-2019 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -14,35 +14,36 @@ SRC_URI="https://commondatastorage.googleapis.com/chromium-browser-official/${P}
 
 LICENSE="BSD"
 SLOT="0"
-KEYWORDS="~amd64 ~x86"
+KEYWORDS="~amd64 ~arm64 ~x86"
 
 VIDEO_CARDS="amdgpu radeon"
 for card in ${VIDEO_CARDS}; do
 	IUSE_VIDEO_CARDS+=" video_cards_${card}"
 done
 
-IUSE="${IUSE_VIDEO_CARDS} closure-compile component-build cups gnome-keyring +hangouts jumbo-build headless kerberos neon opengl pic pgo +proprietary-codecs pulseaudio selinux +suid +system-ffmpeg system-harfbuzz +system-icu +system-libvpx +tcmalloc wayland widevine +vulkan X"
+IUSE="${IUSE_VIDEO_CARDS} closure-compile component-build cups cpu_flags_arm_neon gnome-keyring +hangouts jumbo-build headless kerberos opengl pic pgo +proprietary-codecs pulseaudio selinux +suid +system-ffmpeg system-harfbuzz +system-icu +system-libvpx +tcmalloc wayland widevine +vulkan X"
 RESTRICT="!system-ffmpeg? ( proprietary-codecs? ( bindist ) )"
 REQUIRED_USE="component-build? ( !suid )"
 
 USEFLAG_DEPEND="
+	closure-compile? ( virtual/jre )
 	cups? ( >=net-print/cups-1.3.11:= )
 	gnome-keyring? ( >=gnome-base/libgnome-keyring-3.12:= )
-	wayland? (
-		dev-libs/wayland
-	)
+	kerberos? ( virtual/krb5 )
 	pulseaudio? ( media-sound/pulseaudio:= )
 	system-ffmpeg? (
 		>=media-video/ffmpeg-4:=
+		|| (
+			media-video/ffmpeg[-samba]
+			>=net-fs/samba-4.5.10-r1[-debug(-)]
+		)
 		!=net-fs/samba-4.5.12-r0
 		media-libs/opus:=
 	)
-	system-harfbuzz? (
-		>=media-libs/harfbuzz-2.2.0:0=[icu(-)]
-	)
+	system-harfbuzz? ( >=media-libs/harfbuzz-2.4.0:0=[icu(-)] )
 	system-icu? ( >=dev-libs/icu-64:= )
 	system-libvpx? ( media-libs/libvpx:=[postproc,svc] )
-	kerberos? ( virtual/krb5 )
+	wayland? ( dev-libs/wayland )
 "
 
 COMMON_DEPEND="
@@ -59,7 +60,6 @@ COMMON_DEPEND="
 	media-libs/fontconfig:=
 	media-libs/freetype:=
 	media-libs/libjpeg-turbo:=
-	media-libs/openjpeg:=
 	media-libs/libpng:=
 	>=media-libs/libwebp-0.4.0:=
 	>=media-libs/openh264-1.6.0:=
@@ -94,7 +94,7 @@ BDEPEND="
 		dev-lang/yasm
 	)
 	dev-lang/perl
-	<dev-util/gn-0.1583
+	dev-util/gn
 	dev-vcs/git
 	>=dev-util/gperf-3.0.3
 	>=dev-util/ninja-1.7.2
@@ -140,19 +140,16 @@ PATCHES=(
 	"${FILESDIR}/chromium-compiler-r10.patch"
 	"${FILESDIR}/chromium-widevine-r4.patch"
 	"${FILESDIR}/chromium-fix-char_traits.patch"
-	"${FILESDIR}/chromium-angle-inline.patch"
-	"${FILESDIR}/chromium-76-quiche.patch"
-	"${FILESDIR}/chromium-76-gcc-vulkan.patch"
-	"${FILESDIR}/chromium-76-gcc-private.patch"
-	"${FILESDIR}/chromium-76-gcc-noexcept.patch"
-	"${FILESDIR}/chromium-76-gcc-gl-init.patch"
-	"${FILESDIR}/chromium-76-gcc-blink-namespace1.patch"
-	"${FILESDIR}/chromium-76-gcc-blink-namespace2.patch"
-	"${FILESDIR}/chromium-76-gcc-blink-constexpr.patch"
-	"${FILESDIR}/chromium-76-gcc-uint32.patch"
-	"${FILESDIR}/chromium-76-gcc-ambiguous-nodestructor.patch"
-	"${FILESDIR}/chromium-76-gcc-include.patch"
-	"${FILESDIR}/chromium-76-gcc-pure-virtual.patch"
+	"${FILESDIR}/chromium-unbundle-zlib.patch"
+	"${FILESDIR}/chromium-77-fix-gn-gen.patch"
+	"${FILESDIR}/chromium-77-system-icu.patch"
+	"${FILESDIR}/chromium-77-system-hb.patch"
+	"${FILESDIR}/chromium-77-clang.patch"
+	"${FILESDIR}/chromium-77-blink-include.patch"
+	"${FILESDIR}/chromium-77-std-string.patch"
+	"${FILESDIR}/chromium-77-no-cups.patch"
+	"${FILESDIR}/chromium-77-gcc-abstract.patch"
+	"${FILESDIR}/chromium-77-gcc-include.patch"
 )
 
 pre_build_checks() {
@@ -307,7 +304,9 @@ src_prepare() {
 		third_party/nasm
 		third_party/node
 		third_party/node/node_modules/polymer-bundler/lib/third_party/UglifyJS2
+		third_party/one_euro_filter
 		third_party/openscreen
+		third_party/openscreen/src/third_party/tinycbor/src/src
 		third_party/ots
 		third_party/pdfium
 		third_party/pdfium/third_party/agg23
@@ -345,6 +344,7 @@ src_prepare() {
 		third_party/swiftshader/third_party/llvm-7.0
 		third_party/swiftshader/third_party/llvm-subzero
 		third_party/swiftshader/third_party/subzero
+		third_party/swiftshader/third_party/SPIRV-Headers/include/spirv/unified1
 		third_party/unrar
 		third_party/usrsctp
 		third_party/vulkan
@@ -388,7 +388,6 @@ src_prepare() {
 		keeplibs+=( third_party/libvpx )
 		keeplibs+=( third_party/libvpx/source/libvpx/third_party/x86inc )
 	fi
-
 	if use tcmalloc; then
 		keeplibs+=( third_party/tcmalloc )
 	fi
@@ -577,7 +576,7 @@ src_configure() {
 		ffmpeg_target_arch=arm64
 	elif [[ $myarch = arm ]] ; then
 		myconf_gn+=" target_cpu=\"arm\""
-		ffmpeg_target_arch=$(usex neon arm-neon arm)
+		ffmpeg_target_arch=$(usex cpu_flags_arm_neon arm-neon arm)
 	else
 		die "Failed to determine target arch, got '$myarch'."
 	fi
@@ -629,9 +628,21 @@ src_compile() {
 
 	#"${EPYTHON}" tools/clang/scripts/update.py --force-local-build --gcc-toolchain /usr --skip-checkout --use-system-cmake --without-android || die
 
+	# Build mksnapshot and pax-mark it.
+	local x
+	for x in mksnapshot v8_context_snapshot_generator; do
+		if tc-is-cross-compiler; then
+			eninja -C out/Release "host/${x}"
+			pax-mark m "out/Release/host/${x}"
+		else
+			eninja -C out/Release "${x}"
+			pax-mark m "out/Release/${x}"
+		fi
+	done
+
 	# Even though ninja autodetects number of CPUs, we respect
 	# user's options, for debugging with -j 1 or any other reason.
-	eninja -C out/Release chrome
+	eninja -C out/Release chrome chromedriver
 	use suid && eninja -C out/Release chrome_sandbox
 
 	pax-mark m out/Release/chrome
@@ -647,10 +658,19 @@ src_install() {
 		fperms 4755 "${CHROMIUM_HOME}/chrome-sandbox"
 	fi
 
+	doexe out/Release/chromedriver
+
 	local sedargs=( -e "s:/usr/lib/:/usr/$(get_libdir)/:g" )
 	sed "${sedargs[@]}" "${FILESDIR}/chromium-launcher-r3.sh" > chromium-launcher.sh || die
 	doexe chromium-launcher.sh
+
+	# It is important that we name the target "chromium-browser",
+	# xdg-utils expect it; bug #355517.
+	dosym "${CHROMIUM_HOME}/chromium-launcher.sh" /usr/bin/chromium-browser
+	# keep the old symlink around for consistency
 	dosym "${CHROMIUM_HOME}/chromium-launcher.sh" /usr/bin/chromium
+
+	dosym "${CHROMIUM_HOME}/chromedriver" /usr/bin/chromedriver
 
 	# Allow users to override command-line options, bug #357629.
 	insinto /etc/chromium
@@ -679,7 +699,7 @@ src_install() {
 
 	# Install icons and desktop entry.
 	local branding size
-	for size in 16 22 24 32 48 64 128 256 ; do
+	for size in 16 24 32 48 64 128 256 ; do
 		case ${size} in
 			16|32) branding="chrome/app/theme/default_100_percent/chromium" ;;
 				*) branding="chrome/app/theme/chromium" ;;
