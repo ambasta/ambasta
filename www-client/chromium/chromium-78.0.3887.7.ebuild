@@ -562,6 +562,7 @@ src_configure() {
 			filter-flags -mno-mmx -mno-sse2 -mno-ssse3 -mno-sse4.1 -mno-avx -mno-avx2
 		fi
 	fi
+	replace-flags "-DVK_USE_PLATFORM_XCB_KHR" "-DVK_USE_PLATFORM_WAYLAND_KHR"
 
 	if [[ $myarch = amd64 ]] ; then
 		myconf_gn+=" target_cpu=\"x64\""
