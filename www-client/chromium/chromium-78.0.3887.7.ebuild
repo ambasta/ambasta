@@ -143,7 +143,6 @@ PATCHES=(
 	"${FILESDIR}/chromium-unbundle-zlib.patch"
 	"${FILESDIR}/chromium-77-fix-gn-gen.patch"
 	"${FILESDIR}/chromium-77-system-icu.patch"
-	"${FILESDIR}/chromium-77-gcc-memcpy.patch"
 	"${FILESDIR}/chromium-77-clang.patch"
 	"${FILESDIR}/chromium-78-include.patch"
 )
