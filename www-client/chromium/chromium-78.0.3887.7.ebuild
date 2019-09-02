@@ -21,7 +21,7 @@ for card in ${VIDEO_CARDS}; do
 	IUSE_VIDEO_CARDS+=" video_cards_${card}"
 done
 
-IUSE="${IUSE_VIDEO_CARDS} closure-compile component-build cups cpu_flags_arm_neon gnome-keyring +hangouts jumbo-build headless kerberos opengl pic pgo +proprietary-codecs pulseaudio selinux +suid +system-ffmpeg system-harfbuzz +system-icu +system-libvpx +tcmalloc wayland widevine +vulkan X"
+IUSE="${IUSE_VIDEO_CARDS} closure-compile component-build cups cpu_flags_arm_neon gnome-keyring hangouts +jumbo-build headless kerberos opengl pic pgo +proprietary-codecs pulseaudio selinux +suid +system-ffmpeg +system-harfbuzz +system-icu +system-libvpx +tcmalloc wayland widevine +vulkan X"
 RESTRICT="!system-ffmpeg? ( proprietary-codecs? ( bindist ) )"
 REQUIRED_USE="component-build? ( !suid )"
 
@@ -145,12 +145,7 @@ PATCHES=(
 	"${FILESDIR}/chromium-77-system-icu.patch"
 	"${FILESDIR}/chromium-77-system-hb.patch"
 	"${FILESDIR}/chromium-77-clang.patch"
-	"${FILESDIR}/chromium-77-blink-include.patch"
-	"${FILESDIR}/chromium-77-std-string.patch"
-	"${FILESDIR}/chromium-77-no-cups.patch"
-	"${FILESDIR}/chromium-77-gcc-abstract.patch"
-	"${FILESDIR}/chromium-77-gcc-include.patch"
-	"${FILESDIR}/chromium-77-gcc-memcpy.patch"
+	"${FILESDIR}/chromium-78-include.patch"
 )
 
 pre_build_checks() {
@@ -247,6 +242,7 @@ src_prepare() {
 		third_party/catapult/third_party/six
 		third_party/catapult/tracing/third_party/d3
 		third_party/catapult/tracing/third_party/gl-matrix
+		third_party/catapult/tracing/third_party/jpeg-js
 		third_party/catapult/tracing/third_party/jszip
 		third_party/catapult/tracing/third_party/mannwhitneyu
 		third_party/catapult/tracing/third_party/oboe
@@ -634,18 +630,6 @@ src_compile() {
 
 	#"${EPYTHON}" tools/clang/scripts/update.py --force-local-build --gcc-toolchain /usr --skip-checkout --use-system-cmake --without-android || die
 
-	# Build mksnapshot and pax-mark it.
-	local x
-	for x in mksnapshot v8_context_snapshot_generator; do
-		if tc-is-cross-compiler; then
-			eninja -C out/Release "host/${x}"
-			pax-mark m "out/Release/host/${x}"
-		else
-			eninja -C out/Release "${x}"
-			pax-mark m "out/Release/${x}"
-		fi
-	done
-
 	# Even though ninja autodetects number of CPUs, we respect
 	# user's options, for debugging with -j 1 or any other reason.
 	eninja -C out/Release chrome
@@ -668,9 +652,6 @@ src_install() {
 	sed "${sedargs[@]}" "${FILESDIR}/chromium-launcher-r3.sh" > chromium-launcher.sh || die
 	doexe chromium-launcher.sh
 
-	# It is important that we name the target "chromium-browser",
-	# xdg-utils expect it; bug #355517.
-	dosym "${CHROMIUM_HOME}/chromium-launcher.sh" /usr/bin/chromium-browser
 	# keep the old symlink around for consistency
 	dosym "${CHROMIUM_HOME}/chromium-launcher.sh" /usr/bin/chromium
 
