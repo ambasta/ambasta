@@ -215,6 +215,7 @@ src_prepare() {
 		third_party/angle/src/third_party/trace_event
 		third_party/angle/third_party/glslang
 		third_party/angle/third_party/spirv-headers
+		third_party/spirv-cross/spirv-cross
 		third_party/angle/third_party/spirv-tools
 		third_party/angle/third_party/vulkan-headers
 		third_party/angle/third_party/vulkan-loader
