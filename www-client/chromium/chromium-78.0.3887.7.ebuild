@@ -452,16 +452,14 @@ src_configure() {
 	myconf_gn+=" use_system_libwayland=$(usex wayland true false)"
 	myconf_gn+=" use_system_zlib=true"
 
-	myconf_gn+=" use_ozone=true ozone_auto_platforms=false ozone_platform_gbm=false ozone_platform_wayland=$(usex wayland true false) ozone_platform_x11=$(usex X true false) ozone_platform_headless=$(usex headless true false) angle_enable_essl=false angle_enable_glsl=false angle_enable_null=false dawn_enable_null=false dawn_enable_opengl=false dawn_enable_vulkan=true enable_basic_print_dialog=false enable_basic_printing=false enable_native_window_nav_buttons=true enable_print_preview=false enable_service_discovery=false enable_session_service=false enable_swiftshader=false enable_wayland_server=true ozone_platform=\"wayland\" use_gtk=false use_system_lcms2=true toolkit_views=true"
+	myconf_gn+=" use_ozone=true ozone_auto_platforms=false ozone_platform_gbm=false ozone_platform_wayland=$(usex wayland true false) ozone_platform_x11=$(usex X true false) ozone_platform_headless=$(usex headless true false) angle_enable_essl=false angle_enable_glsl=false angle_enable_null=false dawn_enable_null=false dawn_enable_opengl=false dawn_enable_vulkan=$(usex vulkan true false) enable_basic_print_dialog=false enable_basic_printing=false enable_native_window_nav_buttons=true enable_print_preview=false enable_service_discovery=false enable_session_service=false enable_swiftshader=false enable_wayland_server=true ozone_platform=\"wayland\" use_gtk=false use_system_lcms2=true toolkit_views=true"
 	myconf_gn+=" use_system_minigbm=true"
 	myconf_gn+=" use_amdgpu_minigbm=$(usex video_cards_amdgpu true false)"
 	myconf_gn+=" use_radeon_minigbm=$(usex video_cards_radeon true false)"
 	myconf_gn+=" use_wayland_gbm=$(usex wayland true false)"
 	myconf_gn+=" angle_enable_gl=$(usex opengl true false) pgo_build=$(usex pgo true false)"
 
-	if use vulkan; then
-		myconf_gn+=" angle_enable_vulkan=$(usex vulkan true false) angle_enable_vulkan_validation_layers=$(usex vulkan true false) angle_shared_libvulkan=$(usex vulkan true false) enable_vulkan=$(usex vulkan true false)"
-	fi
+	myconf_gn+=" angle_enable_vulkan=$(usex vulkan true false) angle_enable_vulkan_validation_layers=$(usex vulkan true false) angle_shared_libvulkan=$(usex vulkan true false) enable_vulkan=$(usex vulkan true false)"
 	myconf_gn+=" enable_media_remoting=false enable_media_remoting_rpc=false enable_native_notifications=true enable_openscreen=false enable_reading_list=false enable_remoting=false enable_reporting=false enable_vr=false"
 	myconf_gn+=" gtk_version=3 has_native_accessibility=false is_chrome_branded=false"
 	myconf_gn+=" disable_histogram_support=true enable_background_contents=false enable_background_mode=false enable_mdns=true use_aura=true use_base_test_suite=false use_dawn=true use_dbus=true use_egl=false use_xkbcommon=true"
@@ -562,7 +560,6 @@ src_configure() {
 			filter-flags -mno-mmx -mno-sse2 -mno-ssse3 -mno-sse4.1 -mno-avx -mno-avx2
 		fi
 	fi
-	replace-flags "-DVK_USE_PLATFORM_XCB_KHR" "-DVK_USE_PLATFORM_WAYLAND_KHR"
 
 	if [[ $myarch = amd64 ]] ; then
 		myconf_gn+=" target_cpu=\"x64\""
