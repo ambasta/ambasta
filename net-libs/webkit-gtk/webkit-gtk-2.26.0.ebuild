@@ -236,6 +236,7 @@ src_configure() {
 		-DUSE_OPENJPEG=$(usex jpeg2k)
 		-DUSE_WOFF2=ON
 		-DENABLE_BUBBLEWRAP_SANDBOX=OFF
+		-DENABLE_MEDIA_SOURCE=OFF
 		-DENABLE_PLUGIN_PROCESS_GTK2=$(usex nsplugin)
 		-DENABLE_SPELLCHECK=$(usex spell)
 		-DENABLE_WAYLAND_TARGET=$(usex wayland)
