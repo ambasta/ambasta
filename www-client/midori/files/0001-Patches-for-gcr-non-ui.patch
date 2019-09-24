@@ -1,36 +1,38 @@
-From aba0831e15feb7870639fe174301d8ebbd43853f Mon Sep 17 00:00:00 2001
+From cc98d5322eac0450266ab6a2aef234471023a25b Mon Sep 17 00:00:00 2001
 From: Amit Prakash Ambasta <amit.prakash.ambasta@gmail.com>
-Date: Mon, 12 Aug 2019 18:42:33 +0530
-Subject: [PATCH] Patches for gcr non-ui
+Date: Tue, 24 Sep 2019 12:22:33 +0530
+Subject: [PATCH] Patches for gcr-non-ui
 
 ---
  CMakeLists.txt   | 4 ++--
- core/urlbar.vala | 8 ++++----
- 2 files changed, 6 insertions(+), 6 deletions(-)
+ core/urlbar.vala | 6 +++---
+ 2 files changed, 5 insertions(+), 5 deletions(-)
 
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index 635d958..6a01f0b 100644
+index 8e72f08..6af336c 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
-@@ -54,10 +54,10 @@ set(PKGS sqlite3 gio-2.0 libsoup-2.4)
+@@ -53,12 +53,12 @@ set(PKGS sqlite3 gio-2.0 libsoup-2.4)
  pkg_check_modules(DEPS_GTK REQUIRED
                    gtk+-3.0>=3.12.0
                    webkit2gtk-4.0>=2.16.6
 -                  gcr-ui-3>=2.32
 +                  gcr-base-3>=2.32
                    libpeas-gtk-1.0
+                   json-glib-1.0>=0.12
+                   libarchive
                    )
--set(PKGS ${PKGS} gtk+-3.0 libsoup-2.4 gcr-ui-3 libpeas-gtk-1.0)
-+set(PKGS ${PKGS} gtk+-3.0 libsoup-2.4 gcr-3 libpeas-gtk-1.0)
+-set(PKGS ${PKGS} gtk+-3.0 libsoup-2.4 gcr-ui-3 libpeas-gtk-1.0 json-glib-1.0 posix)
++set(PKGS ${PKGS} gtk+-3.0 libsoup-2.4 gcr-3 libpeas-gtk-1.0 json-glib-1.0 posix)
  set(EXTRA_VAPIS
      ${CMAKE_SOURCE_DIR}/vapi/config.vapi
-     ${CMAKE_SOURCE_DIR}/vapi/webkit2gtk-4.0.vapi
+     ${CMAKE_SOURCE_DIR}/vapi/libarchive.vapi
 diff --git a/core/urlbar.vala b/core/urlbar.vala
-index aaf1171..0cec194 100644
+index 5f4e866..4bc8a45 100644
 --- a/core/urlbar.vala
 +++ b/core/urlbar.vala
-@@ -44,7 +44,7 @@ namespace Midori {
-         Gtk.Box security_box;
+@@ -46,7 +46,7 @@ namespace Midori {
+         Gtk.Button trust;
          [GtkChild]
          Gtk.Label security_status;
 -        Gcr.CertificateWidget? details = null;
@@ -38,29 +40,24 @@ index aaf1171..0cec194 100644
  
          construct {
              size_allocate.connect (resize);
-@@ -291,7 +291,7 @@ namespace Midori {
-             TlsCertificateFlags flags;
-             ((Browser)get_toplevel ()).tab.get_tls_info (out tls, out flags);
+@@ -301,7 +301,7 @@ namespace Midori {
+         void icon_pressed (Gtk.EntryIconPosition position, Gdk.Event event) {
+             var tls = ((Browser)get_toplevel ()).tab.tls;
              var certificate = tls != null ? new Gcr.SimpleCertificate (tls.certificate.data) : null;
 -            if (details == null) {
-+            /*if (details == null) {
++            /* if (details == null) {
                  var icon_area = get_icon_area (position);
                  security.relative_to = this;
                  security.pointing_to = icon_area;
-@@ -307,11 +307,11 @@ namespace Midori {
-                 });
- 
-                 // Insert widget here because Gtk.Builder won't recognize the type
--                details = new Gcr.CertificateWidget (null);
-+                // details = new Gcr.CertificateWidget (null);
-                 security_box.add (details);
+@@ -328,7 +328,7 @@ namespace Midori {
              }
              details.visible = tls != null;
+             trust.visible = tls != null && !secure;
 -            details.certificate = certificate;
-+            details.certificate = certificate;*/
++            details.certificate = certificate; */
              security_status.visible = !secure;
              security.show ();
          }
 -- 
-2.22.0
+2.23.0
 
