@@ -5,8 +5,7 @@ EAPI=6
 MOZ_ESR=0
 
 # Can be updated using scripts/get_langs.sh from mozilla overlay
-# Missing when bumped : be
-MOZ_LANGS=( en-US )
+MOZ_LANGS=(en-US )
 
 # Convert the ebuild version to the upstream mozilla version, used by mozlinguas
 MOZ_PV="${PV/_beta/b}" # Handle beta for SRC_URI
@@ -20,7 +19,7 @@ MOZ_P="${MOZ_PN}-${MOZ_PV}"
 
 MOZ_HTTP_URI="https://archive.mozilla.org/pub/mozilla.org/${MOZ_PN}/releases/"
 
-inherit eutils pax-utils xdg-utils gnome2-utils mozlinguas-v2 nsplugins
+inherit mozlinguas-v2 nsplugins pax-utils xdg-utils
 
 DESCRIPTION="Firefox Web Browser"
 SRC_URI="${SRC_URI}
@@ -41,12 +40,20 @@ RDEPEND="dev-libs/atk
 	>=dev-libs/glib-2.26:2
 	media-libs/fontconfig
 	>=media-libs/freetype-2.4.10
-	>=x11-libs/cairo-1.10
+	>=x11-libs/cairo-1.10[X]
 	x11-libs/gdk-pixbuf
 	>=x11-libs/gtk+-3.4.0:3
+	x11-libs/libX11
+	x11-libs/libXcomposite
+	x11-libs/libXdamage
+	x11-libs/libXext
+	x11-libs/libXfixes
+	x11-libs/libXrender
+	x11-libs/libXt
 	>=x11-libs/pango-1.22.0
 	virtual/freedesktop-icon-theme
-	pulseaudio? ( media-sound/pulseaudio )
+	pulseaudio? ( !<media-sound/apulse-0.1.9
+		|| ( media-sound/pulseaudio media-sound/apulse ) )
 	ffmpeg? ( media-video/ffmpeg )
 	selinux? ( sec-policy/selinux-mozilla )
 "
@@ -141,10 +148,6 @@ src_install() {
 	pax-mark mr "${ED}"${MOZILLA_FIVE_HOME}/{firefox,firefox-bin,plugin-container}
 }
 
-pkg_preinst() {
-	gnome2_icon_savelist
-}
-
 pkg_postinst() {
 	if ! has_version 'gnome-base/gconf' || ! has_version 'gnome-base/orbit' \
 		|| ! has_version 'net-misc/curl'; then
@@ -158,9 +161,9 @@ pkg_postinst() {
 
 	# Update mimedb for the new .desktop file
 	xdg_desktop_database_update
-	gnome2_icon_cache_update
+	xdg_icon_cache_update
 }
 
 pkg_postrm() {
-	gnome2_icon_cache_update
+	xdg_icon_cache_update
 }
