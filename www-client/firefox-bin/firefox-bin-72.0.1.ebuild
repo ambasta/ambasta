@@ -1,4 +1,4 @@
-# Copyright 1999-2019 Gentoo Authors
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
@@ -19,7 +19,7 @@ MOZ_P="${MOZ_PN}-${MOZ_PV}"
 
 MOZ_HTTP_URI="https://archive.mozilla.org/pub/mozilla.org/${MOZ_PN}/releases/"
 
-inherit mozlinguas-v2 nsplugins pax-utils xdg-utils
+inherit mozlinguas-v2 nsplugins pax-utils xdg-utils eapi7-ver
 
 DESCRIPTION="Firefox Web Browser"
 SRC_URI="${SRC_URI}
@@ -92,7 +92,7 @@ src_install() {
 	# Install icons and .desktop for menu entry
 	for size in ${sizes}; do
 		insinto "/usr/share/icons/hicolor/${size}x${size}/apps"
-		newins "${icon_path}/default${size}.png" "${icon}.png" || die
+		newins "${icon_path}/default${size}.png" "${icon}.png"
 	done
 	# Install a 48x48 icon into /usr/share/pixmaps for legacy DEs
 	newicon "${S}"/browser/chrome/icons/default/default48.png ${PN}.png
@@ -117,7 +117,7 @@ src_install() {
 	insinto ${MOZILLA_FIVE_HOME}/defaults/pref/
 	doins "${FILESDIR}"/local-settings.js
 	insinto ${MOZILLA_FIVE_HOME}
-	newins "${FILESDIR}"/all-gentoo-2.js all-gentoo.js
+	newins "${FILESDIR}"/all-gentoo-3.js all-gentoo.js
 
 	# Install language packs
 	MOZEXTENSION_TARGET="distribution/extensions" \
@@ -139,7 +139,7 @@ src_install() {
 	# revdep-rebuild entry
 	insinto /etc/revdep-rebuild
 	echo "SEARCH_DIRS_MASK=${MOZILLA_FIVE_HOME}" >> ${T}/10${PN}
-	doins "${T}"/10${PN} || die
+	doins "${T}"/10${PN}
 
 	# Plugins dir, still used for flash
 	share_plugins_dir
@@ -149,6 +149,10 @@ src_install() {
 }
 
 pkg_postinst() {
+	# Update mimedb for the new .desktop file
+	xdg_desktop_database_update
+	xdg_icon_cache_update
+
 	if ! has_version 'gnome-base/gconf' || ! has_version 'gnome-base/orbit' \
 		|| ! has_version 'net-misc/curl'; then
 		einfo
@@ -156,12 +160,35 @@ pkg_postinst() {
 		einfo "gnome-base/orbit and net-misc/curl emerged."
 		einfo
 	fi
+
 	use ffmpeg || ewarn "USE=-ffmpeg : HTML5 video will not render without media-video/ffmpeg installed"
 	use pulseaudio || ewarn "USE=-pulseaudio : audio will not play without pulseaudio installed"
 
-	# Update mimedb for the new .desktop file
-	xdg_desktop_database_update
-	xdg_icon_cache_update
+	local show_doh_information
+
+	if [[ -z "${REPLACING_VERSIONS}" ]] ; then
+		# New install; Tell user that DoH is disabled by default
+		show_doh_information=yes
+	else
+		local replacing_version
+		for replacing_version in ${REPLACING_VERSIONS} ; do
+			if ver_test "${replacing_version}" -lt 70 ; then
+				# Tell user only once about our DoH default
+				show_doh_information=yes
+				break
+			fi
+		done
+	fi
+
+	if [[ -n "${show_doh_information}" ]] ; then
+		elog
+		elog "Note regarding Trusted Recursive Resolver aka DNS-over-HTTPS (DoH):"
+		elog "Due to privacy concerns (encrypting DNS might be a good thing, sending all"
+		elog "DNS traffic to Cloudflare by default is not a good idea and applications"
+		elog "should respect OS configured settings), \"network.trr.mode\" was set to 5"
+		elog "(\"Off by choice\") by default."
+		elog "You can enable DNS-over-HTTPS in ${PN^}'s preferences."
+	fi
 }
 
 pkg_postrm() {
