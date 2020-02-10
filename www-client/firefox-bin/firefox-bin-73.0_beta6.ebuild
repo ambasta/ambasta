@@ -40,7 +40,7 @@ RDEPEND="dev-libs/atk
 	>=dev-libs/glib-2.26:2
 	media-libs/fontconfig
 	>=media-libs/freetype-2.4.10
-	>=x11-libs/cairo-1.10[X]
+	>=x11-libs/cairo-1.10
 	x11-libs/gdk-pixbuf
 	>=x11-libs/gtk+-3.4.0:3
 	x11-libs/libX11
