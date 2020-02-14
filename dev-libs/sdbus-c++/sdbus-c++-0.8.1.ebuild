@@ -9,7 +9,7 @@ DESCRIPTION="High-level C++ D-Bus library for Linux designed to provide easy-to-
 HOMEPAGE="https://github.com/Kistler-Group/sdbus-cpp"
 SRC_URI="https://github.com/Kistler-Group/sdbus-cpp/archive/v${PV}.tar.gz"
 
-LICENSE=""LGPLv2.1
+LICENSE="LGPL-2.1"
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
 IUSE="doc systemd test"
