@@ -24,6 +24,7 @@ S="${WORKDIR}/sdbus-cpp-${PV}"
 
 src_configure() {
 	local mycmakeargs=(
+		-DBUILD_CODE_GEN=ON
 		-DBUILD_DOC=$(usex doc)
 		-DBUILD_LIBSYSTEMD=$(usex !systemd)
 		-DBUILD_TESTS=$(usex test)
