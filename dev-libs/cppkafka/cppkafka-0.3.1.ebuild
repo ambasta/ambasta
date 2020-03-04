@@ -21,6 +21,8 @@ DEPEND="
 RDEPEND="${DEPEND}"
 BDEPEND=""
 
+PATCHES="${FILESDIR}/0001-Respect-gnuinstalldirs.patch"
+
 src_configure() {
 	local mycmakeargs=(
 		-DCPPKAFKA_DISABLE_TESTS=$(usex !tests)
