@@ -32,7 +32,7 @@ DEPEND="
 	)
 "
 
-S="${WORKDIR}/${MY_PV}"
+S="${WORKDIR}/${MY_P}"
 
 PATCHES=(
 	"${FILESDIR}"/cmake-components.patch
