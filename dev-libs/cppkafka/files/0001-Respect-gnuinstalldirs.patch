@@ -1,18 +1,18 @@
-From c141649312aa9fd4de769c50f18ee9c97d752751 Mon Sep 17 00:00:00 2001
+From 155b692a9638dda2749978e73609b3bcae3a82a3 Mon Sep 17 00:00:00 2001
 From: Amit Prakash Ambasta <amit.prakash.ambasta@gmail.com>
 Date: Wed, 4 Mar 2020 11:38:49 +0530
 Subject: [PATCH] Respect gnuinstalldirs
 
 ---
- CMakeLists.txt     | 139 ++++++++++++++++++++++++---------------------
+ CMakeLists.txt     | 143 +++++++++++++++++++++++----------------------
  src/CMakeLists.txt |  27 ++++-----
- 2 files changed, 85 insertions(+), 81 deletions(-)
+ 2 files changed, 85 insertions(+), 85 deletions(-)
 
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index ba03695..252c07a 100644
+index ba03695..f0b51fc 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
-@@ -5,20 +5,30 @@ project(cppkafka)
+@@ -5,27 +5,33 @@ project(cppkafka)
  set(CPPKAFKA_VERSION_MAJOR 0)
  set(CPPKAFKA_VERSION_MINOR 3)
  set(CPPKAFKA_VERSION_REVISION 1)
@@ -53,7 +53,14 @@ index ba03695..252c07a 100644
  endif()
  set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake/")
  
-@@ -36,91 +46,88 @@ option(CPPKAFKA_BOOST_USE_MULTITHREADED "Use Boost multithreaded libraries." ON)
+-# Set output directories
+-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/lib)
+-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/lib)
+-
+ # Build output checks
+ option(CPPKAFKA_CMAKE_VERBOSE "Generate verbose output." OFF)
+ option(CPPKAFKA_BUILD_SHARED "Build cppkafka as a shared library." ON)
+@@ -36,91 +42,88 @@ option(CPPKAFKA_BOOST_USE_MULTITHREADED "Use Boost multithreaded libraries." ON)
  option(CPPKAFKA_RDKAFKA_STATIC_LIB "Link with Rdkafka static library." OFF)
  
  # Disable output from find_package macro
