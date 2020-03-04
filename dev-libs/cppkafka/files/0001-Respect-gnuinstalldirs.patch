@@ -1,18 +1,18 @@
-From 8be2c48197254837ef04dfa156baa31de37aad73 Mon Sep 17 00:00:00 2001
+From c141649312aa9fd4de769c50f18ee9c97d752751 Mon Sep 17 00:00:00 2001
 From: Amit Prakash Ambasta <amit.prakash.ambasta@gmail.com>
 Date: Wed, 4 Mar 2020 11:38:49 +0530
 Subject: [PATCH] Respect gnuinstalldirs
 
 ---
- CMakeLists.txt     | 138 +++++++++++++++++++++++----------------------
+ CMakeLists.txt     | 139 ++++++++++++++++++++++++---------------------
  src/CMakeLists.txt |  27 ++++-----
- 2 files changed, 84 insertions(+), 81 deletions(-)
+ 2 files changed, 85 insertions(+), 81 deletions(-)
 
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index ba03695..476de38 100644
+index ba03695..252c07a 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
-@@ -5,20 +5,29 @@ project(cppkafka)
+@@ -5,20 +5,30 @@ project(cppkafka)
  set(CPPKAFKA_VERSION_MAJOR 0)
  set(CPPKAFKA_VERSION_MINOR 3)
  set(CPPKAFKA_VERSION_REVISION 1)
@@ -23,11 +23,12 @@ index ba03695..476de38 100644
 +  )
  set(RDKAFKA_MIN_VERSION 0x00090400)
  
-+set(CMAKE_INSTALL_LIBDIR "lib")
++set(LIBDIR "dlib")
 +
-+if(LINUX)
++if(NOT WIN32 AND NOT APPLE)
 +  include(GNUInstallDirs)
-+endif(LINUX)
++  set(LIBDIR ${CMAKE_INSTALL_LIBDIR})
++endif(NOT WIN32 AND NOT APPLE)
 +
  if(MSVC)
 -    # Don't always use Wall, since VC's /Wall is ridiculously verbose.
@@ -52,7 +53,7 @@ index ba03695..476de38 100644
  endif()
  set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake/")
  
-@@ -36,91 +45,88 @@ option(CPPKAFKA_BOOST_USE_MULTITHREADED "Use Boost multithreaded libraries." ON)
+@@ -36,91 +46,88 @@ option(CPPKAFKA_BOOST_USE_MULTITHREADED "Use Boost multithreaded libraries." ON)
  option(CPPKAFKA_RDKAFKA_STATIC_LIB "Link with Rdkafka static library." OFF)
  
  # Disable output from find_package macro
@@ -198,7 +199,7 @@ index ba03695..476de38 100644
 +                            ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake)
  endif()
 diff --git a/src/CMakeLists.txt b/src/CMakeLists.txt
-index 5d31078..e78b583 100644
+index 5d31078..b21756c 100644
 --- a/src/CMakeLists.txt
 +++ b/src/CMakeLists.txt
 @@ -15,35 +15,32 @@ set(SOURCES
@@ -247,8 +248,8 @@ index 5d31078..e78b583 100644
 -    COMPONENT dev
 -)
 +install(TARGETS cppkafka
-+        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-+        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT dev)
++        LIBRARY DESTINATION ${LIBDIR}
++        ARCHIVE DESTINATION ${LIBDIR} COMPONENT dev)
 -- 
 2.25.1
 
