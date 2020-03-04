@@ -7,7 +7,10 @@ inherit cmake-utils
 
 DESCRIPTION="Modern C++ Apache Kafka client library (wrapper for librdkafka)"
 HOMEPAGE="https://github.com/mfontanini/cppkafka"
-SRC_URI="https://github.com/mfontanini/cppkafka/archive/v${PV}.tar.gz -> ${P}.tar.gz"
+MY_PV="7d097df34dd678c4dfdc1ad07027af13f5635863"
+MY_P="${PN}-${MY_PV}"
+
+SRC_URI="https://github.com/mfontanini/${PN}/archive/${MY_PV}.zip -> ${MY_P}.zip"
 
 LICENSE="GPL-3"
 SLOT="0"
@@ -21,9 +24,7 @@ DEPEND="
 RDEPEND="${DEPEND}"
 BDEPEND=""
 
-PATCHES=(
-	"${FILESDIR}/0001-Respect-gnuinstalldirs.patch"
-)
+S="${WORKDIR}/${MY_P}"
 
 src_configure() {
 	local mycmakeargs=(
