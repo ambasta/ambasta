@@ -5,17 +5,11 @@ EAPI=7
 PYTHON_COMPAT=( python3_{6,7,8} )
 DISTUTILS_USE_SETUPTOOLS="rdepend"
 
-MY_PV=""
-MY_PV="${PN}-${MY_PV}"
+MY_PV="58db8d5e1134e3917b2fb20403624ac090f1f604"
+MY_P="${PN}-${MY_PV}"
 
-if [[ ${PV} = *9999* ]]; then
-	EGIT_REPO_URI="https://github.com/mesonbuild/meson"
-	inherit git-r3
-else
-	SRC_URI="mirror://pypi/${PN:0:1}/${PN}/${P}.tar.gz"
-	SRC_URI="https://github.com/mesonbuild/${PN}/archive/${PV}.zip -> ${MY_P}.zip"
-	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sh ~sparc ~x86 ~x64-cygwin ~amd64-linux ~x86-linux ~x64-macos ~x64-solaris"
-fi
+SRC_URI="https://github.com/mesonbuild/${PN}/archive/${MY_PV}.zip -> ${MY_P}.zip"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sh ~sparc ~x86 ~x64-cygwin ~amd64-linux ~x86-linux ~x64-macos ~x64-solaris"
 
 inherit distutils-r1 toolchain-funcs
 
