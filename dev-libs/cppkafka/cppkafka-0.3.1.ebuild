@@ -9,7 +9,7 @@ DESCRIPTION="Modern C++ Apache Kafka client library (wrapper for librdkafka)"
 HOMEPAGE="https://github.com/mfontanini/cppkafka"
 SRC_URI="https://github.com/mfontanini/cppkafka/archive/v${PV}.tar.gz"
 
-LICENSE="GPL-v3"
+LICENSE="GPL-3"
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
 
