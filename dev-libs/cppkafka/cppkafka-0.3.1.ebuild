@@ -21,7 +21,9 @@ DEPEND="
 RDEPEND="${DEPEND}"
 BDEPEND=""
 
-PATCHES="${FILESDIR}/0001-Respect-gnuinstalldirs.patch"
+PATCHES=(
+	"${FILESDIR}/0001-Respect-gnuinstalldirs.patch"
+)
 
 src_configure() {
 	local mycmakeargs=(
