@@ -30,7 +30,7 @@ src_configure() {
 	local mycmakeargs=(
 		-DCPPKAFKA_DISABLE_TESTS=$(usex !tests)
 		-DCPPKAFKA_DISABLE_EXAMPLES=$(usex !examples)
-		-DENABLE_STATIC=$(usex static-libs)
+		-DCPPKAFKA_BUILD_SHARED=$(usex static-libs)
 		-DCPPKAFKA_BOOST_USE_MULTITHREADED=$(usex boost)
 	)
 	cmake-utils_src_configure
