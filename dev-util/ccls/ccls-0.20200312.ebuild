@@ -13,6 +13,7 @@ DESCRIPTION="C/C++/ObjC language server"
 HOMEPAGE="https://github.com/MaskRay/ccls"
 
 SRC_URI=""
+KEYWORDS="~amd64"
 
 LICENSE="Apache-2.0"
 SLOT="0"
