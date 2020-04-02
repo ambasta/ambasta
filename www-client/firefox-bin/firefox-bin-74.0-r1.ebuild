@@ -131,7 +131,7 @@ src_install() {
 		startup_notify="true"
 	fi
 
-	local display_protocols="auto X11" use_wayland="false"
+	local display_protocols="auto" use_wayland="false"
 	if use wayland ; then
 		display_protocols+=" Wayland"
 		use_wayland="true"
@@ -146,16 +146,6 @@ src_install() {
 			Wayland)
 				exec_command="${PN}-wayland --name ${PN}-wayland"
 				newbin "${FILESDIR}"/firefox-bin-wayland.sh ${PN}-wayland
-				;;
-			X11)
-				if ! use wayland ; then
-					# Exit loop here because there's no choice so
-					# we don't need wrapper/.desktop file for X11.
-					continue
-				fi
-
-				exec_command="${PN}-x11 --name ${PN}-x11"
-				newbin "${FILESDIR}"/firefox-bin-x11.sh ${PN}-x11
 				;;
 			*)
 				app_name="${name}"
