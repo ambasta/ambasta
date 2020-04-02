@@ -125,14 +125,6 @@ src_install() {
 		patchelf --set-rpath "${apulselib}" "${ED%/}"${MOZILLA_FIVE_HOME}/libxul.so || die
 	fi
 
-	# Install icons and .desktop for menu entry
-	for size in ${sizes} ; do
-		insinto "/usr/share/icons/hicolor/${size}x${size}/apps"
-		newins "${icon_path}/default${size}.png" "${icon}.png"
-	done
-	# Install a 48x48 icon into /usr/share/pixmaps for legacy DEs
-	newicon ${MOZILLA_FIVE_HOME}/browser/chrome/icons/default/default48.png ${PN}.png
-
 	# Add StartupNotify=true bug 237317
 	local startup_notify="false"
 	if use startup-notification ; then
@@ -177,7 +169,7 @@ src_install() {
 			-e "s:@NAME@:${app_name}:" \
 			-e "s:@EXEC@:${exec_command}:" \
 			-e "s:@ICON@:${icon}:" \
-			-e "s:@STARTUP_NOTIFY@:${startup_notify}:" \
+
 			"${ED%/}/usr/share/applications/${desktop_filename}" || die
 	done
 
