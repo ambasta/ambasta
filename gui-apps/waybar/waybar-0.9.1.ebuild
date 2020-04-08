@@ -12,7 +12,7 @@ if [[ ${PV} == 9999 ]]; then
 	inherit git-r3
 	EGIT_REPO_URI="https://github.com/Alexays/${PN^}.git"
 else
-	SRC_URI="https://github.com/Alexays/${PN^}/archive/${PV}.tar.gz -> ${P}.tar.gz"
+	SRC_URI="https://github.com/Alexays/${PN^}/archive/${PV}.tar.bz2 -> ${P}.tar.bz2"
 	KEYWORDS="~amd64"
 fi
 
