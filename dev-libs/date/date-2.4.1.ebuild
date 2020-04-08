@@ -25,5 +25,3 @@ DEPEND="
 	virtual/libstdc++"
 RDEPEND="${DEPEND}"
 BDEPEND=""
-
-S="${WORKDIR}/${MY_P}"
