@@ -35,6 +35,7 @@ DEPEND="
 	>=dev-libs/spdlog-1.3.1:=
 	dev-libs/wayland
 	dev-libs/wayland-protocols
+	gui-libs/gtk-layer-shell
 	gui-libs/wlroots
 	mpd? ( media-libs/libmpdclient )
 	network? ( dev-libs/libnl:3 )
