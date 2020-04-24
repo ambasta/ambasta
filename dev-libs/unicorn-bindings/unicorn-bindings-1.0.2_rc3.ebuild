@@ -36,14 +36,7 @@ src_prepare(){
 	#do not compile C extensions
 	export LIBUNICORN_PATH=1
 
-#	use go || sed -i -e '/go gen_const/d' Makefile
-#	use java || sed -i -e '/java gen_const/d' Makefile
-#	use python || sed -i -e '/python gen_const/d' Makefile
-#	use ruby || sed -i -e '/ruby gen_const/d' Makefile
-
 	sed -i -e '/const_generator.py dotnet/d' Makefile
-	#fix python2 install
-	sed -i "s|python setup.py install|python2 setup.py install|" python/Makefile || die
 	eapply_user
 }
 
@@ -54,11 +47,7 @@ src_compile(){
 src_install(){
 	if use python; then
 		myinstall_python() {
-			if python_is_python3; then
-				emake -C python DESTDIR="${D}" install3
-			else
-				emake -C python DESTDIR="${D}" install
-			fi
+			emake -C python DESTDIR="${D}" install3
 			python_optimize
 		}
 		python_foreach_impl myinstall_python

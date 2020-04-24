@@ -48,12 +48,9 @@ src_configure(){
 
 src_compile() {
 	export CC INSTALL_BIN PREFIX PKGCFGDIR LIBDIRARCH LIBARCHS CFLAGS LDFLAGS
-	UNICORN_QEMU_FLAGS="--python=/usr/bin/python2" \
 		UNICORN_ARCHS="${unicorn_targets}" \
 		UNICORN_STATIC="$(use static-libs && echo yes || echo no)" \
 		emake
-	# echo $PWD
-	# UNICORN_QEMU_FLAGS="--python=/usr/bin/python2" UNICORN_ARCHS="${unicorn_targets}" UNICORN_STATIC="$(use static-libs && echo yes || echo no)" ./make.sh --python=/usr/bin/python2
 }
 
 src_install() {
