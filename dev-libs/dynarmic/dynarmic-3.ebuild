@@ -33,6 +33,7 @@ src_configure() {
 		-DDYNARMIC_SKIP_EXTERNALS=ON
 		-DDYNARMIC_TESTS=$(usex test)
 		-DDYNARMIC_WARNINGS_AS_ERRORS=OFF
+		-DDYNARMIC_NO_BUNDLED_FMT=ON
 	)
 	cmake-utils_src_configure
 }
