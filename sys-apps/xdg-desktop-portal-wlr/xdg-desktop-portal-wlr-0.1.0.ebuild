@@ -17,7 +17,7 @@ IUSE="systemd"
 DEPEND="
 	media-video/pipewire
 	dev-libs/wayland
-	dev-libs/wayland-protocol
+	dev-libs/wayland-protocols
 	sys-apps/xdg-desktop-portal
 	systemd? ( sys-apps/systemd )"
 RDEPEND="${DEPEND}"
