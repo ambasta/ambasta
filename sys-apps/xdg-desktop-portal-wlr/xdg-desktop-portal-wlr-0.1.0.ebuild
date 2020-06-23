@@ -14,8 +14,16 @@ SLOT="0"
 KEYWORDS="~amd64 ~x86"
 IUSE="systemd"
 
-DEPEND="sys-apps/xdg-desktop-portal"
+DEPEND="
+	media-video/pipewire
+	dev-libs/wayland
+	dev-libs/wayland-protocol
+	sys-apps/xdg-desktop-portal
+	systemd? ( sys-apps/systemd )"
 RDEPEND="${DEPEND}"
+BDEPEND="
+	virtual/pkgconfig
+	sys-devel/gettext"
 
 src_prepare() {
 	xdg_src_prepare
