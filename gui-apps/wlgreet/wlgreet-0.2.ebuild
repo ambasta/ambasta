@@ -105,7 +105,6 @@ src_configure() {
 		CXX=${CHOST}-g++
 		strip-unsupported-flags
 	fi
-	cargo_src_configure
 }
 
 src_compile() {
