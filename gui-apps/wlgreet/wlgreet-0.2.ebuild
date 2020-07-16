@@ -89,12 +89,11 @@ BDEPEND="
 		sys-devel/llvm
 	)
 "
-DEPEND="${BDEPEND}"
-
-RDEPEND="
+DEPEND="${BDEPEND}
 	>=gui-libs/greetd-0.6.1
 	>=dev-libs/wayland-protocols-1.20
 "
+
 src_configure() {
 	if use clang && ! tc-is-clang ; then
 		CC=${CHOST}-clang
