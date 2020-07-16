@@ -77,7 +77,7 @@ SRC_URI="
 	$(cargo_crate_uris ${CRATES})
 "
 RESTRICT="mirror"
-LICENSE="GPL-3.0"
+LICENSE="GPL-3"
 SLOT="0"
 KEYWORDS="~amd64"
 IUSE="+clang"
