@@ -29,6 +29,7 @@ RDEPEND="${DEPEND}"
 src_configure() {
 	local mycmakeargs=(
 		-DUSE_SYSTEM_RAPIDJSON=ON
+		-DCLANG_LINK_CLANG_DYLIB=ON
 	)
 	cmake_src_configure
 }
