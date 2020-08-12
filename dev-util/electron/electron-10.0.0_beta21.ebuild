@@ -11,15 +11,16 @@ CHROMIUM_LANGS="am ar bg bn ca cs da de el en-GB es es-419 et fa fi fil fr gu he
 
 inherit check-reqs chromium-2 flag-o-matic multilib ninja-utils pax-utils portability python-any-r1 toolchain-funcs
 
-CHROMIUM_VERSION="85.0.4183.48"
+CHROMIUM_VERSION="85.0.4183.59"
 CHROMIUM_P="chromium-${CHROMIUM_VERSION}"
 NODE_VERSION="12.14.1"
+MY_P="${PN}-10.0.0-beta.21"
 
 DESCRIPTION="Cross platform application development framework based on web technologies"
 HOMEPAGE="https://electronjs.org/"
 SRC_URI="
 	https://commondatastorage.googleapis.com/chromium-browser-official/${CHROMIUM_P}.tar.xz
-	https://github.com/electron/electron/archive/v10.0.0-beta.17.tar.gz -> ${P}.tar.gz
+	https://github.com/electron/electron/archive/v10.0.0-beta.21.tar.gz -> ${P}.tar.gz
 
 	https://registry.yarnpkg.com/@electron/docs-parser/-/docs-parser-0.7.2.tgz -> @electron-docs-parser-0.7.2.tgz
 	https://registry.yarnpkg.com/@electron/typescript-definitions/-/typescript-definitions-8.7.2.tgz -> @electron-typescript-definitions-8.7.2.tgz
@@ -225,29 +226,10 @@ BDEPEND="
 	sys-apps/yarn
 "
 
-PATCHES=(
-	"${FILESDIR}/chromium-fix-char_traits.patch"
-	"${FILESDIR}/chromium-blink-style_format.patch"
-	"${FILESDIR}/chromium-78-protobuf-export.patch"
-	"${FILESDIR}/chromium-79-gcc-alignas.patch"
-	"${FILESDIR}/chromium-80-gcc-quiche.patch"
-	"${FILESDIR}/chromium-82-gcc-noexcept.patch"
-	"${FILESDIR}/chromium-82-gcc-incomplete-type.patch"
-	"${FILESDIR}/chromium-82-gcc-template.patch"
-	"${FILESDIR}/chromium-82-gcc-iterator.patch"
-	"${FILESDIR}/chromium-83-gcc-template.patch"
-	"${FILESDIR}/chromium-83-gcc-include.patch"
-	"${FILESDIR}/chromium-83-gcc-permissive.patch"
-	"${FILESDIR}/chromium-83-gcc-iterator.patch"
-	"${FILESDIR}/chromium-83-gcc-serviceworker.patch"
-	"${FILESDIR}/chromium-83-gcc-10.patch"
-	"${FILESDIR}/chromium-83-icu67.patch"
-	"${FILESDIR}/chromium-81-re2-0.2020.05.01.patch"
-
-	"${FILESDIR}/chromium-system-fix-shim-headers-r0.patch"
-)
-
 S="${WORKDIR}/${CHROMIUM_P}"
+PATCHES=(
+	"${FILESDIR}/chromium-84-mediaalloc.patch"
+)
 
 pre_build_checks() {
 	if [[ ${MERGE_TYPE} != binary ]]; then
@@ -286,10 +268,8 @@ src_unpack() {
 	unpack "${P}".tar.gz
 
 	einfo "Disabling dugite"
-	sed -i '/dugite/d' "${WORKDIR}/${P}/package.json" || die
+	sed -i '/dugite/d' "${WORKDIR}/${MY_P}/package.json" || die
 
-	pushd "${WORKDIR}/${NODE_P}" > /dev/null || die
-	eapply "${FILESDIR}/openssl_fips.patch" || die
 	popd > /dev/null || die
 }
 
@@ -299,34 +279,13 @@ src_prepare() {
 
 	default
 
-	ln -s "${WORKDIR}/${P}" electron || die
-
-	use custom-cflags && eapply "${FILESDIR}/chromium-compiler-r12.patch"
-
-	use system-ffmpeg && eapply "${FILESDIR}/chromium-84-mediaalloc.patch"
-
-	if use system-icu
-	then
-		eapply "${FILESDIR}/chromium-system-icu.patch"
-	fi
-
-	use system-jsoncpp && eapply "${FILESDIR}/chromium-system-jsoncpp-r1.patch"
-
-	if use system-libvpx
-	then
-		eapply "${FILESDIR}/chromium-system-vpx-r1.patch"
-		has_version "=media-libs/libvpx-1.7*" && eapply "${FILESDIR}/chromium-vpx-1.7-compatibility-r3.patch"
-	fi
-
-	use system-openjpeg && eapply "${FILESDIR}/chromium-system-openjpeg-r2.patch"
+	ln -s "${WORKDIR}/${MY_P}" electron || die
 
 	if use vaapi
 	then
 		elog "Even though ${PN} is built with vaapi support, #ignore-gpu-blacklist"
 		elog "should be enabled via flags or commandline for it to work."
 	fi
-
-	use vdpau && eapply "${FILESDIR}/vdpau-support.patch"
 
 	declare -A patches=(
 		["electron/patches/chromium"]="."
@@ -940,7 +899,6 @@ src_install() {
 	#	doins out/Release/swiftshader/*.so
 	#fi
 
-	doins -r "${WORKDIR}/${NODE_P}/deps/npm"
 	fperms -R 755 "${CHROMIUM_HOME}/npm/bin/"
 
 	insinto "/usr/include/electron-${PV}/"
