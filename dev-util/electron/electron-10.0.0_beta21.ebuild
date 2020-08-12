@@ -120,7 +120,6 @@ REQUIRED_USE="
 "
 
 COMMON_DEPEND="
-	app-eselect/eselect-electron
 	>=app-accessibility/at-spi2-atk-2.26:2
 	app-arch/bzip2:=
 	cups? ( >=net-print/cups-1.3.11:= )
