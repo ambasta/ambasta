@@ -268,8 +268,6 @@ src_unpack() {
 
 	einfo "Disabling dugite"
 	sed -i '/dugite/d' "${WORKDIR}/${MY_P}/package.json" || die
-
-	popd > /dev/null || die
 }
 
 src_prepare() {
