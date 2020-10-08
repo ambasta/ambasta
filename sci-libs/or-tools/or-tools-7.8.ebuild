@@ -7,7 +7,8 @@ inherit cmake-utils
 
 DESCRIPTION="Google's Operations Research tools"
 HOMEPAGE="https://developers.google.com/optimization/"
-SRC_URI="https://github.com/google/or-tools/archive/v${PV}.tar.gz"
+SRC_URI="https://github.com/google/${PN}/archive/v${PV}.tar.gz -> ${P}.tar.gz"
+SRC_URI="https://github.com/google/${PN}/archive/v${PV}.tar.gz -> ${P}.tar.gz"
 
 LICENSE="Apache-2.0"
 SLOT="0"
@@ -31,7 +32,7 @@ src_configure() {
 		-DBUILD_CXX=ON
 		-DBUILD_SAMPLES=$(usex examples)
 		-DBUILD_EXAMPLES=$(usex examples)
-		-DBUILD_SHARED=$(usex static-libs OFF ON)
+		-DBUILD_SHARED_LIBS=$(usex static-libs OFF ON)
 		-DUSE_COINOR=$(usex coinor)
 		-DUSE_SCIP=OFF
 	)
