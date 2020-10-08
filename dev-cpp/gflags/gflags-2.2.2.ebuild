@@ -28,7 +28,6 @@ multilib_src_configure() {
 	local mycmakeargs=(
 		-DBUILD_STATIC_LIBS=$(usex static-libs)
 		-DBUILD_TESTING=$(usex test)
-		-DGFLAGS_NAMESPACE=gflags
 		# avoid installing .cmake/packages, e.g.:
 		# >>> /tmp/portage/dev-cpp/gflags-9999/homedir/.cmake/packages/gflags/a7fca4708532331c2d656af0fdc8b8b9
 		-DREGISTER_INSTALL_PREFIX=OFF
