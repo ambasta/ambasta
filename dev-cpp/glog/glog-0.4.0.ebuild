@@ -33,4 +33,16 @@ multilib_src_configure() {
 	cmake-utils_src_configure
 }
 
+multilib_src_compile() {
+	cmake-utils_src_compile
+}
 
+multilib_src_install() {
+	cmake-utils_src_install
+}
+
+multilib_src_install_all() {
+	if ! use static-libs ; then
+		find "${D}" -name "*.a" -delete || die
+	fi
+}
