@@ -24,6 +24,7 @@ RDEPEND="${DEPEND}"
 
 PATCHES=(
     "${FILESDIR}/0001-Abseil-C-17-uses-invoke_result_t-do-not-link-with-SC.patch"
+	"${FILESDIR}/0001-cmake-should-only-export-dependencies-with-which-the.patch"
 )
 
 
