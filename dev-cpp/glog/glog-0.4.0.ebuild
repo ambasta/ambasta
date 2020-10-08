@@ -22,10 +22,15 @@ DEPEND="${RDEPEND}
 	test? ( >=dev-cpp/gtest-1.8.0[${MULTILIB_USEDEP}] )"
 
 src_configure() {
+	multilib-minimal_src_configure
+}
+
+multilib_src_configure() {
 	local mycmakeargs=(
 		-DBUILD_SHARED_LIBS=$(usex static-libs OFF ON)
 		-DWITH_GFLAGS=$(usex gflags)
 	)
-
-	multilib-minimal_src_configure
+	cmake-utils_src_configure
 }
+
+
