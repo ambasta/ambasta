@@ -17,6 +17,7 @@ IUSE="coinor examples static-libs"
 
 DEPEND="dev-libs/protobuf
 	dev-cpp/glog[gflags]
+	dev-cpp/abseil-cpp
 	coinor? (
 		sci-libs/coinor-cbc
 	)"
