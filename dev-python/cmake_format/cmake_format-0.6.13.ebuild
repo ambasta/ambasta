@@ -9,7 +9,7 @@ inherit distutils-r1
 
 DESCRIPTION="Source code formatter for cmake listfiles"
 HOMEPAGE="https://github.com/cheshirekow/cmake_format"
-SRC_URI="mirror://pypi/${P:0:1}/${PN}/${P}.tar.gz"
+SRC_URI="https://github.com/cheshirekow/cmake_format/archive/v${PV}.tar.gz -> ${P}.tar.gz"
 
 LICENSE="GPL-3"
 SLOT="0"
