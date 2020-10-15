@@ -16,7 +16,12 @@ KEYWORDS="amd64 arm arm64 ~hppa ~ia64 ~mips ppc ppc64 ~s390 -sparc x86 ~amd64-li
 IUSE="gflags static-libs test"
 RESTRICT="test"
 
-RDEPEND="sys-libs/libunwind[${MULTILIB_USEDEP}]
+RDEPEND="(
+		|| (
+			>=sys-libs/libunwind-1.0.1-r1[static-libs?,${MULTILIB_USEDEP}]
+			>=sys-libs/llvm-libunwind-3.9.0-r1[static-libs?,${MULTILIB_USEDEP}]
+		)
+	)
 	gflags? ( dev-cpp/gflags[${MULTILIB_USEDEP}] )"
 DEPEND="${RDEPEND}
 	test? ( >=dev-cpp/gtest-1.8.0[${MULTILIB_USEDEP}] )"
