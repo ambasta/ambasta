@@ -1,0 +1,260 @@
+From 7daa9c96b824891d6b7bb2e793466a77f024c68c Mon Sep 17 00:00:00 2001
+From: Amit Prakash Ambasta <amit.prakash.ambasta@gmail.com>
+Date: Thu, 29 Oct 2020 13:45:59 +0530
+Subject: [PATCH] Improved CMake Structure
+
+---
+ CMakeLists.txt                                | 177 ++++++------------
+ cmake/protozeroConfig.cmake.in                |   4 +
+ .../protozero/{version.hpp => version.hpp.in} |   8 +-
+ 3 files changed, 70 insertions(+), 119 deletions(-)
+ create mode 100644 cmake/protozeroConfig.cmake.in
+ rename include/protozero/{version.hpp => version.hpp.in} (77%)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index f9702d6..5b0b255 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -9,15 +9,9 @@
+ cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
+ 
+ #-----------------------------------------------------------------------------
++cmake_policy(SET CMP0048 NEW)
+ 
+-project(protozero)
+-
+-set(PROTOZERO_VERSION_MAJOR 1)
+-set(PROTOZERO_VERSION_MINOR 7)
+-set(PROTOZERO_VERSION_PATCH 0)
+-
+-set(PROTOZERO_VERSION
+-    "${PROTOZERO_VERSION_MAJOR}.${PROTOZERO_VERSION_MINOR}.${PROTOZERO_VERSION_PATCH}")
++project(protozero VERSION 1.7.0)
+ 
+ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+ 
+@@ -26,121 +20,74 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+ option(WERROR "Add -Werror flag to build (turns warnings into errors)" ON)
+ 
+ if(MSVC)
+-    add_definitions(/W3)
+-    add_definitions(-D_CRT_SECURE_NO_WARNINGS -D_SCL_SECURE_NO_WARNINGS)
++  add_definitions(/W3)
++  add_definitions(-D_CRT_SECURE_NO_WARNINGS -D_SCL_SECURE_NO_WARNINGS)
+ else()
+-    add_definitions(-std=c++11 -Wall -Wextra -pedantic -Wsign-compare -Wunused-parameter -Wno-float-equal -Wno-covered-switch-default)
+-    if(WERROR)
+-        add_definitions(-Werror)
+-    endif()
++  add_definitions(-std=c++11 -Wall -Wextra -pedantic -Wsign-compare -Wunused-parameter -Wno-float-equal -Wno-covered-switch-default)
++  if(WERROR)
++    add_definitions(-Werror)
++  endif()
+ endif()
+ 
+-include_directories("${CMAKE_SOURCE_DIR}/include")
+-
+-set(PROTOZERO_DATA_VIEW "" CACHE STRING "Type used for protozero::data_view")
++configure_file(
++  ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/version.hpp.in
++  ${PROJECT_BINARY_DIR}/include/${PROJECT_NAME}/version.hpp
++)
++
++add_library(${PROJECT_NAME} INTERFACE)
++target_include_directories(
++  ${PROJECT_NAME}
++  INTERFACE
++  $<INSTALL_INTERFACE:include>
++  $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>
++  $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
++)
++
++set(PROTOZERO_DATA_VIEW "" CACHE STRING "Type used for ${PROJECT_NAME}::data_view")
+ if(NOT PROTOZERO_DATA_VIEW STREQUAL "")
+-    add_definitions(-DPROTOZERO_DATA_VIEW=${PROTOZERO_DATA_VIEW})
++  add_definitions(-DPROTOZERO_DATA_VIEW=${PROTOZERO_DATA_VIEW})
+ endif()
+ 
+-
+-#-----------------------------------------------------------------------------
+-#
+-#  Find dependencies
+-#
+-#-----------------------------------------------------------------------------
+-
+-find_package(Protobuf)
+-
+-
+-#-----------------------------------------------------------------------------
+-#
+-#  Optional "clang-tidy" target
+-#
+-#-----------------------------------------------------------------------------
+-message(STATUS "Looking for clang-tidy")
+-find_program(CLANG_TIDY NAMES clang-tidy clang-tidy-10 clang-tidy-9 clang-tidy-8 clang-tidy-7 clang-tidy-6.0 clang-tidy-5.0)
+-
+-if(CLANG_TIDY)
+-    message(STATUS "Looking for clang-tidy - found ${CLANG_TIDY}")
+-    add_custom_target(clang-tidy
+-        ${CLANG_TIDY}
+-        -p ${CMAKE_BINARY_DIR}
+-        ${CMAKE_SOURCE_DIR}/test/*.cpp
+-        ${CMAKE_SOURCE_DIR}/test/t/*/reader_test_cases.cpp
+-        ${CMAKE_SOURCE_DIR}/test/t/*/writer_test_cases.cpp
+-        ${CMAKE_SOURCE_DIR}/test/unit/*.cpp
+-        ${CMAKE_SOURCE_DIR}/tools/*.cpp
+-    )
+-    add_dependencies(clang-tidy writer_tests)
+-else()
+-    message(STATUS "Looking for clang-tidy - not found")
+-    message(STATUS "  Build target 'clang-tidy' will not be available.")
+-endif()
+-
+-
+-#-----------------------------------------------------------------------------
+-#
+-#  Optional "cppcheck" target
+-#
+-#-----------------------------------------------------------------------------
+-message(STATUS "Looking for cppcheck")
+-find_program(CPPCHECK NAMES cppcheck)
+-
+-if(CPPCHECK)
+-    message(STATUS "Looking for cppcheck - found")
+-    add_custom_target(cppcheck
+-        ${CPPCHECK}
+-        -Uassert --std=c++11 --enable=all
+-        ${CMAKE_SOURCE_DIR}/include/protozero/*.hpp
+-        ${CMAKE_SOURCE_DIR}/test/*.cpp
+-        ${CMAKE_SOURCE_DIR}/test/include/*.hpp
+-        ${CMAKE_SOURCE_DIR}/test/t/*/*.cpp
+-        ${CMAKE_SOURCE_DIR}/test/unit/*.cpp
+-        ${CMAKE_SOURCE_DIR}/tools/*.cpp
+-    )
+-else()
+-    message(STATUS "Looking for cppcheck - not found")
+-    message(STATUS "  Build target 'cppcheck' will not be available.")
+-endif()
+-
+-
+-#-----------------------------------------------------------------------------
+-#
+-#  Include what you use
+-#
+-#-----------------------------------------------------------------------------
+-message(STATUS "Looking for iwyu")
+-find_program(IWYU_TOOL NAMES iwyu_tool)
+-
+-if(IWYU_TOOL)
+-    message(STATUS "Looking for iwyu - found")
+-    add_custom_target(iwyu
+-        ${IWYU_TOOL} -p ${CMAKE_BINARY_DIR}
+-    )
+-else()
+-    message(STATUS "Looking for iwyu - not found")
+-    message(STATUS "  Build target 'iwyu' will not be available.")
+-endif()
+-
+-
+ #-----------------------------------------------------------------------------
+ #
+ #  Installation
+ #
+ #-----------------------------------------------------------------------------
+-
+-install(DIRECTORY include/protozero DESTINATION include)
+-
+-
+-#-----------------------------------------------------------------------------
+-
+-enable_testing()
+-
+-add_subdirectory(doc)
+-
+-add_subdirectory(tools)
+-
+-add_subdirectory(test)
+-
+-
+-#-----------------------------------------------------------------------------
++include(GNUInstallDirs)
++include(CMakePackageConfigHelpers)
++write_basic_package_version_file(
++  ${PROJECT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake
++  VERSION ${PROJECT_VERSION}
++  COMPATIBILITY AnyNewerVersion
++)
++
++install(
++  TARGETS ${PROJECT_NAME}
++  EXPORT ${PROJECT_NAME}Targets
++  PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR} COMPONENT Development
++)
++
++configure_package_config_file(
++  cmake/${PROJECT_NAME}Config.cmake.in
++  ${PROJECT_BINARY_DIR}/${PROJECT_NAME}Config.cmake
++  INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}
++)
++
++install(
++  EXPORT ${PROJECT_NAME}Targets
++  NAMESPACE ${PROJECT_NAME}::
++  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}
++)
++install(
++  FILES
++  ${CMAKE_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake
++  ${CMAKE_BINARY_DIR}/${PROJECT_NAME}Config.cmake
++  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}
++)
++install(
++  DIRECTORY
++  ${CMAKE_SOURCE_DIR}/include/
++  ${CMAKE_BINARY_DIR}/include/
++  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
++  PATTERN "version.hpp.in" EXCLUDE
++)
+diff --git a/cmake/protozeroConfig.cmake.in b/cmake/protozeroConfig.cmake.in
+new file mode 100644
+index 0000000..65dee24
+--- /dev/null
++++ b/cmake/protozeroConfig.cmake.in
+@@ -0,0 +1,4 @@
++@PACKAGE_INIT@
++
++include("${CMAKE_CURRENT_LIST_DIR}/${PROJECT_NAME}Targets.cmake")
++check_required_components("@PROJECT_NAME@")
+diff --git a/include/protozero/version.hpp b/include/protozero/version.hpp.in
+similarity index 77%
+rename from include/protozero/version.hpp
+rename to include/protozero/version.hpp.in
+index 9a0e4cc..dd238d8 100644
+--- a/include/protozero/version.hpp
++++ b/include/protozero/version.hpp.in
+@@ -17,18 +17,18 @@ documentation.
+  */
+ 
+ /// The major version number
+-#define PROTOZERO_VERSION_MAJOR 1
++#define PROTOZERO_VERSION_MAJOR @PROJECT_VERSION_MAJOR@
+ 
+ /// The minor version number
+-#define PROTOZERO_VERSION_MINOR 7
++#define PROTOZERO_VERSION_MINOR @PROJECT_VERSION_MINOR@
+ 
+ /// The patch number
+-#define PROTOZERO_VERSION_PATCH 0
++#define PROTOZERO_VERSION_PATCH @PROJECT_VERSION_PATCH@
+ 
+ /// The complete version number
+ #define PROTOZERO_VERSION_CODE (PROTOZERO_VERSION_MAJOR * 10000 + PROTOZERO_VERSION_MINOR * 100 + PROTOZERO_VERSION_PATCH)
+ 
+ /// Version number as string
+-#define PROTOZERO_VERSION_STRING "1.7.0"
++#define PROTOZERO_VERSION_STRING "@PROJECT_VERSION@"
+ 
+ #endif // PROTOZERO_VERSION_HPP
+-- 
+2.29.1
+
