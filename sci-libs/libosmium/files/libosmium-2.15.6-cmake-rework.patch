@@ -1,4 +1,4 @@
-From 730f38bdd5f60bb9e60e56fb7e7bc49b95bb241b Mon Sep 17 00:00:00 2001
+From 5ad7f658d81663c226187167d24fbf7a2bd298b2 Mon Sep 17 00:00:00 2001
 From: Amit Prakash Ambasta <amit.prakash.ambasta@gmail.com>
 Date: Mon, 2 Nov 2020 10:08:53 +0530
 Subject: [PATCH] Move to a modular cmake
@@ -10,16 +10,18 @@ Subject: [PATCH] Move to a modular cmake
  cmake/Findgdal.cmake                          |  51 ++
  cmake/Findgeos.cmake                          |  40 ++
  cmake/Findproj.cmake                          |  51 ++
+ cmake/Findsparsehash.cmake                    |  46 ++
  cmake/osmiumConfig.cmake.in                   |  20 +
  cmake/osmiumUtils.cmake                       |  13 +
  examples/CMakeLists.txt                       |   2 +-
  .../osmium/{version.hpp => version.hpp.in}    |   8 +-
  test/CMakeLists.txt                           | 119 ++--
- 11 files changed, 720 insertions(+), 616 deletions(-)
+ 12 files changed, 766 insertions(+), 616 deletions(-)
  delete mode 100644 cmake/FindProtozero.cmake
  create mode 100644 cmake/Findgdal.cmake
  create mode 100644 cmake/Findgeos.cmake
  create mode 100644 cmake/Findproj.cmake
+ create mode 100644 cmake/Findsparsehash.cmake
  create mode 100644 cmake/osmiumConfig.cmake.in
  create mode 100644 cmake/osmiumUtils.cmake
  rename include/osmium/{version.hpp => version.hpp.in} (87%)
@@ -1497,9 +1499,61 @@ index 00000000..fc8b89a2
 +    INTERFACE_LINK_LIBRARIES ${proj_LIBRARIES}
 +  )
 +endif(proj_FOUND AND NOT TARGET proj::proj)
+diff --git a/cmake/Findsparsehash.cmake b/cmake/Findsparsehash.cmake
+new file mode 100644
+index 00000000..6d67cd6c
+--- /dev/null
++++ b/cmake/Findsparsehash.cmake
+@@ -0,0 +1,46 @@
++# Findlibsparsehash.cmake
++#
++# Finds the libsparsehash library
++#
++# This will define the following variables
++#
++#       libsparsehash_FOUND
++#       libsparsehash_INCLUDE_DIRS
++#
++# and the following targets
++#
++#       libsparsehash::libsparsehash
++#
++# Author: amit.ambasta@delhivery.com
++
++find_package(PkgConfig)
++pkg_check_modules(PC_sparsehash QUIET libsparsehash)
++
++find_path(
++  sparsehash_INCLUDE_DIR
++  NAMES sparsetable
++  PATHS ${PC_sparsehash_INCLUDE_DIRS}
++  PATH_SUFFIXES sparsehash
++)
++set(sparsehash_VERSION ${PC_sparsehash_VERSION})
++mark_as_advanced(sparsehash_FOUND sparsehash_INCLUDE_DIR sparsehash_VERSION)
++
++include(FindPackageHandleStandardArgs)
++find_package_handle_standard_args(
++  sparsehash
++  REQUIRED_VARS sparsehash_INCLUDE_DIR
++  VERSION_VAR sparsehash_VERSION
++)
++
++if(sparsehash_FOUND)
++  set(sparsehash_INCLUDE_DIRS ${libsparsehash_INCLUDE_DIR})
++endif(sparsehash_FOUND)
++
++if(sparsehash_FOUND AND NOT TARGET sparsehash::sparsehash)
++  add_library(sparsehash::sparsehash INTERFACE IMPORTED)
++  set_target_properties(
++    sparsehash::sparsehash
++    PROPERTIES
++    INTERFACE_INCLUDE_DIRECTORIES ${sparsehash_INCLUDE_DIR}
++  )
++endif(sparsehash_FOUND AND NOT TARGET sparsehash::sparsehash)
 diff --git a/cmake/osmiumConfig.cmake.in b/cmake/osmiumConfig.cmake.in
 new file mode 100644
-index 00000000..9fe9ca64
+index 00000000..0859e93b
 --- /dev/null
 +++ b/cmake/osmiumConfig.cmake.in
 @@ -0,0 +1,20 @@
@@ -1520,8 +1574,8 @@ index 00000000..9fe9ca64
 +find_dependency(proj REQUIRED)
 +find_dependency(sparsehash QUIET)
 +
-+if(NOT TARGET ${PROJECT_NAME}::${PROJECT_NAME})
-+  include("${PROJECT_NAME}_CMAKE_DIR/${PROJECT_NAME}Targets.cmake")
++if(NOT TARGET @PROJECT_NAME@::@PROJECT_NAME@)
++  include("@PROJECT_NAME@_CMAKE_DIR/@PROJECT_NAME@Targets.cmake")
 +endif()
 diff --git a/cmake/osmiumUtils.cmake b/cmake/osmiumUtils.cmake
 new file mode 100644
