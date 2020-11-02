@@ -1,4 +1,4 @@
-From 5ad7f658d81663c226187167d24fbf7a2bd298b2 Mon Sep 17 00:00:00 2001
+From 26bb797775085fc6be874ff421a978028467e36a Mon Sep 17 00:00:00 2001
 From: Amit Prakash Ambasta <amit.prakash.ambasta@gmail.com>
 Date: Mon, 2 Nov 2020 10:08:53 +0530
 Subject: [PATCH] Move to a modular cmake
@@ -1553,7 +1553,7 @@ index 00000000..6d67cd6c
 +endif(sparsehash_FOUND AND NOT TARGET sparsehash::sparsehash)
 diff --git a/cmake/osmiumConfig.cmake.in b/cmake/osmiumConfig.cmake.in
 new file mode 100644
-index 00000000..0859e93b
+index 00000000..4c43e1ee
 --- /dev/null
 +++ b/cmake/osmiumConfig.cmake.in
 @@ -0,0 +1,20 @@
@@ -1575,7 +1575,7 @@ index 00000000..0859e93b
 +find_dependency(sparsehash QUIET)
 +
 +if(NOT TARGET @PROJECT_NAME@::@PROJECT_NAME@)
-+  include("@PROJECT_NAME@_CMAKE_DIR/@PROJECT_NAME@Targets.cmake")
++  include("${@PROJECT_NAME@_CMAKE_DIR}/@PROJECT_NAME@Targets.cmake")
 +endif()
 diff --git a/cmake/osmiumUtils.cmake b/cmake/osmiumUtils.cmake
 new file mode 100644
