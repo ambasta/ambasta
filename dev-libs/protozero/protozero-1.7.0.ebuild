@@ -7,7 +7,6 @@ inherit cmake-utils
 
 DESCRIPTION="Minimalistic protocol buffer decoder and encoder in C++"
 HOMEPAGE="https://github.com/mapbox/protozero"
-SRC_URI="https://github.com/protocolbuffers/${PN}/archive/v${PV}.tar.gz -> ${P}.tar.gz"
 SRC_URI="https://github.com/mapbox/${PN}/archive/v${PV}.tar.gz -> ${P}.tar.gz"
 LICENSE="BSD"
 SLOT="0/24"
