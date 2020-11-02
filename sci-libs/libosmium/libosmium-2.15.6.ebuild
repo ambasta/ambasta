@@ -10,7 +10,8 @@ HOMEPAGE="https://osmcode.org/libosmium/"
 SRC_URI="https://github.com/osmcode/${PN}/archive/v${PV}.tar.gz -> ${P}.tar.gz"
 IUSE="examples"
 
-LICENSE="Boost"
+LICENSE="Boost-1.0"
+
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
 
