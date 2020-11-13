@@ -13,9 +13,20 @@ LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="amd64 x86"
 
+# glib for glib-compile-schemas at build time, needed at runtime anyways
+COMMON_DEPEND="
+	dev-libs/glib:2
+"
+
 RDEPEND="
 	media-sound/pulseaudio
 	dev-python/pygobject"
-DEPEND="dev-util/cmake ${RDEPEND}"
+
+DEPEND="${RDEPEND} ${COMMON_DEPEND}"
 
 distutils_enable_tests pytest
+
+src_install() {
+	distutils-r1_src_install
+	glib-compile-schemas "${ED}"/usr/share/glib-2.0/schemas/ || die
+}
