@@ -26,7 +26,6 @@ DEPEND="${RDEPEND} ${COMMON_DEPEND}"
 
 distutils_enable_tests pytest
 
-src_install() {
-	distutils-r1_src_install
-	glib-compile-schemas "${ED}"/usr/share/glib-2.0/schemas/ || die
+pkg__postinst() {
+	glib-compile-schemas /usr/share/glib-2.0/schemas/
 }
