@@ -2,7 +2,7 @@ EAPI=7
 
 PYTHON_COMPAT=( python3_{8,9} pypy3 )
 
-inherit distutils-r1
+inherit distutils-r1 gnome2-utils
 
 DESCRIPTION="Per-application volume control and OSD for Linux desktops."
 HOMEPAGE="https://buzz.github.io/volctl/"
@@ -26,6 +26,7 @@ DEPEND="${RDEPEND} ${COMMON_DEPEND}"
 
 distutils_enable_tests pytest
 
-pkg__postinst() {
-	glib-compile-schemas /usr/share/glib-2.0/schemas/
+pkg_postinst() {
+	gnome2_schemas_update
 }
+
