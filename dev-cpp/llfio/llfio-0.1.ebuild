@@ -3,12 +3,14 @@
 
 EAPI=7
 
-inherit cmake-utils
+inherit cmake-utils git-r3
 
 DESCRIPTION="Zero whole machine memory copy async file i/o and filesystem library for the C++ standard"
 HOMEPAGE="https://ned14.github.io/llfio/"
-MY_PV="efe10b732d26cbaf840b04e955bb5f566cbd6555"
-SRC_URI="https://github.com/ned14/${PN}/archive/all_tests_passing_${MY_PV}.tar.gz -> ${P}.tar.gz"
+
+EGIT_REPO_URI="https://github.com/ned14/llfio"
+EGIT_CLONE_TYPE="shallow"
+EGIT_COMMIT="all_tests_passing_efe10b732d26cbaf840b04e955bb5f566cbd6555"
 
 LICENSE="Apache-2.0"
 SLOT="0"
@@ -19,7 +21,7 @@ RESTRICT="test"
 RDEPEND=""
 DEPEND="${RDEPEND}"
 
-S="${WORKDIR}/${PN}-all_tests_passing_${MY_PV}"
+# S="${WORKDIR}/${PN}-all_tests_passing_${MY_PV}"
 
 src_configure() {
 	local mycmakeargs=(
