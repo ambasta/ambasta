@@ -12,11 +12,11 @@ HOMEPAGE="https://wiki.gnome.org/Apps/Terminal/VTE"
 
 LICENSE="LGPL-3+ GPL-3+"
 SLOT="2.91"
-IUSE="+crypt debug gtk-doc +icu +introspection systemd +vala vanilla"
+IUSE="+crypt debug gtk-doc +icu +introspection systemd +vala"
 KEYWORDS="~alpha amd64 arm arm64 ~hppa ~ia64 ~mips ppc ppc64 sparc x86 ~amd64-linux ~x86-linux ~x64-solaris ~x86-solaris"
 REQUIRED_USE="vala? ( introspection )"
 
-SRC_URI="${SRC_URI} !vanilla? ( https://dev.gentoo.org/~leio/distfiles/${PN}-0.60.3-command-notify.patch.xz )"
+SRC_URI="${SRC_URI}"
 
 RDEPEND="
 	>=x11-libs/gtk+-3.24.14:3[introspection?]
@@ -44,12 +44,6 @@ BDEPEND="
 "
 
 src_prepare() {
-	if ! use vanilla; then
-		# Part of https://src.fedoraproject.org/rpms/vte291/raw/f31/f/vte291-cntnr-precmd-preexec-scroll.patch
-		# Adds OSC 777 support for desktop notifications in gnome-terminal or elsewhere
-		eapply "${WORKDIR}"/${PN}-0.60.3-command-notify.patch
-	fi
-
 	# -Ddebugg option enables various debug support via VTE_DEBUG, but also ggdb3; strip the latter
 	sed -e '/ggdb3/d' -i meson.build || die
 
