@@ -83,10 +83,6 @@ BDEPEND="man? ( app-text/scdoc )"
 
 QA_FLAGS_IGNORED="usr/bin/.*greet.*"
 
-PATCHES=(
-	"${FILESDIR}/${P}-correct_user_config_toml.patch"
-)
-
 src_compile() {
 	cargo_src_compile
 	if use man; then
