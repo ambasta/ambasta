@@ -18,7 +18,7 @@ chrono-0.4.11
 dlib-0.4.1
 downcast-rs-1.1.1
 getopts-0.2.21
-greetd_ipc-0.5.1
+greetd_ipc-0.6.0
 itoa-0.4.5
 lazy_static-1.4.0
 libc-0.2.68
@@ -73,7 +73,7 @@ inherit flag-o-matic cargo
 DESCRIPTION="wlgreet"
 HOMEPAGE="https://git.sr.ht/~kennylevinsen/wlgreet"
 SRC_URI="
-	https://git.sr.ht/~kennylevinsen/${PN}/archive/${PV}.tar.gz
+	https://git.sr.ht/~kennylevinsen/${PN}/archive/${PV}.tar.gz -> ${P}.tar.gz
 	$(cargo_crate_uris ${CRATES})
 "
 RESTRICT="mirror"
