@@ -21,17 +21,13 @@ REQUIRED_USE="
 KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~ia64 ~ppc ~ppc64 ~sparc ~x86 ~amd64-linux ~x86-linux ~x86-solaris"
 
 DEPEND="
-	>=sci-geosciences/geocode-glib-3.10
 	>=dev-libs/glib-2.56:2
 	>=gnome-base/gnome-desktop-3.34.2:3=
 	>=gnome-base/gsettings-desktop-schemas-3.35.91
 	>=x11-libs/gtk+-3.15.3:3[X?,wayland?]
-	>=dev-libs/libgweather-3.9.5:2=
 	colord? (
 		>=x11-misc/colord-1.3.5:=
 		>=media-libs/lcms-2.2:2 )
-	media-libs/libcanberra[gtk3]
-	>=app-misc/geoclue-2.3.1:2.0
 	>=x11-libs/libnotify-0.7.3
 	>=media-sound/pulseaudio-2[glib]
 	>=sys-auth/polkit-0.114
