@@ -11,13 +11,14 @@ DESCRIPTION="Apache Kafka C/C++ client library"
 HOMEPAGE="https://github.com/edenhill/librdkafka"
 
 MY_PV=$(ver_rs 3 -)
+MY_PV=${MY_PV^^}
 
 if [[ ${PV} == "9999" ]]; then
 	EGIT_REPO_URI="https://github.com/edenhill/${PN}.git"
 
 	inherit git-r3
 else
-	SRC_URI="https://github.com/edenhill/${PN}/archive/v${MY_PV^^}.tar.gz -> ${P}.tar.gz"
+	SRC_URI="https://github.com/edenhill/${PN}/archive/v${MY_PV}.tar.gz -> ${P}.tar.gz"
 	KEYWORDS="~amd64 ~arm ~arm64 ~hppa ~ppc ~ppc64 ~sparc ~x86"
 fi
 
@@ -47,6 +48,8 @@ DEPEND="
 	${RDEPEND}
 	static-libs? ( ${LIB_DEPEND} )
 "
+
+S="${WORKDIR}/${PN}-${MY_PV^^}"
 
 pkg_setup() {
 	python-any-r1_pkg_setup
