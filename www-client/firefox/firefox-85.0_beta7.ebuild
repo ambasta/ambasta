@@ -569,6 +569,7 @@ src_configure() {
 		--disable-install-strip \
 		--disable-strip \
 		--disable-updater \
+		--disable-webrtc \
 		--enable-official-branding \
 		--enable-release \
 		--enable-system-ffi \
