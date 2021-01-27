@@ -71,10 +71,10 @@ src_prepare() {
 	}
 
 	default
-	spa_use libcamera
+	# spa_use libcamera
 	spa_use rtkit
-	spa_use bluetooth bluez5
-	spa_use jack
+	# spa_use bluetooth bluez5
+	# spa_use jack
 	spa_use vulkan
 }
 
