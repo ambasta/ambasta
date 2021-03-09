@@ -7,7 +7,8 @@ inherit cmake-utils
 
 DESCRIPTION="Command line parser for C++11"
 HOMEPAGE="https://github.com/CLIUtils/CLI11"
-SRC_URI="https://github.com/CLIUtils/${PN}/archive/v${PV}.tar.gz"
+MY_PV="34c4310d9907f6a6c2eb5322fa7472474800577c"
+SRC_URI="https://github.com/CLIUtils/${PN}/archive/${MY_PV}.zip"
 
 LICENSE="MIT"
 SLOT="0"
@@ -20,8 +21,7 @@ DEPEND="
 	doc? ( app-doc/doxygen )"
 RDEPEND="${DEPEND}"
 
-
-WORKDIR="${S}/${P}"
+S="${WORKDIR}/${PN}-${MY_PV}"
 
 src_configure() {
 	local mycmakeargs=(
