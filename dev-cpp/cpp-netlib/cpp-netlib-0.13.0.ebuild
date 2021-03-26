@@ -13,19 +13,20 @@ SRC_URI="http://downloads.cpp-netlib.org/${PV}/${P}-final.tar.bz2"
 LICENSE="Boost-1.0"
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
-IUSE="examples test"
+IUSE="examples test static-libs ssl"
 
-DEPEND="dev-libs/boost"
+DEPEND="dev-libs/boost
+	ssl? ( dev-libs/openssl )"
 RDEPEND="${DEPEND}"
 
 S="${WORKDIR}/${P}-final"
 
 src_configure() {
 	local mycmakeargs=(
-		-DBUILD_SHARED_LIBS=ON
-		 $(cmake-utils_use test CPP-NETLIB_BUILD_TESTS )
-		 $(cmake-utils_use examples CPP-NETLIB_BUILD_EXAMPLES )
-
+		-DCPP-NETLIB_BUILD_SHARED_LIBS=$(usex static-libs OFF ON)
+		-DCPP-NETLIB_BUILD_TESTS=$(usex test ON OFF)
+		-DCPP-NETLIB_BUILD_EXAMPLES=$(usex examples ON OFF)
+		-DCPP-NETLIB_ENABLE_HTTPS=$(usex ssl ON OFF)
 	)
 	cmake-utils_src_configure
 }
