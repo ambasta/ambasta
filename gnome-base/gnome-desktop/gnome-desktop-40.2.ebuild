@@ -18,6 +18,7 @@ COMMON_DEPEND="
 	>=dev-libs/glib-2.53.0:2
 	>=gnome-base/gsettings-desktop-schemas-3.27.0[introspection?]
 	x11-misc/xkeyboard-config
+	x11-libs/libxkbcommon
 	app-text/iso-codes
 	systemd? ( sys-apps/systemd:= )
 	udev? (
