@@ -36,7 +36,16 @@ src_prepare() {
 src_configure() {
 	local emesonargs=(
 		--buildtype $(usex debug 'debug' 'plain')
-		-Ddoc_builders="[$(usex man '"man"' '')$(usex man $(usex doc ',' '') '')$(usex doc '"html"' '')]"
 	)
+
+	if use man && use doc; then
+		emesonargs+=(-Ddoc_builders="[\"man\",\"html\"]")
+	elif use man; then
+		emesonargs+=(-Ddoc_builders="[\"man\"]")
+	elif use doc; then
+		emesonargs+=(-Ddoc_builders="[\"html\"]")
+	else
+		emesonargs+=(-Ddoc_builders="[]")
+	fi
 	meson_src_configure
 }
