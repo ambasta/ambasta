@@ -28,6 +28,7 @@ IUSE="debug"
 DEPEND="
 	dev-libs/libconfig
 	net-libs/libsoup
+	app-crypt/libsecret
 "
 RDEPEND="${DEPEND}
 	>=x11-libs/gtk+-3.22.0
