@@ -11,7 +11,7 @@ SRC_URI="https://github.com/oneapi-src/${PN}/archive/refs/tags/v${PV}.tar.gz -> 
 LICENSE="Apache-2.0"
 SLOT="0"
 KEYWORDS="~alpha amd64 arm arm64 ~hppa ~ia64 ppc ppc64 ~sparc x86 ~amd64-linux ~x86-linux"
-IUSE="static-libs examples"
+IUSE="examples static-libs test"
 
 DEPEND=""
 RDEPEND="${DEPEND}"
@@ -25,6 +25,7 @@ src_configure() {
 	local mycmakeargs=(
 		-DTBB_EXAMPLES=$(usex examples ON OFF)
 		-DBUILD_SHARED_LIBS=$(usex static-libs OFF ON)
+		-DTBB_TEST=$(usex test ON OFF)
 		-DCMAKE_CXX_STANDARD=20
 	)
 	cmake-utils_src_configure
