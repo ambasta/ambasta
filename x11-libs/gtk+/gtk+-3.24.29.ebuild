@@ -170,14 +170,9 @@ multilib_src_configure() {
 		# grok so well during install (// between $EPREFIX and usr ...)
 		# TODO: Is this still the case?
 		--libdir="${EPREFIX}"/usr/$(get_libdir)
+		-DEGL_NO_X11=true
 		CUPS_CONFIG="${EPREFIX}/usr/bin/${CHOST}-cups-config"
 	)
-
-	if !use X; then
-		myconf+=(
-			-DEGL_NO_X11=true
-		)
-	fi;
 
 	if use wayland; then
 		myconf+=(
