@@ -12,7 +12,7 @@ SRC_URI="https://github.com/SrainApp/${PN}/archive/${PV}.tar.gz -> ${P}.tar.gz"
 LICENSE="GPL-3"
 SLOT="0"
 KEYWORDS="~amd64 ~arm ~arm64 ~x86"
-IUSE="debug doc"
+IUSE="debug doc man"
 
 RDEPEND="
 	>=x11-libs/gtk+-3.22.0
@@ -24,7 +24,7 @@ DEPEND="
 	dev-libs/libconfig
 	net-libs/libsoup
 "
-BDEPEND="dev-python/sphinx"
+BDEPEND="doc? ( dev-python/sphinx )"
 
 src_prepare() {
 	sed -i "s/'doc', meson.project_name())/'doc', meson.project_name() + '-${PV}')/" \
@@ -36,7 +36,7 @@ src_prepare() {
 src_configure() {
 	local emesonargs=(
 		--buildtype $(usex debug 'debug' 'plain')
-		-Ddoc_builders="['man'$(usex doc ', "html"' '')]"
+		-Ddoc_builders="[$(usex man '"man"' '')$(usex man $(usex doc ',' '') '')$(usex doc '"html"' '')]"
 	)
 	meson_src_configure
 }
