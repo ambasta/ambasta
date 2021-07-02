@@ -3,9 +3,9 @@
 
 EAPI="7"
 
-FIREFOX_PATCHSET="firefox-85-patches-00.tar.xz"
+FIREFOX_PATCHSET="firefox-89-patches-03.tar.xz"
 
-LLVM_MAX_SLOT=11
+LLVM_MAX_SLOT=12
 
 PYTHON_COMPAT=( python3_{7..9} )
 PYTHON_REQ_USE="ncurses,sqlite,ssl"
@@ -48,7 +48,7 @@ if [[ ${PV} == *_rc* ]] ; then
 fi
 
 PATCH_URIS=(
-	https://github.com/ambasta/ambasta/raw/master/www-client/firefox/files/${FIREFOX_PATCHSET}
+	https://dev.gentoo.org/~{axs,polynomial-c,whissi}/mozilla/patchsets/${FIREFOX_PATCHSET}
 )
 
 SRC_URI="${MOZ_SRC_BASE_URI}/source/${MOZ_P}.source.tar.xz -> ${MOZ_P_DISTFILES}.source.tar.xz
@@ -62,9 +62,9 @@ KEYWORDS="~amd64 ~arm64 ~ppc64 ~x86"
 SLOT="0/$(ver_cut 1)"
 LICENSE="MPL-2.0 GPL-2 LGPL-2.1"
 IUSE="+clang cpu_flags_arm_neon dbus debug eme-free geckodriver +gmp-autoupdate
-	hardened hwaccel jack lto +openh264 pgo pulseaudio screencast selinux
+	hardened hwaccel jack lto +openh264 pgo pulseaudio screencast sndio selinux
 	+system-av1 +system-harfbuzz +system-icu +system-jpeg +system-libevent
-	+system-libvpx +system-webp wayland wifi X"
+	+system-libvpx +system-webp wayland wifi"
 
 REQUIRED_USE="debug? ( !system-av1 )
 	screencast? ( wayland )"
@@ -72,11 +72,19 @@ REQUIRED_USE="debug? ( !system-av1 )
 BDEPEND="${PYTHON_DEPS}
 	app-arch/unzip
 	app-arch/zip
-	>=dev-util/cbindgen-0.15.0
-	>=net-libs/nodejs-10.22.1
+	>=dev-util/cbindgen-0.19.0
+	>=net-libs/nodejs-10.23.1
 	virtual/pkgconfig
-	>=virtual/rust-1.44.0
+	>=virtual/rust-1.47.0
 	|| (
+		(
+			sys-devel/clang:12
+			sys-devel/llvm:12
+			clang? (
+				=sys-devel/lld-12*
+				pgo? ( =sys-libs/compiler-rt-sanitizers-12*[profile] )
+			)
+		)
 		(
 			sys-devel/clang:11
 			sys-devel/llvm:11
@@ -93,24 +101,12 @@ BDEPEND="${PYTHON_DEPS}
 				pgo? ( =sys-libs/compiler-rt-sanitizers-10*[profile] )
 			)
 		)
-		(
-			sys-devel/clang:9
-			sys-devel/llvm:9
-			clang? (
-				=sys-devel/lld-9*
-				pgo? ( =sys-libs/compiler-rt-sanitizers-9*[profile] )
-			)
-		)
 	)
-	amd64? ( >=dev-lang/yasm-1.1 )
-	x86? ( >=dev-lang/yasm-1.1 )
-	!system-av1? (
-		amd64? ( >=dev-lang/nasm-2.13 )
-		x86? ( >=dev-lang/nasm-2.13 )
-	)"
+	amd64? ( >=dev-lang/nasm-2.13 )
+	x86? ( >=dev-lang/nasm-2.13 )"
 
 CDEPEND="
-	>=dev-libs/nss-3.59.1
+	>=dev-libs/nss-3.64
 	>=dev-libs/nspr-4.29
 	dev-libs/atk
 	dev-libs/expat
@@ -129,29 +125,24 @@ CDEPEND="
 	>=sys-libs/zlib-1.2.3
 	>=dev-libs/libffi-3.0.10:=
 	media-video/ffmpeg
-	X? (
-		>=x11-libs/gtk+-2.18:2
-		>=x11-libs/cairo-1.10[X]
-		>=x11-libs/gtk+-3.4.0:3[X]
-		x11-libs/libX11
-		x11-libs/libXcomposite
-		x11-libs/libXdamage
-		x11-libs/libXext
-		x11-libs/libXfixes
-		x11-libs/libXrender
-		x11-libs/libXt
-	)
+	x11-libs/libX11
+	x11-libs/libXcomposite
+	x11-libs/libXdamage
+	x11-libs/libXext
+	x11-libs/libXfixes
+	x11-libs/libXrender
+	x11-libs/libXt
 	dbus? (
 		sys-apps/dbus
 		dev-libs/dbus-glib
 	)
 	screencast? ( media-video/pipewire:0/0.3 )
 	system-av1? (
-		>=media-libs/dav1d-0.3.0:=
+		>=media-libs/dav1d-0.8.1:=
 		>=media-libs/libaom-1.0.0:=
 	)
 	system-harfbuzz? (
-		>=media-libs/harfbuzz-2.6.8:0=
+		>=media-libs/harfbuzz-2.7.4:0=
 		>=media-gfx/graphite2-1.3.13
 	)
 	system-icu? ( >=dev-libs/icu-67.1:= )
@@ -167,7 +158,8 @@ CDEPEND="
 		)
 	)
 	jack? ( virtual/jack )
-	selinux? ( sec-policy/selinux-mozilla )"
+	selinux? ( sec-policy/selinux-mozilla )
+	sndio? ( media-sound/sndio )"
 
 RDEPEND="${CDEPEND}
 	jack? ( virtual/jack )
@@ -227,11 +219,6 @@ MOZ_LANGS=(
 )
 
 mozilla_set_globals() {
-	# https://bugs.gentoo.org/587334
-	local MOZ_TOO_REGIONALIZED_FOR_L10N=(
-		fy-NL ga-IE gu-IN hi-IN hy-AM nb-NO ne-NP nn-NO pa-IN sv-SE
-	)
-
 	local lang xflag
 	for lang in "${MOZ_LANGS[@]}" ; do
 		# en and en_US are handled internally
@@ -239,12 +226,7 @@ mozilla_set_globals() {
 			continue
 		fi
 
-		# strip region subtag if $lang is in the list
-		if has ${lang} "${MOZ_TOO_REGIONALIZED_FOR_L10N[@]}" ; then
-			xflag=${lang%%-*}
-		else
-			xflag=${lang}
-		fi
+		xflag=${lang}
 
 		SRC_URI+=" l10n_${xflag/[_@]/-}? ("
 		SRC_URI+=" ${MOZ_SRC_BASE_URI}/linux-x86_64/xpi/${lang}.xpi -> ${MOZ_P_DISTFILES}-${lang}.xpi"
@@ -402,9 +384,19 @@ pkg_setup() {
 			[[ -n ${version_lld} ]] && version_lld=$(ver_cut 1 "${version_lld}")
 			[[ -z ${version_lld} ]] && die "Failed to read ld.lld version!"
 
-			local version_llvm_rust=$(rustc -Vv 2>/dev/null | grep -F -- 'LLVM version:' | awk '{ print $3 }')
-			[[ -n ${version_llvm_rust} ]] && version_llvm_rust=$(ver_cut 1 "${version_llvm_rust}")
-			[[ -z ${version_llvm_rust} ]] && die "Failed to read used LLVM version from rustc!"
+			# temp fix for https://bugs.gentoo.org/768543
+			# we can assume that rust 1.{49,50}.0 always uses llvm 11
+			local version_rust=$(rustc -Vv 2>/dev/null | grep -F -- 'release:' | awk '{ print $2 }')
+			[[ -n ${version_rust} ]] && version_rust=$(ver_cut 1-2 "${version_rust}")
+			[[ -z ${version_rust} ]] && die "Failed to read version from rustc!"
+
+			if ver_test "${version_rust}" -ge "1.49" && ver_test "${version_rust}" -le "1.50" ; then
+				local version_llvm_rust="11"
+			else
+				local version_llvm_rust=$(rustc -Vv 2>/dev/null | grep -F -- 'LLVM version:' | awk '{ print $3 }')
+				[[ -n ${version_llvm_rust} ]] && version_llvm_rust=$(ver_cut 1 "${version_llvm_rust}")
+				[[ -z ${version_llvm_rust} ]] && die "Failed to read used LLVM version from rustc!"
+			fi
 
 			if ver_test "${version_lld}" -ne "${version_llvm_rust}" ; then
 				eerror "Rust is using LLVM version ${version_llvm_rust} but ld.lld version belongs to LLVM version ${version_lld}."
@@ -414,6 +406,13 @@ pkg_setup() {
 				eerror "  - Build ${CATEGORY}/${PN} without USE=lto"
 				die "LLVM version used by Rust (${version_llvm_rust}) does not match with ld.lld version (${version_lld})!"
 			fi
+		fi
+
+		if ! use clang && [[ $(gcc-major-version) -eq 11 ]] \
+			&& ! has_version -b ">sys-devel/gcc-11.1.0:11" ; then
+			# bug 792705
+			eerror "Using GCC 11 to compile firefox is currently known to be broken (see bug #792705)."
+			die "Set USE=clang or select <gcc-11 to build ${CATEGORY}/${P}."
 		fi
 
 		python-any-r1_pkg_setup
@@ -443,6 +442,17 @@ pkg_setup() {
 		# get your own set of keys.
 		if [[ -z "${MOZ_API_KEY_GOOGLE+set}" ]] ; then
 			MOZ_API_KEY_GOOGLE="AIzaSyDEAOvatFogGaPi0eTgsV_ZlEzx0ObmepsMzfAc"
+		fi
+
+		if [[ -z "${MOZ_API_KEY_LOCATION+set}" ]] ; then
+			MOZ_API_KEY_LOCATION="AIzaSyB2h2OuRgGaPicUgy5N-5hsZqiPW6sH3n_rptiQ"
+		fi
+
+		# Mozilla API keys (see https://location.services.mozilla.com/api)
+		# Note: These are for Gentoo Linux use ONLY. For your own distribution, please
+		# get your own set of keys.
+		if [[ -z "${MOZ_API_KEY_MOZILLA+set}" ]] ; then
+			MOZ_API_KEY_MOZILLA="edb3d487-3a84-46m0ap1e3-9dfd-92b5efaaa005"
 		fi
 
 		# Ensure we use C locale when building, bug #746215
@@ -509,16 +519,19 @@ src_prepare() {
 
 	# Write API keys to disk
 	echo -n "${MOZ_API_KEY_GOOGLE//gGaPi/}" > "${S}"/api-google.key || die
+	echo -n "${MOZ_API_KEY_LOCATION//gGaPi/}" > "${S}"/api-location.key || die
+	echo -n "${MOZ_API_KEY_MOZILLA//m0ap1/}" > "${S}"/api-mozilla.key || die
 
 	xdg_src_prepare
 }
 
 src_configure() {
 	# Show flags set at the beginning
-	einfo "Current CFLAGS:    ${CFLAGS}"
-	einfo "Current CXXFLAGS:  ${CXXFLAGS}"
-	einfo "Current LDFLAGS:   ${LDFLAGS}"
-	einfo "Current RUSTFLAGS: ${RUSTFLAGS}"
+	einfo "Current BINDGEN_CFLAGS:\t${BINDGEN_CFLAGS:-no value set}"
+	einfo "Current CFLAGS:\t\t${CFLAGS:-no value set}"
+	einfo "Current CXXFLAGS:\t\t${CXXFLAGS:-no value set}"
+	einfo "Current LDFLAGS:\t\t${LDFLAGS:-no value set}"
+	einfo "Current RUSTFLAGS:\t\t${RUSTFLAGS:-no value set}"
 
 	local have_switched_compiler=
 	if use clang && ! tc-is-clang ; then
@@ -551,6 +564,11 @@ src_configure() {
 	export HOST_CC="$(tc-getBUILD_CC)"
 	export HOST_CXX="$(tc-getBUILD_CXX)"
 	tc-export CC CXX LD AR NM OBJDUMP RANLIB PKG_CONFIG
+
+	# Pass the correct toolchain paths through cbindgen
+	if tc-is-cross-compiler ; then
+		export BINDGEN_CFLAGS="${SYSROOT:+--sysroot=${ESYSROOT}} --target=${CHOST} ${BINDGEN_CFLAGS-}"
+	fi
 
 	# Set MOZILLA_FIVE_HOME
 	export MOZILLA_FIVE_HOME="/usr/$(get_libdir)/${PN}"
@@ -610,10 +628,33 @@ src_configure() {
 		fi
 
 		mozconfig_add_options_ac "${key_origin}" \
-			--with-google-location-service-api-keyfile="${S}/api-google.key" \
 			--with-google-safebrowsing-api-keyfile="${S}/api-google.key"
 	else
 		einfo "Building without Google API key ..."
+	fi
+
+	if [[ -s "${S}/api-location.key" ]] ; then
+		local key_origin="Gentoo default"
+		if [[ $(cat "${S}/api-location.key" | md5sum | awk '{ print $1 }') != ffb7895e35dedf832eb1c5d420ac7420 ]] ; then
+			key_origin="User value"
+		fi
+
+		mozconfig_add_options_ac "${key_origin}" \
+			--with-google-location-service-api-keyfile="${S}/api-location.key"
+	else
+		einfo "Building without Location API key ..."
+	fi
+
+	if [[ -s "${S}/api-mozilla.key" ]] ; then
+		local key_origin="Gentoo default"
+		if [[ $(cat "${S}/api-mozilla.key" | md5sum | awk '{ print $1 }') != 3927726e9442a8e8fa0e46ccc39caa27 ]] ; then
+			key_origin="User value"
+		fi
+
+		mozconfig_add_options_ac "${key_origin}" \
+			--with-mozilla-api-keyfile="${S}/api-mozilla.key"
+	else
+		einfo "Building without Mozilla API key ..."
 	fi
 
 	mozconfig_use_with system-av1
@@ -643,6 +684,8 @@ src_configure() {
 	if use kernel_linux && ! use pulseaudio ; then
 		mozconfig_add_options_ac '-pulseaudio' --enable-alsa
 	fi
+
+	mozconfig_use_enable sndio
 
 	mozconfig_use_enable wifi necko-wifi
 
@@ -808,10 +851,11 @@ src_configure() {
 	mozconfig_add_options_mk 'Gentoo default' "MOZ_OBJDIR=${BUILD_DIR}"
 
 	# Show flags we will use
-	einfo "Build CFLAGS:    ${CFLAGS}"
-	einfo "Build CXXFLAGS:  ${CXXFLAGS}"
-	einfo "Build LDFLAGS:   ${LDFLAGS}"
-	einfo "Build RUSTFLAGS: ${RUSTFLAGS}"
+	einfo "Build BINDGEN_CFLAGS:\t${BINDGEN_CFLAGS:-no value set}"
+	einfo "Build CFLAGS:\t\t${CFLAGS:-no value set}"
+	einfo "Build CXXFLAGS:\t\t${CXXFLAGS:-no value set}"
+	einfo "Build LDFLAGS:\t\t${LDFLAGS:-no value set}"
+	einfo "Build RUSTFLAGS:\t\t${RUSTFLAGS:-no value set}"
 
 	# Handle EXTRA_CONF and show summary
 	local ac opt hash reason
