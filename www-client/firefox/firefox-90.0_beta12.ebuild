@@ -472,9 +472,6 @@ src_unpack() {
 }
 
 src_prepare() {
-	use lto && rm -v "${WORKDIR}"/firefox-patches/*-LTO-Only-enable-LTO-*.patch
-	eapply "${WORKDIR}/firefox-patches"
-
 	# Allow user to apply any additional patches without modifing ebuild
 	eapply_user
 
