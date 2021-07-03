@@ -71,9 +71,11 @@ RDEPEND="${CDEPEND}
 	>=x11-libs/gtk+-3.11:3[wayland?]
 	x11-libs/libX11
 	x11-libs/libXcomposite
+	x11-libs/libXcursor
 	x11-libs/libXdamage
 	x11-libs/libXext
 	x11-libs/libXfixes
+	x11-libs/libXi
 	x11-libs/libXrender
 	x11-libs/libXt
 	>=x11-libs/pango-1.22.0
