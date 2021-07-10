@@ -131,12 +131,15 @@ BDEPEND="dev-python/docutils
 	test? ( >=dev-util/cmocka-1.0.0 )
 "
 
+PATCHES=(
+	"${FILESDIR}/support-libplacebo-3.patch"
+)
+
 pkg_setup() {
 	use lua && lua-single_pkg_setup
 }
 
 src_prepare() {
-	eapply "${WORKDIR}/support-libplacebo-3.patch"
 	cp "${DISTDIR}/waf-${WAF_PV}" "${S}"/waf || die
 	chmod +x "${S}"/waf || die
 	default
