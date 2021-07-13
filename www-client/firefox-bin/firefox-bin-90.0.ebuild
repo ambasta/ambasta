@@ -26,7 +26,7 @@ MOZ_P="${MOZ_PN}-${MOZ_PV}"
 MOZ_PV_DISTFILES="${MOZ_PV}${MOZ_PV_SUFFIX}"
 MOZ_P_DISTFILES="${MOZ_PN}-${MOZ_PV_DISTFILES}"
 
-inherit desktop pax-utils xdg
+inherit desktop linux-info pax-utils xdg
 
 MOZ_SRC_BASE_URI="https://archive.mozilla.org/pub/${MOZ_PN}/releases/${MOZ_PV}"
 
@@ -71,11 +71,9 @@ RDEPEND="${CDEPEND}
 	>=x11-libs/gtk+-3.11:3[wayland?]
 	x11-libs/libX11
 	x11-libs/libXcomposite
-	x11-libs/libXcursor
 	x11-libs/libXdamage
 	x11-libs/libXext
 	x11-libs/libXfixes
-	x11-libs/libXi
 	x11-libs/libXrender
 	x11-libs/libXt
 	>=x11-libs/pango-1.22.0
@@ -158,6 +156,13 @@ moz_install_xpi() {
 		einfo "Installing ${emid}.xpi into ${ED}${DESTDIR} ..."
 		newins "${xpi_file}" "${emid}.xpi"
 	done
+}
+
+pkg_setup() {
+	CONFIG_CHECK="~SECCOMP"
+	WARNING_SECCOMP="CONFIG_SECCOMP not set! This system will be unable to play DRM-protected content."
+
+	linux-info_pkg_setup
 }
 
 src_unpack() {
@@ -250,7 +255,7 @@ src_install() {
 	local wrapper_wayland="${PN}-wayland.sh"
 	local wrapper_x11="${PN}-x11.sh"
 	local desktop_file="${FILESDIR}/${PN}-r2.desktop"
-	local display_protocols="auto X11"
+	local display_protocols="Wayland"
 	local icon="${PN}"
 	local name="Mozilla ${MOZ_PN^} (bin)"
 	local use_wayland="false"
