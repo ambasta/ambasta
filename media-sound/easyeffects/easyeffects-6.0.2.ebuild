@@ -30,10 +30,6 @@ RDEPEND="!media-sound/pulseeffects
 	gui-libs/gtk
 	>=media-libs/lilv-0.24.2-r1
 	>=media-libs/gstreamer-1.12.0:1.0
-	>=media-libs/gst-plugins-good-1.12.0:1.0
-	>=media-libs/gst-plugins-bad-1.12.0:1.0
-	>=media-plugins/gst-plugins-ladspa-1.12.0:1.0
-	>=media-plugins/gst-plugins-lv2-1.12.0:1.0
 	>=media-libs/zita-convolver-3.0.0
 	media-libs/libebur128
 	>=media-video/pipewire-0.3.24[gstreamer]
