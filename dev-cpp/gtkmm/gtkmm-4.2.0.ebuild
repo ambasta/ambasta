@@ -18,14 +18,14 @@ REQUIRED_USE="|| ( aqua wayland X )"
 RESTRICT="!test? ( test )"
 
 RDEPEND="
-	>=dev-cpp/atkmm-2.24.2:0[doc?,${MULTILIB_USEDEP}]
-	>=dev-cpp/cairomm-1.16.0:0[doc?,${MULTILIB_USEDEP}]
-	>=dev-cpp/glibmm-2.54.0:2[doc?,${MULTILIB_USEDEP}]
-	>=dev-cpp/pangomm-2.48.2:1.4[doc?,${MULTILIB_USEDEP}]
+	>=dev-cpp/atkmm-2.36.0:2.36[doc?,${MULTILIB_USEDEP}]
+	>=dev-cpp/cairomm-1.16.0:1.16[doc?,${MULTILIB_USEDEP}]
+	>=dev-cpp/glibmm-2.54.0:2.68[doc?,${MULTILIB_USEDEP}]
+	>=dev-cpp/pangomm-2.48.2:2.48[doc?,${MULTILIB_USEDEP}]
 	>=dev-libs/libsigc++-2.3.2:2[doc?,${MULTILIB_USEDEP}]
 	>=media-libs/libepoxy-1.2[${MULTILIB_USEDEP}]
 	>=x11-libs/gdk-pixbuf-2.35.5:2[${MULTILIB_USEDEP}]
-	>=x11-libs/gtk+-3.24.0:3[aqua?,wayland?,X?,${MULTILIB_USEDEP}]
+	gui-libs/gtk:4[aqua?,wayland?,X?,${MULTILIB_USEDEP}]
 "
 DEPEND="${RDEPEND}"
 BDEPEND="
