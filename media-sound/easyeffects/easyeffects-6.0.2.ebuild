@@ -35,6 +35,7 @@ RDEPEND="!media-sound/pulseeffects
 	media-libs/libbs2b
 	>=media-video/pipewire-0.3.24[gstreamer]
 	sys-apps/dbus
+	media-libs/rnnoise
 	media-libs/rubberband"
 # see 47a950b00c6db383ad07502a8fc396ecca98c1ce for dev-libs/appstream-glib
 # and sys-devel/gettext depends reasoning
