@@ -32,6 +32,7 @@ RDEPEND="!media-sound/pulseeffects
 	>=media-libs/gstreamer-1.12.0:1.0
 	>=media-libs/zita-convolver-3.0.0
 	media-libs/libebur128
+	media-libs/libbs2b
 	>=media-video/pipewire-0.3.24[gstreamer]
 	sys-apps/dbus
 	bs2b? ( >=media-plugins/gst-plugins-bs2b-1.12.0:1.0 )
