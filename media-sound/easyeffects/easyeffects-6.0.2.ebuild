@@ -19,7 +19,7 @@ fi
 
 LICENSE="GPL-3"
 SLOT="0"
-IUSE="bs2b rubberband"
+IUSE=""
 
 #TODO: optional : lilv, zam-plugins (check from archlinux pkg)
 RDEPEND="!media-sound/pulseeffects
@@ -35,8 +35,7 @@ RDEPEND="!media-sound/pulseeffects
 	media-libs/libbs2b
 	>=media-video/pipewire-0.3.24[gstreamer]
 	sys-apps/dbus
-	bs2b? ( >=media-plugins/gst-plugins-bs2b-1.12.0:1.0 )
-	rubberband? ( media-libs/rubberband )"
+	media-libs/rubberband"
 # see 47a950b00c6db383ad07502a8fc396ecca98c1ce for dev-libs/appstream-glib
 # and sys-devel/gettext depends reasoning
 DEPEND="${RDEPEND}
