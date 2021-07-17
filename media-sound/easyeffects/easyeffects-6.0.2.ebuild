@@ -28,15 +28,16 @@ RDEPEND="!media-sound/pulseeffects
 	>=dev-libs/glib-2.56:2
 	>=dev-libs/libsigc++-2.10:2
 	gui-libs/gtk
-	>=media-libs/lilv-0.24.2-r1
 	>=media-libs/gstreamer-1.12.0:1.0
-	>=media-libs/zita-convolver-3.0.0
+	>=media-libs/lilv-0.24.2-r1
 	media-libs/libebur128
 	media-libs/libbs2b
-	>=media-video/pipewire-0.3.24[gstreamer]
-	sys-apps/dbus
+	media-libs/speexdsp
 	media-libs/rnnoise
-	media-libs/rubberband"
+	media-libs/rubberband
+	>=media-libs/zita-convolver-3.0.0
+	>=media-video/pipewire-0.3.24[gstreamer]
+	sys-apps/dbus"
 # see 47a950b00c6db383ad07502a8fc396ecca98c1ce for dev-libs/appstream-glib
 # and sys-devel/gettext depends reasoning
 DEPEND="${RDEPEND}
