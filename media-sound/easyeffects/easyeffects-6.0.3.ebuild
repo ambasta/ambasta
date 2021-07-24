@@ -38,7 +38,6 @@ DEPEND=">=dev-cpp/glibmm-2.68:2.68
 	sci-libs/fftw:3.0
 	>=gui-libs/gtk-4.2.1:4"
 RDEPEND="${DEPEND}
-	gnome-extra/yelp
 	sys-apps/dbus
 	calf? ( >=media-plugins/calf-0.90.1[lv2] )
 	zamaudio? ( media-plugins/zam-plugins )"
