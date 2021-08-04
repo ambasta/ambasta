@@ -20,9 +20,10 @@ else
     KEYWORDS="~amd64 ~arm ~arm64 ~ppc ~ppc64 ~sparc ~x86 ~amd64-linux ~x86-linux"
 fi
 
-
 DEPEND="
 	<=dev-python/pydantic-1.9.0
 	<=dev-python/typeguard-3.0.0"
 RDEPEND="${DEPEND}"
-BDEPEND=">=dev-python/setuptools_scm-2.0.0[${PYTHON_USEDEP}]"
+BDEPEND="
+	>=dev-python/setuptools_scm-2.0.0[${PYTHON_USEDEP}]
+	dev-python/wheel[${PYTHON_USEDEP}]"
