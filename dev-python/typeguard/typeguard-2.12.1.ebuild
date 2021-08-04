@@ -12,10 +12,12 @@ HOMEPAGE="https://github.com/agronholm/typeguard"
 LICENSE="MIT"
 SLOT="0"
 
+BDEPEND=">=dev-python/setuptools_scm-2.0.0[${PYTHON_USEDEP}]"
+
 if [[ "${PV}" == "9999" ]]; then
 	EGIT_REPO_URI="https://github.com/agronholm/${PN}"
     inherit git-r3
 else
-	SRC_URI="https://github.com/agronholm/${PN}/archive/${PV}.tar.gz -> ${P}.tar.gz"
+	SRC_URI="mirror://pypi/${PN:0:1}/${PN}/${P}.tar.gz"
     KEYWORDS="~amd64 ~arm ~arm64 ~ppc ~ppc64 ~sparc ~x86 ~amd64-linux ~x86-linux"
 fi
