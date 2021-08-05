@@ -27,4 +27,4 @@ DEPEND="
 RDEPEND="${DEPEND}"
 BDEPEND=">=dev-python/setuptools_scm-2.0.0[${PYTHON_USEDEP}]"
 
-WORKDIR="${S}/${PN}-${MY_PV}"
+S="${WORKDIR}/${PN}-${MY_PV}"
