@@ -11,12 +11,13 @@ DESCRIPTION="CMake LSP Implementation."
 HOMEPAGE="https://github.com/regen100/cmake-language-server"
 LICENSE="MIT"
 SLOT="0"
+MY_PV="a5af5b505f8810760168dc250caf8404370b15c3"
 
 if [[ "${PV}" == "9999" ]]; then
 	EGIT_REPO_URI="https://github.com/regen100/cmake-language-server"
     inherit git-r3
 else
-	SRC_URI="mirror://pypi/${PN:0:1}/${PN}/${P}.tar.gz"
+	SRC_URI="https://github.com/regen100/${PN}/archive/${MY_PV}.zip -> ${P}.zip"
     KEYWORDS="~amd64 ~arm ~arm64 ~ppc ~ppc64 ~sparc ~x86 ~amd64-linux ~x86-linux"
 fi
 
