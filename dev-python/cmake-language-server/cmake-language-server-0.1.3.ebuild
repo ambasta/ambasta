@@ -26,3 +26,5 @@ DEPEND="
 	>=dev-python/pyparsing-2.4.7[${PYTHON_USEDEP}]"
 RDEPEND="${DEPEND}"
 BDEPEND=">=dev-python/setuptools_scm-2.0.0[${PYTHON_USEDEP}]"
+
+WORKDIR="${S}/${PN}-${MY_PV}"
