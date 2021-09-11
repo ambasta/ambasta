@@ -3,9 +3,7 @@
 
 EAPI=7
 
-CHROMIUM_LANGS="am ar bg bn ca cs da de el en-GB es es-419 et fa fi fil fr gu he
-	hi hr hu id it ja kn ko lt lv ml mr ms nb nl pl pt-BR pt-PT ro ru sk sl sr
-	sv sw ta te th tr uk vi zh-CN zh-TW"
+CHROMIUM_LANGS=""
 
 inherit chromium-2 desktop pax-utils unpacker xdg
 
@@ -40,11 +38,25 @@ RDEPEND="
 	>=dev-libs/nss-3.26
 	media-fonts/liberation-fonts
 	media-libs/alsa-lib
-	media-libs/mesa[gbm]
+	media-libs/mesa[gbm(+)]
 	net-misc/curl
-	net-print/cups
 	sys-apps/dbus
 	sys-libs/libcap
+	x11-libs/cairo
+	x11-libs/gdk-pixbuf:2
+	x11-libs/gtk+:3
+	x11-libs/libdrm
+	>=x11-libs/libX11-1.5.0
+	x11-libs/libXcomposite
+	x11-libs/libXdamage
+	x11-libs/libXext
+	x11-libs/libXfixes
+	x11-libs/libXrandr
+	x11-libs/libxcb
+	x11-libs/libxkbcommon
+	x11-libs/libxshmfence
+	x11-libs/pango
+	x11-misc/xdg-utils
 	selinux? ( sec-policy/selinux-chromium )
 "
 
