@@ -54,3 +54,11 @@ src_install() {
 		mv "${D}/usr/share/doc/${PN}" "${D}/usr/share/doc/${PF}" || die
 	fi
 }
+
+pkg_postinst() {
+	xdg_icon_cache_update
+}
+
+pkg_postrm() {
+	xdg_icon_cache_update
+}
