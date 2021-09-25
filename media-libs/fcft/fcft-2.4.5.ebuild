@@ -34,3 +34,11 @@ src_configure() {
 	)
 	meson_src_configure
 }
+
+src_install() {
+	meson_src_install
+
+	if use docs; then
+		mv "${D}/usr/share/doc/${PN}" "${D}/usr/share/doc/${PF}" || die
+	fi
+}
