@@ -3,7 +3,7 @@
 
 EAPI=8
 
-inherit meson
+inherit meson xdg-utils
 
 DESCRIPTION="A fast, lightweight and minimalistic Wayland terminal emulator"
 HOMEPAGE="https://codeberg.org/dnkl/foot"
