@@ -12,7 +12,7 @@ SRC_URI="https://codeberg.org/dnkl/${PN}/archive/${PV}.tar.gz -> ${P}.tar.gz"
 LICENSE="MIT"
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
-IUSE="+completion docs grapheme-clustering ime +notify pgo +terminfo xdg"
+IUSE="+completion docs grapheme-clustering ime +notify pgo xdg"
 
 DEPEND="
 	media-libs/fcft
@@ -26,14 +26,14 @@ DEPEND="
 	notify? ( x11-libs/libnotify )
 	xdg? ( x11-misc/xdg-utils )
 "
-RDEPEND="${DEPEND}"
+RDEPEND="${DEPEND}
+	gui-apps/foot-terminfo"
 BDEPEND="
 	dev-libs/tllist
 	dev-util/ninja
 	dev-util/meson
 	dev-libs/wayland-protocols
-	docs? ( app-text/scdoc )
-	terminfo? ( sys-libs/ncurses )"
+	docs? ( app-text/scdoc )"
 
 S="${WORKDIR}/${PN}"
 
