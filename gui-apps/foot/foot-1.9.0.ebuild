@@ -39,6 +39,7 @@ S="${WORKDIR}/${PN}"
 
 src_configure() {
 	local emesonargs=(
+		-Dterminfo=disabled
 		$(meson_feature docs)
 		$(meson_use ime)
 		$(meson_feature grapheme-clustering)
