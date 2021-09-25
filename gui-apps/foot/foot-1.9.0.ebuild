@@ -41,7 +41,6 @@ src_configure() {
 	local emesonargs=(
 		$(meson_feature docs)
 		$(meson_use ime)
-		$(meson_feature terminfo)
 		$(meson_feature grapheme-clustering)
 	)
 	meson_src_configure
