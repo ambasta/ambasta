@@ -46,7 +46,7 @@ src_configure() {
 	)
 
 	if use pgo; then
-		emesonargs+=( -Db_pgo=use )
+		emesonargs+=( -Db_pgo=generate)
 	fi
 	meson_src_configure
 }
