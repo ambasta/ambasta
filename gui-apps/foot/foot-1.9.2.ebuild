@@ -44,6 +44,10 @@ src_configure() {
 		$(meson_use ime)
 		$(meson_feature grapheme-clustering)
 	)
+
+	if use pgo; then
+		emesonargs+=( -Db_pgo=use )
+	fi
 	meson_src_configure
 }
 
