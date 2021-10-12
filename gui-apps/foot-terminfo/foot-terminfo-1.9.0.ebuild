@@ -12,7 +12,7 @@ SRC_URI="https://codeberg.org/dnkl/${MY_PN}/archive/${PV}.tar.gz -> ${P}.tar.gz"
 LICENSE="MIT"
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
-IUSE="+completion docs grapheme-clustering ime +notify pgo +terminfo xdg"
+IUSE=""
 
 DEPEND=""
 RDEPEND="${DEPEND}"
