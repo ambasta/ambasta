@@ -28,7 +28,7 @@ DEPEND=""
 RDEPEND=""
 RESTRICT="!test? ( test )"
 
-S="${WORKDIR}/${PN}-${COMMIT_SHA}"
+S="${WORKDIR}/fmt-${COMMIT_SHA}"
 
 multilib_src_configure() {
 	local mycmakeargs=(
