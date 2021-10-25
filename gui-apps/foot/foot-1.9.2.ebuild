@@ -27,7 +27,10 @@ DEPEND="
 	xdg? ( x11-misc/xdg-utils )
 "
 RDEPEND="${DEPEND}
-	gui-apps/foot-terminfo"
+	|| (
+		gui-apps/foot-terminfo
+		>=sys-libs/ncurses-6.3
+	)"
 BDEPEND="
 	dev-libs/tllist
 	dev-util/ninja
