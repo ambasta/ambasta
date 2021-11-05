@@ -191,9 +191,7 @@ DEPEND="${CDEPEND}
 			>=media-sound/apulse-0.1.12-r4[sdk]
 		)
 	)
-	wayland? ( >=x11-libs/gtk+-3.11:3[wayland] )
-	amd64? ( virtual/opengl )
-	x86? ( virtual/opengl )"
+	wayland? ( >=x11-libs/gtk+-3.11:3[wayland] )"
 
 S="${WORKDIR}/${PN}-${PV%_*}"
 
