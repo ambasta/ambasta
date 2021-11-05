@@ -64,7 +64,7 @@ LICENSE="MPL-2.0 GPL-2 LGPL-2.1"
 
 IUSE="+clang cpu_flags_arm_neon dbus debug eme-free hardened hwaccel"
 IUSE+=" jack lto +openh264 pgo pulseaudio sndio selinux"
-IUSE+=" +system-av1 +system-harfbuzz +system-icu +system-jpeg +system-libevent +system-libvpx +system-webp"
+IUSE+=" +system-av1 +system-cairo +system-harfbuzz +system-icu +system-jpeg +system-libevent +system-libvpx +system-webp"
 IUSE+=" wayland wifi"
 
 # Firefox-only IUSE
@@ -686,6 +686,7 @@ src_configure() {
 	fi
 
 	mozconfig_use_with system-av1
+	mozconfig_use_with system-cairo
 	mozconfig_use_with system-harfbuzz
 	mozconfig_use_with system-harfbuzz system-graphite2
 	mozconfig_use_with system-icu
@@ -911,21 +912,16 @@ src_configure() {
 }
 
 src_compile() {
-	local virtx_cmd=
-
 	if use pgo ; then
-		virtx_cmd=virtx
-
 		# Reset and cleanup environment variables used by GNOME/XDG
 		gnome2_environment_reset
 
 		addpredict /root
 	fi
 
-	local -x GDK_BACKEND=x11
+	local -x GDK_BACKEND=wayland
 
-	${virtx_cmd} ./mach build --verbose \
-		|| die
+	./mach build --verbose || die
 }
 
 src_install() {
