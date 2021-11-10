@@ -24,7 +24,7 @@ src_compile() {
 		-Dime=false
 		-Dgrapheme-clustering=disabled
 		-Dterminfo=enabled
-		-Ddefault-terminfo=foot
+		-Ddefault-terminfo=xterm-foot
 	)
 
 	meson_src_configure
