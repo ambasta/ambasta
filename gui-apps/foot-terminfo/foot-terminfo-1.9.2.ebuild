@@ -10,7 +10,7 @@ S="${WORKDIR}/foot"
 
 LICENSE="MIT"
 SLOT="0"
-KEYWORDS="~amd64 ~x86"
+KEYWORDS="amd64 x86"
 RESTRICT="test" # intended to be ran on the full foot package
 
 BDEPEND="sys-libs/ncurses"
