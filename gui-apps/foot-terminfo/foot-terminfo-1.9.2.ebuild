@@ -32,7 +32,7 @@ src_compile() {
 
 src_install() {
 	dodir /usr/share/terminfo
-	tic -xo "${ED}"/usr/share/terminfo foot.info.preprocessed || die
+	tic -xo "${ED}"/usr/share/terminfo ${BUILD_DIR}/foot.info.preprocessed || die
 }
 #
 # src_compile() {
