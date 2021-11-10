@@ -3,6 +3,8 @@
 
 EAPI=8
 
+inherit meson
+
 DESCRIPTION="Terminfo for foot, wayland terminal emulator"
 HOMEPAGE="https://codeberg.org/dnkl/foot"
 SRC_URI="https://codeberg.org/dnkl/foot/archive/${PV}.tar.gz -> ${P}.tar.gz"
