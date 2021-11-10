@@ -15,11 +15,22 @@ RESTRICT="test" # intended to be ran on the full foot package
 
 BDEPEND="sys-libs/ncurses"
 
-src_compile() { :; }
+src_compile() {
+	local emesonargs=(
+		-Dterminfo=disabled
+		-Ddocs=disabled
+		-Dime=false
+		-Dgrapheme-clustering=disabled
+		-Dterminfo=enabled
+		-Ddefault-terminfo=foot
+	)
+
+	meson_src_configure
+}
 
 src_install() {
 	dodir /usr/share/terminfo
-	tic -xo "${ED}"/usr/share/terminfo foot.info || die
+	tic -xo "${ED}"/usr/share/terminfo foot.info.preprocessed || die
 }
 #
 # src_compile() {
