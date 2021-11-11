@@ -17,7 +17,7 @@ RESTRICT="test" # intended to be ran on the full foot package
 
 BDEPEND="sys-libs/ncurses"
 
-src_compile() {
+src_configure() {
 	local emesonargs=(
 		-Dterminfo=disabled
 		-Ddocs=disabled
