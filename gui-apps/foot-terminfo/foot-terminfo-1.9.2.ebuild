@@ -30,6 +30,8 @@ src_configure() {
 	meson_src_configure
 }
 
+src_compile() { :; }
+
 src_install() {
 	dodir /usr/share/terminfo
 	tic -xo "${ED}"/usr/share/terminfo ${BUILD_DIR}/foot.info.preprocessed || die
