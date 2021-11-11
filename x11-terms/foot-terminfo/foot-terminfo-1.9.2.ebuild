@@ -13,7 +13,7 @@ S="${WORKDIR}/foot"
 LICENSE="MIT"
 SLOT="0"
 KEYWORDS="amd64 x86"
-RESTRICT="test" # intended to be ran on the full foot package
+RESTRICT="test"
 
 BDEPEND="sys-libs/ncurses"
 
@@ -36,13 +36,3 @@ src_install() {
 	dodir /usr/share/terminfo
 	tic -xo "${ED}"/usr/share/terminfo ${BUILD_DIR}/foot.info.preprocessed || die
 }
-#
-# src_compile() {
-# 	tic -x -o "${S}" -e foot,foot-direct "${S}/foot.info" || die "Failed to compile terminfo"
-# }
-#
-# src_install() {
-# 	dodir /usr/share/terminfo/f/
-# 	cp "${S}/f/foot" "${D}/usr/share/terminfo/f/foot" || die
-# 	cp "${S}/f/foot-direct" "${D}/usr/share/terminfo/f/foot-direct" || die
-# }

@@ -64,7 +64,7 @@ LICENSE="MPL-2.0 GPL-2 LGPL-2.1"
 
 IUSE="+clang cpu_flags_arm_neon dbus debug eme-free hardened hwaccel"
 IUSE+=" jack lto +openh264 pgo pulseaudio sndio selinux"
-IUSE+=" +system-av1 +system-cairo +system-harfbuzz +system-icu +system-jpeg +system-libevent +system-libvpx +system-webp"
+IUSE+=" +system-av1 +system-harfbuzz +system-icu +system-jpeg +system-libevent +system-libvpx +system-webp"
 IUSE+=" wayland wifi"
 
 # Firefox-only IUSE
@@ -638,7 +638,17 @@ src_configure() {
 		--with-toolchain-prefix="${CHOST}-" \
 		--with-unsigned-addon-scopes=app,system \
 		--x-includes="${SYSROOT}${EPREFIX}/usr/include" \
-		--x-libraries="${SYSROOT}${EPREFIX}/usr/$(get_libdir)"
+		--x-libraries="${SYSROOT}${EPREFIX}/usr/$(get_libdir)" \
+		--disable-system-extension-dirs \
+		--enable-skia-pdf \
+		--disable-accessibility \
+		--enable-smoosh \
+		--disable-nodejs \
+		--enable-xul \
+		--disable-synth-speechd \
+		--disable-webdriver \
+		--disable-webspeech
+
 
 	# Set update channel
 	local update_channel=release
@@ -686,7 +696,6 @@ src_configure() {
 	fi
 
 	mozconfig_use_with system-av1
-	mozconfig_use_with system-cairo
 	mozconfig_use_with system-harfbuzz
 	mozconfig_use_with system-harfbuzz system-graphite2
 	mozconfig_use_with system-icu

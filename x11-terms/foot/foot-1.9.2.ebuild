@@ -27,15 +27,14 @@ DEPEND="
 	xdg? ( x11-misc/xdg-utils )
 "
 RDEPEND="${DEPEND}
-	|| (
-		gui-apps/foot-terminfo
-		>=sys-libs/ncurses-6.3
-	)"
+	~x11-terms/foot-terminfo-${PV}
+	>x11-terms/foot-terminfo-1.9.1"
 BDEPEND="
 	dev-libs/tllist
 	dev-util/ninja
 	dev-util/meson
 	dev-libs/wayland-protocols
+	sys-libs/ncurses
 	docs? ( app-text/scdoc )"
 
 S="${WORKDIR}/${PN}"
@@ -43,6 +42,7 @@ S="${WORKDIR}/${PN}"
 src_configure() {
 	local emesonargs=(
 		-Dterminfo=disabled
+		-Ddefault-terminfo=xterm-foot
 		$(meson_feature docs)
 		$(meson_use ime)
 		$(meson_feature grapheme-clustering)
