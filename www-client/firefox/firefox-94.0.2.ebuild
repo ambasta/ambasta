@@ -62,15 +62,15 @@ KEYWORDS="~amd64 ~arm64 ~ppc64 ~x86"
 SLOT="0/$(ver_cut 1)"
 LICENSE="MPL-2.0 GPL-2 LGPL-2.1"
 
-IUSE="+clang cpu_flags_arm_neon dbus debug eme-free hardened hwaccel"
+IUSE="+clang cpu_flags_arm_neon +dbus debug eme-free hardened +hwaccel"
 IUSE+=" jack lto +openh264 pgo pulseaudio sndio selinux"
 IUSE+=" +system-av1 +system-harfbuzz +system-icu +system-jpeg +system-libevent +system-libvpx +system-webp"
-IUSE+=" wayland wifi"
+IUSE+=" +wayland wifi"
 
 # Firefox-only IUSE
 IUSE+=" geckodriver"
 IUSE+=" +gmp-autoupdate"
-IUSE+=" screencast"
+IUSE+=" +screencast"
 
 REQUIRED_USE="debug? ( !system-av1 )
 	wifi? ( dbus )"
