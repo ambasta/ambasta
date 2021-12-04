@@ -10,6 +10,6 @@
       <name><![CDATA[Amit Prakash Ambasta]]></name>
     </owner>
     <source type="git">https://github.com/ambasta/ambasta.git</source>
-    <feed>https://github.com/ambasta/ambasta/commits/master.atom</feed>
+    <feed>https://github.com/ambasta/ambasta/commits/main.atom</feed>
   </repo>
 </repositories>
