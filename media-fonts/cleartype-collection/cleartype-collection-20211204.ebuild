@@ -23,6 +23,8 @@ S="${WORKDIR}/${PN}-${COMMIT}"
 
 FONT_SUFFIX="ttf"
 
+FONT_CONF=( "${FILESDIR}/60-cleartype-collection.conf" )
+
 src_install() {
 	mkdir install || die
 	mv cleartype_collection*/*.ttf install/. || die
