@@ -26,6 +26,7 @@ fi
 IUSE="+corepack cpu_flags_x86_sse2 debug doc +icu inspector lto npm pax-kernel +snapshot +ssl +system-icu +system-ssl systemtap test"
 REQUIRED_USE="inspector? ( icu ssl )
 	npm? ( ssl )
+	corepack? ( !npm )
 	system-icu? ( icu )
 	system-ssl? ( ssl )"
 
@@ -36,6 +37,7 @@ RDEPEND=">=app-arch/brotli-1.0.9:=
 	>=net-dns/c-ares-1.17.2:=
 	>=net-libs/nghttp2-1.41.0:=
 	sys-libs/zlib
+	corepack? ( !sys-apps/yarn )
 	system-icu? ( >=dev-libs/icu-67:= )
 	system-ssl? ( >=dev-libs/openssl-1.1.1:0= )"
 BDEPEND="${PYTHON_DEPS}
@@ -214,6 +216,13 @@ src_install() {
 				-iname "LICEN?E*" \
 				"${find_name[@]}" \
 			\) \) -exec rm -rf "{}" \;
+	fi
+
+	if use corepack; then
+		dosym "${LIBDIR}"/node_modules/corepack/dist/pnpm.js /usr/bin/pnpm
+		dosym "${LIBDIR}"/node_modules/corepack/dist/pnpx.js /usr/bin/pnpx
+		dosym "${LIBDIR}"/node_modules/corepack/dist/yarn.js /usr/bin/yarn
+		dosym "${LIBDIR}"/node_modules/corepack/dist/yarnpkg.js /usr/bin/yarnpkg
 	fi
 
 	mv "${ED}"/usr/share/doc/node "${ED}"/usr/share/doc/${PF} || die
