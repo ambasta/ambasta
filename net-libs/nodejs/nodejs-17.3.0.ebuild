@@ -131,7 +131,7 @@ src_configure() {
 		myconf+=( --with-intl=none )
 	fi
 	use inspector || myconf+=( --without-inspector )
-	use corepack && myconf+=( --with-corepack )
+	use corepack || myconf+=( --without-corepack )
 	use npm || myconf+=( --without-npm )
 	use snapshot || myconf+=( --without-node-snapshot )
 	if use ssl; then
