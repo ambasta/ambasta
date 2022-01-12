@@ -1,4 +1,4 @@
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -35,7 +35,7 @@ SRC_URI="${MOZ_SRC_BASE_URI}/linux-x86_64/en-US/${MOZ_P}.tar.bz2 -> ${PN}_x86_64
 DESCRIPTION="Firefox Web Browser"
 HOMEPAGE="https://www.mozilla.com/firefox"
 
-KEYWORDS="-* amd64"
+KEYWORDS="-* amd64 x86"
 SLOT="0/$(ver_cut 1)"
 LICENSE="MPL-2.0 GPL-2 LGPL-2.1"
 IUSE="+alsa +ffmpeg +gmp-autoupdate +pulseaudio selinux wayland"
@@ -57,7 +57,7 @@ CDEPEND="alsa? (
 
 DEPEND="${CDEPEND}"
 
-# 	x11-libs/libxcb
+#	x11-libs/libxcb
 #	x11-libs/libX11
 #	x11-libs/libXcomposite
 #	x11-libs/libXcursor
@@ -67,7 +67,6 @@ DEPEND="${CDEPEND}"
 #	x11-libs/libXi
 #	x11-libs/libXrandr
 #	x11-libs/libXrender
-#	x11-libs/libXt
 
 RDEPEND="${CDEPEND}
 	dev-libs/atk
