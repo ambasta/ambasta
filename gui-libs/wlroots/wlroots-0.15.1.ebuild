@@ -58,7 +58,7 @@ src_configure() {
 		"-Dxcb-errors=disabled"
 		"-Dexamples=false"
 		"-Dwerror=true"
-		-Drenderers=$(usex vulkan 'vulkan' gles2)
+		-Drenderers=$(usex vulkan 'gles2,vulkan' gles2)
 		-Dxwayland=$(usex X enabled disabled)
 		-Dbackends=drm,libinput$(usex x11-backend ',x11' '')
 	)
