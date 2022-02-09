@@ -8,18 +8,12 @@ inherit meson
 DESCRIPTION="Pluggable, composable, unopinionated modules for building a Wayland compositor"
 HOMEPAGE="https://gitlab.freedesktop.org/wlroots/wlroots"
 
-if [[ ${PV} == 9999 ]]; then
-	EGIT_REPO_URI="https://gitlab.freedesktop.org/${PN}/${PN}.git"
-	inherit git-r3
-	SLOT="0/9999"
-else
-	SRC_URI="https://gitlab.freedesktop.org/${PN}/${PN}/-/archive/${PV}/${P}.tar.gz"
-	KEYWORDS="~amd64 ~arm64 ~ppc64 ~riscv ~x86"
-	SLOT="0/15"
-fi
+SRC_URI="https://gitlab.freedesktop.org/${PN}/${PN}/-/archive/${PV}/${P}.tar.gz"
+KEYWORDS="~amd64 ~arm64 ~ppc64 ~riscv ~x86"
+SLOT="0/15"
 
 LICENSE="MIT"
-IUSE="vulkan x11-backend X"
+IUSE="gles2 vulkan x11-backend X"
 
 DEPEND="
 	>=dev-libs/libinput-1.14.0:0=
@@ -58,7 +52,7 @@ src_configure() {
 		"-Dxcb-errors=disabled"
 		"-Dexamples=false"
 		"-Dwerror=true"
-		-Drenderers=$(usex vulkan 'gles2,vulkan' gles2)
+		-Drenderers=$(usex vulkan $(usex gles2 'gles2,vulkan' 'vulkan') $(usex gles2 'gles2' ''))
 		-Dxwayland=$(usex X enabled disabled)
 		-Dbackends=drm,libinput$(usex x11-backend ',x11' '')
 	)
