@@ -12,8 +12,6 @@ PYTHON_REQ_USE="ncurses,sqlite,ssl"
 
 WANT_AUTOCONF="2.1"
 
-VIRTUALX_REQUIRED="pgo"
-
 MOZ_ESR=
 
 MOZ_PV=${PV}
