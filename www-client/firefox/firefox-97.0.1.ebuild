@@ -941,11 +941,7 @@ src_configure() {
 }
 
 src_compile() {
-	local virtx_cmd=
-
 	if use pgo ; then
-		virtx_cmd=virtx
-
 		# Reset and cleanup environment variables used by GNOME/XDG
 		gnome2_environment_reset
 
@@ -954,8 +950,7 @@ src_compile() {
 
 	local -x GDK_BACKEND=x11
 
-	${virtx_cmd} ./mach build --verbose \
-		|| die
+	./mach build --verbose || die
 }
 
 src_install() {
