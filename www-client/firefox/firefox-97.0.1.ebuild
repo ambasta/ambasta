@@ -735,11 +735,22 @@ src_configure() {
 	if use lto ; then
 		if use clang ; then
 			# Upstream only supports lld when using clang
+			if use mold ; then
+				mozconfig_add_options_ac "forcing ld=mold due to USE=clang and USE=lto" --enable-linker=mold
+			else
+				mozconfig_add_options_ac "forcing ld=lld due to USE=clang and USE=lto" --enable-linker=lld
+			fi
+
 			mozconfig_add_options_ac '+lto' --enable-lto=cross
 
 		else
 			# ThinLTO is currently broken, see bmo#1644409
 			mozconfig_add_options_ac '+lto' --enable-lto=full
+			if use mold ; then
+				mozconfig_add_options_ac "linker is set to mold" --enable-linker=mold
+			else
+				mozconfig_add_options_ac "linker is set to bfd" --enable-linker=bfd
+			fi
 		fi
 
 		if use pgo ; then
@@ -748,6 +759,22 @@ src_configure() {
 			if use clang ; then
 				# Used in build/pgo/profileserver.py
 				export LLVM_PROFDATA="llvm-profdata"
+			fi
+		fi
+	else
+		# Avoid auto-magic on linker
+		if use clang ; then
+			# This is upstream's default
+			if use mold; then
+				mozconfig_add_options_ac "forcing ld=mold due to USE=clang" --enable-linker=mold
+			else
+				mozconfig_add_options_ac "forcing ld=lld due to USE=clang" --enable-linker=lld
+			fi
+		else
+			if use mold; then
+				mozconfig_add_options_ac "linker is set to mold" --enable-linker=mold
+			else
+				mozconfig_add_options_ac "linker is set to bfd" --enable-linker=bfd
 			fi
 		fi
 	fi
