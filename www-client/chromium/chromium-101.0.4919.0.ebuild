@@ -482,7 +482,6 @@ src_configure() {
 	myconf_gn+=" enable_js_type_check=false"
 	myconf_gn+=" enable_hangout_services_extension=false"
 	myconf_gn+=" enable_widevine=false"
-	myconf_gn+=" use_x11=false"
 	myconf_gn+=" use_cups=false"
 	myconf_gn+=" use_kerberos=false"
 	myconf_gn+=" use_pulseaudio=false"
