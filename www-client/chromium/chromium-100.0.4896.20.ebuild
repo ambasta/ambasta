@@ -11,13 +11,13 @@ inherit check-reqs chromium-2 desktop flag-o-matic ninja-utils pax-utils python-
 
 DESCRIPTION="Open-source version of Google Chrome web browser"
 HOMEPAGE="https://chromium.org/"
-PATCHSET="1"
+PATCHSET="4"
 PATCHSET_NAME="chromium-$(ver_cut 1)-patchset-${PATCHSET}"
 SRC_URI="https://commondatastorage.googleapis.com/chromium-browser-official/${P}.tar.xz
 	https://github.com/stha09/chromium-patches/releases/download/${PATCHSET_NAME}/${PATCHSET_NAME}.tar.xz"
 
 LICENSE="BSD"
-SLOT="0/dev"
+SLOT="0/beta"
 KEYWORDS="~amd64"
 IUSE="libcxx pic +suid +wayland"
 REQUIRED_USE="wayland"
@@ -46,8 +46,7 @@ COMMON_SNAPSHOT_DEPEND="
 	x11-libs/libxcb
 	x11-libs/libxkbcommon
 	dev-libs/wayland
-	media-video/pipewire
-"
+	media-video/pipewire"
 
 COMMON_DEPEND="
 	${COMMON_SNAPSHOT_DEPEND}
@@ -162,8 +161,6 @@ src_prepare() {
 		"${FILESDIR}/chromium-97-arm-tflite-cast.patch"
 		"${FILESDIR}/chromium-98-EnumTable-crash.patch"
 		"${FILESDIR}/chromium-98-gtk4-build.patch"
-		"${FILESDIR}/chromium-101-libxml-unbundle.patch"
-		"${FILESDIR}/chromium-101-system-icu.patch"
 		"${FILESDIR}/chromium-use-oauth2-client-switches-as-default.patch"
 		"${FILESDIR}/chromium-shim_headers.patch"
 		"${FILESDIR}/chromium-cross-compile.patch"
@@ -267,6 +264,7 @@ src_prepare() {
 		third_party/flatbuffers
 		third_party/freetype
 		third_party/fusejs
+		third_party/harfbuzz-ng/utils
 		third_party/highway
 		third_party/libgifcodec
 		third_party/liburlpattern
@@ -276,7 +274,6 @@ src_prepare() {
 		third_party/google_input_tools/third_party/closure_library
 		third_party/google_input_tools/third_party/closure_library/third_party/closure
 		third_party/googletest
-		third_party/harfbuzz-ng/utils
 		third_party/hunspell
 		third_party/iccjpeg
 		third_party/inspector_protocol
