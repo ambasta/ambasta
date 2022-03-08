@@ -36,7 +36,7 @@ DESCRIPTION="Firefox Web Browser"
 HOMEPAGE="https://www.mozilla.com/firefox"
 
 KEYWORDS="-* amd64 x86"
-SLOT="0/$(ver_cut 1)"
+SLOT="rapid"
 LICENSE="MPL-2.0 GPL-2 LGPL-2.1"
 IUSE="+alsa +ffmpeg +gmp-autoupdate +pulseaudio selinux wayland"
 
@@ -49,37 +49,29 @@ BDEPEND="app-arch/unzip
 		)
 	)"
 
-CDEPEND="alsa? (
+COMMON_DEPEND="alsa? (
 		!pulseaudio? (
 			media-sound/apulse
 		)
 	)"
 
-DEPEND="${CDEPEND}"
+DEPEND="${COMMON_DEPEND}"
 
-#	x11-libs/libxcb
-#	x11-libs/libX11
-#	x11-libs/libXcomposite
-#	x11-libs/libXcursor
-#	x11-libs/libXdamage
-#	x11-libs/libXext
-#	x11-libs/libXfixes
-#	x11-libs/libXi
-#	x11-libs/libXrandr
-#	x11-libs/libXrender
-
-RDEPEND="${CDEPEND}
+RDEPEND="${COMMON_DEPEND}
+	!www-client/firefox-bin:0
+	!www-client/firefox-bin:esr
 	dev-libs/atk
 	dev-libs/dbus-glib
-	>=dev-libs/glib-2.26:2
+	dev-libs/glib
 	media-libs/fontconfig
-	>=media-libs/freetype-2.4.10
+	media-libs/freetype
 	sys-apps/dbus
 	virtual/freedesktop-icon-theme
-	>=x11-libs/cairo-1.10
+	x11-libs/cairo
 	x11-libs/gdk-pixbuf
-	>=x11-libs/gtk+-3.11:3[wayland?]
-	>=x11-libs/pango-1.22.0
+	x11-libs/gtk+[wayland?]
+	x11-libs/pango
+	alsa? ( media-libs/alsa-lib )
 	ffmpeg? ( media-video/ffmpeg )
 	pulseaudio? ( media-sound/pulseaudio )
 	selinux? ( sec-policy/selinux-mozilla )
