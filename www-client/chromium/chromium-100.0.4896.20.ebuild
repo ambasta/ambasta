@@ -35,7 +35,7 @@ COMMON_SNAPSHOT_DEPEND="
 	media-libs/libjpeg-turbo
 	media-libs/libpng[-apng]
 	media-libs/libwebp
-	media-libs/mesa[gbm]
+	media-libs/mesa
 	media-libs/openh264
 	sys-libs/zlib
 	x11-libs/libdrm
