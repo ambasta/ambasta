@@ -598,8 +598,6 @@ src_configure() {
 
 	use eme-free && mozconfig_add_options_ac '+eme-free' --disable-eme
 
-	mozconfig_add_options_ac '-pulseaudio'
-
 	mozconfig_use_enable sndio
 
 	mozconfig_add_options_ac '+wayland' --enable-default-toolkit=cairo-gtk3-wayland
