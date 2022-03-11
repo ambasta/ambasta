@@ -433,8 +433,6 @@ src_unpack() {
 }
 
 src_prepare() {
-	eapply
-
 	if ! use lto ; then
 		eapply "${FILESDIR}/0018-LTO-Only-enable-LTO-for-Rust-when-complete-build-use.patch"
 	fi
