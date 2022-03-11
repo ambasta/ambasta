@@ -539,6 +539,7 @@ src_configure() {
 		--allow-addon-sideload \
 		--disable-cargo-incremental \
 		--disable-crashreporter \
+		--disable-pulseaudio \
 		--disable-install-strip \
 		--disable-parental-controls \
 		--disable-strip \
@@ -596,6 +597,8 @@ src_configure() {
 	mozconfig_use_enable dbus
 
 	use eme-free && mozconfig_add_options_ac '+eme-free' --disable-eme
+
+	mozconfig_add_options_ac '-pulseaudio'
 
 	mozconfig_use_enable sndio
 
