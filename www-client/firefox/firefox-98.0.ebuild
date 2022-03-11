@@ -32,7 +32,6 @@ PATCHES=(
 	"${FILESDIR}/0003-Check-additional-plugins-dir.patch"
 	"${FILESDIR}/0004-PATCH-04-30-bmo-847568-Support-system-harfbuzz.patch"
 	"${FILESDIR}/0005-PATCH-05-30-bmo-847568-Support-system-graphite2.patch"
-	"${FILESDIR}/0006-bmo-1559213-Support-system-av1.patch"
 	"${FILESDIR}/0007-PATCH-05-30-Support-sndio-audio-framework.patch"
 	"${FILESDIR}/0008-bmo-878089-Don-t-fail-when-TERM-is-not-set.patch"
 	"${FILESDIR}/0009-bmo-1516803-Fix-building-sandbox.patch"
@@ -65,7 +64,7 @@ LICENSE="MPL-2.0 GPL-2 LGPL-2.1"
 
 IUSE="+clang +dbus eme-free"
 IUSE+=" lto +mold +openh264 pgo sndio"
-IUSE+=" +system-av1 +system-harfbuzz +system-icu +system-jpeg +system-libevent +system-libvpx system-png +system-webp"
+IUSE+=" +system-harfbuzz +system-icu +system-jpeg +system-libevent +system-libvpx system-png +system-webp"
 
 REQUIRED_USE="
 	pgo? ( lto )
@@ -110,10 +109,6 @@ COMMON_DEPEND="
 		dev-libs/dbus-glib
 	)
 	media-video/pipewire
-	system-av1? (
-		media-libs/dav1d
-		media-libs/libaom
-	)
 	system-harfbuzz? (
 		media-libs/harfbuzz
 		media-gfx/graphite2
@@ -590,7 +585,6 @@ src_configure() {
 		einfo "Building without Mozilla API key ..."
 	fi
 
-	mozconfig_use_with system-av1
 	mozconfig_use_with system-harfbuzz
 	mozconfig_use_with system-harfbuzz system-graphite2
 	mozconfig_use_with system-icu
