@@ -6,5 +6,5 @@ pref("browser.shell.checkDefaultBrowser",  false);
 pref("browser.EULA.override",              true);
 pref("general.useragent.locale",           "chrome://global/locale/intl.properties");
 pref("intl.locale.requested",              "");
-pref("network.trr.mode",                   2);
+pref("network.trr.mode",                   3);
 pref("app.normandy.enabled",               false);
