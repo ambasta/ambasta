@@ -3,8 +3,6 @@
 
 EAPI="7"
 
-FIREFOX_PATCHSET="firefox-97-patches-03j.tar.xz"
-
 LLVM_MAX_SLOT=13
 
 PYTHON_COMPAT=( python3_{8..10} )
@@ -45,12 +43,38 @@ if [[ ${PV} == *_rc* ]] ; then
 	MOZ_SRC_BASE_URI="https://archive.mozilla.org/pub/${MOZ_PN}/candidates/${MOZ_PV}-candidates/build${PV##*_rc}"
 fi
 
-PATCH_URIS=(
-	https://dev.gentoo.org/~{juippis,polynomial-c,whissi}/mozilla/patchsets/${FIREFOX_PATCHSET}
-)
-
 SRC_URI="${MOZ_SRC_BASE_URI}/source/${MOZ_P}.source.tar.xz -> ${MOZ_P_DISTFILES}.source.tar.xz
 	${PATCH_URIS[@]}"
+
+PATCHES=(
+	"${FILESDIR}/0001-Don-t-use-build-id.patch"
+	"${FILESDIR}/0002-Fortify-sources-properly.patch"
+	"${FILESDIR}/0003-Check-additional-plugins-dir.patch"
+	"${FILESDIR}/0004-PATCH-04-30-bmo-847568-Support-system-harfbuzz.patch"
+	"${FILESDIR}/0005-PATCH-05-30-bmo-847568-Support-system-graphite2.patch"
+	"${FILESDIR}/0006-bmo-1559213-Support-system-av1.patch"
+	"${FILESDIR}/0007-PATCH-05-30-Support-sndio-audio-framework.patch"
+	"${FILESDIR}/0008-bmo-878089-Don-t-fail-when-TERM-is-not-set.patch"
+	"${FILESDIR}/0009-bmo-1516803-Fix-building-sandbox.patch"
+	"${FILESDIR}/0010-musl-Add-alternate-name-for-private-siginfo-struct-m.patch"
+	"${FILESDIR}/0011-Make-PGO-use-toolchain.patch"
+	"${FILESDIR}/0012-bmo-1516081-Disable-watchdog-during-PGO-builds.patch"
+	"${FILESDIR}/0013-bmo-1516803-force-one-LTO-partition-for-sandbox-when.patch"
+	"${FILESDIR}/0014-bmo-1196777-Set-GDK_FOCUS_CHANGE_MASK.patch"
+	"${FILESDIR}/0015-Fix-building-with-PGO-when-using-GCC.patch"
+	"${FILESDIR}/0016-libaom-Use-NEON_FLAGS-instead-of-VPX_ASFLAGS-for-lib.patch"
+	"${FILESDIR}/0017-build-Disable-Werror.patch"
+	"${FILESDIR}/0018-LTO-Only-enable-LTO-for-Rust-when-complete-build-use.patch"
+	"${FILESDIR}/0019-Disable-FFVPX-with-VA-API.patch"
+	"${FILESDIR}/0020-Enable-FLAC-on-platforms-without-ffvpx-via-ffmpeg.patch"
+	"${FILESDIR}/0021-bmo-1670333-OpenH264-Fix-decoding-if-it-starts-on-no.patch"
+	"${FILESDIR}/0022-bmo-1663844-OpenH264-Allow-using-OpenH264-GMP-decode.patch"
+	"${FILESDIR}/0023-PATCH-30-30-bgo-816975-Fix-build-on-x86.patch"
+	"${FILESDIR}/0024-PATCH-31-30-bgo-831903-pip-don-t-fail-with-optional-.patch"
+	"${FILESDIR}/0025-Skip-pip-check.patch"
+	"${FILESDIR}/0026-bmo-1753182-Resolve-fs-symlinks.patch"
+	"${FILESDIR}/0027-Support-for-building-firefox-without-X11.patch"
+)
 
 DESCRIPTION="Firefox Web Browser"
 HOMEPAGE="https://www.mozilla.com/firefox"

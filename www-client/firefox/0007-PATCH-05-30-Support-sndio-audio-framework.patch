@@ -1,0 +1,73 @@
+From fc8fb25476414a8265a52658a906d0d2a1379e5e Mon Sep 17 00:00:00 2001
+From: Amit Prakash Ambasta <amit.prakash.ambasta@gmail.com>
+Date: Fri, 11 Mar 2022 16:02:35 +0530
+Subject: [PATCH 07/26] [PATCH 05/30] Support sndio audio framework
+
+Signed-off-by: Amit Prakash Ambasta <amit.prakash.ambasta@gmail.com>
+---
+ build/moz.configure/old.configure |  1 +
+ media/libcubeb/src/moz.build      |  4 +++-
+ old-configure.in                  | 16 ++++++++++++++++
+ 3 files changed, 20 insertions(+), 1 deletion(-)
+
+diff --git a/build/moz.configure/old.configure b/build/moz.configure/old.configure
+index dc0880e31b..879e8e6ca6 100644
+--- a/build/moz.configure/old.configure
++++ b/build/moz.configure/old.configure
+@@ -90,6 +90,7 @@ def old_configure_options(*options):
+ @old_configure_options(
+     "--cache-file",
+     "--datadir",
++    "--enable-sndio",
+     "--enable-official-branding",
+     "--includedir",
+     "--libdir",
+diff --git a/media/libcubeb/src/moz.build b/media/libcubeb/src/moz.build
+index 2c803de900..604c448fbe 100644
+--- a/media/libcubeb/src/moz.build
++++ b/media/libcubeb/src/moz.build
+@@ -46,11 +46,13 @@ if CONFIG['OS_ARCH'] in ('DragonFly', 'FreeBSD', 'SunOS'):
+     ]
+     DEFINES['USE_OSS'] = True
+ 
+-if CONFIG['OS_ARCH'] == 'OpenBSD':
++if CONFIG['MOZ_SNDIO']:
+     SOURCES += [
+         'cubeb_sndio.c',
+     ]
+     DEFINES['USE_SNDIO'] = True
++
++if CONFIG['OS_ARCH'] == 'OpenBSD':
+     DEFINES['DISABLE_LIBSNDIO_DLOPEN'] = True
+ 
+ if CONFIG['OS_TARGET'] == 'Darwin':
+diff --git a/old-configure.in b/old-configure.in
+index f79e30de82..26ab520b22 100644
+--- a/old-configure.in
++++ b/old-configure.in
+@@ -1236,6 +1236,22 @@ case "$MOZ_WIDGET_TOOLKIT" in
+ esac
+ AC_SUBST(MOZ_ENABLE_D3D10_LAYER)
+ 
++dnl ==================================
++dnl = Check sndio availability
++dnl ==================================
++
++MOZ_ARG_ENABLE_BOOL(sndio,
++[  --enable-sndio         Enable sndio support],
++   MOZ_SNDIO=1,
++   MOZ_SNDIO=)
++
++if test -n "$MOZ_SNDIO"; then
++    MOZ_SNDIO_LIBS="-lsndio"
++    AC_SUBST_LIST(MOZ_SNDIO_LIBS)
++fi
++
++AC_SUBST(MOZ_SNDIO)
++
+ dnl ========================================================
+ dnl =
+ dnl = Maintainer debug option (no --enable equivalent)
+-- 
+2.35.1
+
