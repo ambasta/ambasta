@@ -1,0 +1,54 @@
+From 5b0f933787ca68cc5d8ec5588a0ed9dd19adadbd Mon Sep 17 00:00:00 2001
+From: Amit Prakash Ambasta <amit.prakash.ambasta@gmail.com>
+Date: Fri, 11 Mar 2022 18:16:58 +0530
+Subject: [PATCH] Accept mold as linker
+
+Signed-off-by: Amit Prakash Ambasta <amit.prakash.ambasta@gmail.com>
+---
+ build/moz.configure/toolchain.configure | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
+
+diff --git a/build/moz.configure/toolchain.configure b/build/moz.configure/toolchain.configure
+index 301e4d9b59..ca0084e518 100755
+--- a/build/moz.configure/toolchain.configure
++++ b/build/moz.configure/toolchain.configure
+@@ -1484,7 +1484,7 @@ def enable_linker_default(target, developer_options):
+ option(
+     "--enable-linker",
+     nargs=1,
+-    help="Select the linker {bfd, gold, ld64, lld, lld-*}{|}",
++    help="Select the linker {bfd, gold, ld64, lld, lld-*, mold}{|}",
+     default=enable_linker_default,
+     when=is_linker_option_enabled,
+ )
+@@ -1519,7 +1519,7 @@ def select_linker(linker, c_compiler, developer_options, toolchain_flags, target
+         if target.kernel == "Darwin":
+             valid_linkers = ("ld64", "lld")
+         else:
+-            valid_linkers = ("bfd", "gold", "lld")
++            valid_linkers = ("bfd", "gold", "lld", "mold")
+         if linker in valid_linkers:
+             return True
+         if "lld" in valid_linkers and linker.startswith("lld-"):
+@@ -1564,6 +1564,9 @@ def select_linker(linker, c_compiler, developer_options, toolchain_flags, target
+         elif retcode != 0:
+             return None
+ 
++        elif "mold" in stdout:
++            kind = "mold"
++
+         elif "GNU ld" in stdout:
+             # We are using the normal linker
+             kind = "bfd"
+@@ -1670,7 +1673,7 @@ add_old_configure_assignment("LINKER_LDFLAGS", linker_ldflags)
+ @depends(select_linker, target, c_compiler)
+ def gcc_use_gnu_ld(select_linker, target, c_compiler):
+     if select_linker is not None and target.kernel != "Darwin":
+-        return select_linker.KIND in ("bfd", "gold", "lld")
++        return select_linker.KIND in ("bfd", "gold", "lld", "mold")
+     if target.kernel == "WINNT" and c_compiler.type == "clang":
+         return True
+     return None
+-- 
+2.35.1
+
