@@ -1,0 +1,74 @@
+From 6f2178104ed22261706588de31aadf4f2117b4f1 Mon Sep 17 00:00:00 2001
+From: Amit Prakash Ambasta <amit.prakash.ambasta@gmail.com>
+Date: Sat, 12 Mar 2022 03:17:34 +0530
+Subject: [PATCH 1/2] gni changes to disable x11 dependency
+
+Signed-off-by: Amit Prakash Ambasta <amit.prakash.ambasta@gmail.com>
+---
+ third_party/libwebrtc/build/config/ui.gni          |  5 ++---
+ .../desktop_capture_generic_gn/moz.build           | 14 ++------------
+ 2 files changed, 4 insertions(+), 15 deletions(-)
+
+diff --git a/third_party/libwebrtc/build/config/ui.gni b/third_party/libwebrtc/build/config/ui.gni
+index b02589f140234..9f06eef3c54bf 100644
+--- a/third_party/libwebrtc/build/config/ui.gni
++++ b/third_party/libwebrtc/build/config/ui.gni
+@@ -29,8 +29,7 @@ declare_args() {
+   # Indicates if the UI toolkit depends on X11.
+   # Enabled by default. Can be disabled if Ozone only build is required and
+   # vice-versa.
+-  use_x11 =
+-      is_linux && !is_chromecast && !is_chromeos && !chromeos_is_browser_only
++  use_x11 = false
+ 
+   # Indicates if Aura is enabled. Aura is a low-level windowing library, sort
+   # of a replacement for GDI or GTK.
+@@ -53,7 +52,7 @@ use_atk = is_desktop_linux && !is_chromecast && use_glib
+ 
+ # Whether using Xvfb to provide a display server for a test might be
+ # necessary.
+-use_xvfb_in_this_config = (is_linux && !is_chromeos) || chromeos_is_browser_only
++use_xvfb_in_this_config = false
+ #
+ # =============================================
+ #   PLEASE DO NOT ADD MORE FLAGS TO THIS FILE
+diff --git a/third_party/libwebrtc/modules/desktop_capture/desktop_capture_generic_gn/moz.build b/third_party/libwebrtc/modules/desktop_capture/desktop_capture_generic_gn/moz.build
+index 617680177f8b2..50158e89bc79b 100644
+--- a/third_party/libwebrtc/modules/desktop_capture/desktop_capture_generic_gn/moz.build
++++ b/third_party/libwebrtc/modules/desktop_capture/desktop_capture_generic_gn/moz.build
+@@ -92,11 +92,11 @@ if CONFIG["OS_TARGET"] == "Linux":
+     DEFINES["USE_NSS_CERTS"] = "1"
+     DEFINES["USE_OZONE"] = "1"
+     DEFINES["USE_UDEV"] = True
+-    DEFINES["USE_X11"] = "1"
++    DEFINES["USE_X11"] = "0"
+     DEFINES["WEBRTC_LINUX"] = True
+     DEFINES["WEBRTC_POSIX"] = True
+     DEFINES["WEBRTC_USE_PIPEWIRE"] = True
+-    DEFINES["WEBRTC_USE_X11"] = True
++    DEFINES["WEBRTC_USE_X11"] = False
+     DEFINES["_FILE_OFFSET_BITS"] = "64"
+     DEFINES["_GNU_SOURCE"] = True
+     DEFINES["_LARGEFILE64_SOURCE"] = True
+@@ -129,18 +129,8 @@ if CONFIG["OS_TARGET"] == "Linux":
+     ]
+ 
+     UNIFIED_SOURCES += [
+-        "/third_party/libwebrtc/modules/desktop_capture/linux/mouse_cursor_monitor_x11.cc",
+         "/third_party/libwebrtc/modules/desktop_capture/linux/screen_capturer_pipewire.cc",
+-        "/third_party/libwebrtc/modules/desktop_capture/linux/screen_capturer_x11.cc",
+-        "/third_party/libwebrtc/modules/desktop_capture/linux/shared_x_display.cc",
+         "/third_party/libwebrtc/modules/desktop_capture/linux/window_capturer_pipewire.cc",
+-        "/third_party/libwebrtc/modules/desktop_capture/linux/window_capturer_x11.cc",
+-        "/third_party/libwebrtc/modules/desktop_capture/linux/window_finder_x11.cc",
+-        "/third_party/libwebrtc/modules/desktop_capture/linux/window_list_utils.cc",
+-        "/third_party/libwebrtc/modules/desktop_capture/linux/x_atom_cache.cc",
+-        "/third_party/libwebrtc/modules/desktop_capture/linux/x_error_trap.cc",
+-        "/third_party/libwebrtc/modules/desktop_capture/linux/x_server_pixel_buffer.cc",
+-        "/third_party/libwebrtc/modules/desktop_capture/linux/x_window_property.cc",
+         "/third_party/libwebrtc/modules/desktop_capture/mouse_cursor_monitor_linux.cc",
+         "/third_party/libwebrtc/modules/desktop_capture/screen_capturer_linux.cc",
+         "/third_party/libwebrtc/modules/desktop_capture/window_capturer_linux.cc"
+-- 
+2.35.1
+
