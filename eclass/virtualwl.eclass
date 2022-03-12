@@ -116,14 +116,13 @@ virtwl() {
 	export WLR_LIBINPUT_NO_DEVICES=1
 	export XDG_RUNTIME_DIR=/tmp
 	export XDG_SESSION_TYPE=wayland
-	export WLR_RENDERER_ALLOW_SOFTWARE=1
+	export WLR_RENDERER=pixman
 	export WAYLAND_DISPLAY="wayland-${WL_DISPLAY}"
 
 	swayenv+="WLR_BACKENDS=headless"
 	swayenv+=" WLR_LIBINPUT_NO_DEVICES=1"
 	swayenv+=" XDG_RUNTIME_DIR=/tmp"
 	swayenv+=" XDG_SESSION_TYPE=wayland"
-	swayenv+=" WLR_RENDERER_ALLOW_SOFTWARE=1"
 
 	debug-print "${FUNCNAME}: ${SEATD} ${SWAY} -- ${swayargs}"
 	${SEATD} ${SWAY} -- ${swayargs} &>/dev/null &
