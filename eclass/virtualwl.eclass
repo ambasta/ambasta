@@ -101,6 +101,7 @@ virtwl() {
 	local OLD_SANDBOX_ON="${SANDBOX_ON}"
 	local SWAY SEATD WL_DISPLAY
 	local swayargs="-d"
+	local swayenv
 
 	SWAY=$(type -p sway) || die
 	SEATD=$(type -p seatd-launch) || die
@@ -108,27 +109,34 @@ virtwl() {
 	debug-print "${FUNCNAME}: running headless sway"
 
 	einfo "Scanning for an open WAYLAND_DISPLAY to start wayland..."
-	WL_DISPLAY=$(idx=0; while [[ -f /tmp/wayland-${idx}.lock ]] ; do ((idx++)); done; echo ${idx})
+	WL_DISPLAY=$(idx=1; while [[ -f /tmp/wayland-${idx}.lock ]] ; do ((idx++)); done; echo ${idx})
 	debug-print "${FUNCNAME}: WL_DISPLAY=${WL_DISPLAY}"
 
-	export WLR_BACKEND=headless
+	export WLR_BACKENDS=headless
 	export WLR_LIBINPUT_NO_DEVICES=1
-	export WAYLAND_DISPLAY="wayland-${WL_DISPLAY}"
 	export XDG_RUNTIME_DIR=/tmp
 	export XDG_SESSION_TYPE=wayland
 	export WLR_RENDERER_ALLOW_SOFTWARE=1
+	export WAYLAND_DISPLAY="wayland-${WL_DISPLAY}"
+
+	swayenv+="WLR_BACKENDS=headless"
+	swayenv+=" WLR_LIBINPUT_NO_DEVICES=1"
+	swayenv+=" XDG_RUNTIME_DIR=/tmp"
+	swayenv+=" XDG_SESSION_TYPE=wayland"
+	swayenv+=" WLR_RENDERER_ALLOW_SOFTWARE=1"
 
 	debug-print "${FUNCNAME}: ${SEATD} ${SWAY} -- ${swayargs}"
-	${SEATD} ${swayargs} -- ${swayargs} &>/dev/null &
-	sleep 2
+	${SEATD} ${SWAY} -- ${swayargs} &>/dev/null &
+	sleep 5
 
 	local start=${WL_DISPLAY}
 	while [[ ! -f /tmp/wayland-${WL_DISPLAY}.lock ]]; do
+		einfo "No wayland session found at /tmp/wayland-${WL_DISPLAY}.lock"
 		# Stop trying after 5 tries
 		if ((WL_DISPLAY - start > 5)) ; then
-			eerror "'${SEATD} ${SWAY} -- ${swayargs}' returns:"
+			eerror "'${swayenv} WAYLAND_DISPLAY=\"wayland-${WL_DISPLAY}\" ${SEATD} ${SWAY} -- ${swayargs}' returns:"
 			echo
-			${SEATD} ${SWAY} -- ${swayargs}
+			${SEATD} ${SWAY} -- ${swayargs} &>/dev/null &
 			echo
 			eerror "If possible, correct the above error and try your emerge again."
 			die "Unable to start sway"
@@ -136,8 +144,8 @@ virtwl() {
 			((WL_DISPLAY++))
 		export WAYLAND_DISPLAY="wayland-${WL_DISPLAY}"
 		debug-print "${FUNCNAME}: ${SEATD} :${SWAY} -- ${swayargs}"
-		${SEATD} ${swayargs} -- ${swayargs} &>/dev/null &
-		sleep 2
+		${SEATD} ${SWAY} -- ${swayargs} &>/dev/null &
+		sleep 5
 	done
 
 	# Now enable SANDBOX again if needed.
@@ -152,7 +160,7 @@ virtwl() {
 	retval=$?
 
 	# Now kill sway
-	kill $(cat /tmp/wayland-${WL_DISPLAY}.lock)
+	fuser -k -TERM /tmp/wayland-${WL_DISPLAY}.lock
 
 	# die if our command failed
 	[[ ${retval} -ne 0 ]] && die "Command '$@' failed with return code ${retval}"
