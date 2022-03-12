@@ -603,6 +603,7 @@ src_configure() {
 	mozconfig_use_enable sndio
 
 	mozconfig_add_options_ac '+wayland' --enable-default-toolkit=cairo-gtk3-wayland
+	mozconfig_add_options_ac '+debug' --disable-optimize
 
 	if use lto ; then
 		if use clang ; then
