@@ -54,7 +54,7 @@ PATCHES=(
 	"${FILESDIR}/0027-Support-for-building-firefox-without-X11.patch"
 	"${FILESDIR}/0028-Accept-mold-as-linker.patch"
 	"${FILESDIR}/0029-gni-changes-to-disable-x11-dependency.patch"
-	"${FILESDIR}/0030-Auto-generated-mozbuild-gn-configs-based-on-gni-chan.patch"
+	"${FILESDIR}/0031-Auto-generated-mozbuild-gn-configs-based-on-gni-chan.patch"
 )
 
 DESCRIPTION="Firefox Web Browser"
