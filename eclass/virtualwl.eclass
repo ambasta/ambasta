@@ -124,6 +124,9 @@ virtwl() {
 	swayenv+=" XDG_RUNTIME_DIR=/tmp"
 	swayenv+=" XDG_SESSION_TYPE=wayland"
 
+	# We really do not want SANDBOX enabled here
+	export SANDBOX_ON="0"
+
 	debug-print "${FUNCNAME}: ${SEATD} ${SWAY} -- ${swayargs}"
 	${SEATD} ${SWAY} -- ${swayargs} &>/dev/null &
 	sleep 5
