@@ -55,6 +55,7 @@ PATCHES=(
 	"${FILESDIR}/0028-Accept-mold-as-linker.patch"
 	"${FILESDIR}/0029-gni-changes-to-disable-x11-dependency.patch"
 	"${FILESDIR}/0031-Auto-generated-mozbuild-gn-configs-based-on-gni-chan.patch"
+	"${FILESDIR}/0032-Strip-as-needed-from-libmozgtk.patch"
 )
 
 DESCRIPTION="Firefox Web Browser"
@@ -603,7 +604,6 @@ src_configure() {
 	mozconfig_use_enable sndio
 
 	mozconfig_add_options_ac '+wayland' --enable-default-toolkit=cairo-gtk3-wayland
-	mozconfig_add_options_ac '+debug' --disable-optimize
 
 	if use lto ; then
 		if use clang ; then
