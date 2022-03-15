@@ -3,15 +3,35 @@
 
 EAPI="8"
 
+FIREFOX_PATCHSET="firefox-98-patches-03j.tar.xz"
+
 LLVM_MAX_SLOT=13
 
-PYTHON_COMPAT=( python3_{8..10} )
+PYTHON_COMPAT=( python3_10 )
 PYTHON_REQ_USE="ncurses,sqlite,ssl"
 
 WANT_AUTOCONF="2.1"
 
+VIRTUALWL_REQUIRED="manual"
+VIRTUALX_REQUIRED="manual"
+
+MOZ_ESR=
+
 MOZ_PV=${PV}
 MOZ_PV_SUFFIX=
+if [[ ${PV} =~ (_(alpha|beta|rc).*)$ ]] ; then
+	MOZ_PV_SUFFIX=${BASH_REMATCH[1]}
+
+	# Convert the ebuild version to the upstream Mozilla version
+	MOZ_PV="${MOZ_PV/_alpha/a}" # Handle alpha for SRC_URI
+	MOZ_PV="${MOZ_PV/_beta/b}"  # Handle beta for SRC_URI
+	MOZ_PV="${MOZ_PV%%_rc*}"    # Handle rc for SRC_URI
+fi
+
+if [[ -n ${MOZ_ESR} ]] ; then
+	# ESR releases have slightly different version numbers
+	MOZ_PV="${MOZ_PV}esr"
+fi
 
 MOZ_PN="${PN%-bin}"
 MOZ_P="${MOZ_PN}-${MOZ_PV}"
@@ -20,37 +40,22 @@ MOZ_P_DISTFILES="${MOZ_PN}-${MOZ_PV_DISTFILES}"
 
 inherit autotools check-reqs desktop flag-o-matic gnome2-utils linux-info \
 	llvm multiprocessing pax-utils python-any-r1 toolchain-funcs \
-	virtualwl xdg
+	virtualx virtualwl xdg
 
 MOZ_SRC_BASE_URI="https://archive.mozilla.org/pub/${MOZ_PN}/releases/${MOZ_PV}"
 
-SRC_URI="${MOZ_SRC_BASE_URI}/source/${MOZ_P}.source.tar.xz -> ${MOZ_P_DISTFILES}.source.tar.xz"
+if [[ ${PV} == *_rc* ]] ; then
+	MOZ_SRC_BASE_URI="https://archive.mozilla.org/pub/${MOZ_PN}/candidates/${MOZ_PV}-candidates/build${PV##*_rc}"
+fi
+
+PATCH_URIS=(
+	https://dev.gentoo.org/~{juippis,polynomial-c,whissi,slashbeast}/mozilla/patchsets/${FIREFOX_PATCHSET}
+)
+
+SRC_URI="${MOZ_SRC_BASE_URI}/source/${MOZ_P}.source.tar.xz -> ${MOZ_P_DISTFILES}.source.tar.xz
+	${PATCH_URIS[@]}"
 
 PATCHES=(
-	"${FILESDIR}/0001-Don-t-use-build-id.patch"
-	"${FILESDIR}/0002-Fortify-sources-properly.patch"
-	"${FILESDIR}/0003-Check-additional-plugins-dir.patch"
-	"${FILESDIR}/0004-PATCH-04-30-bmo-847568-Support-system-harfbuzz.patch"
-	"${FILESDIR}/0005-PATCH-05-30-bmo-847568-Support-system-graphite2.patch"
-	"${FILESDIR}/0007-PATCH-05-30-Support-sndio-audio-framework.patch"
-	"${FILESDIR}/0008-bmo-878089-Don-t-fail-when-TERM-is-not-set.patch"
-	"${FILESDIR}/0009-bmo-1516803-Fix-building-sandbox.patch"
-	"${FILESDIR}/0010-musl-Add-alternate-name-for-private-siginfo-struct-m.patch"
-	"${FILESDIR}/0011-Make-PGO-use-toolchain.patch"
-	"${FILESDIR}/0012-bmo-1516081-Disable-watchdog-during-PGO-builds.patch"
-	"${FILESDIR}/0013-bmo-1516803-force-one-LTO-partition-for-sandbox-when.patch"
-	"${FILESDIR}/0014-bmo-1196777-Set-GDK_FOCUS_CHANGE_MASK.patch"
-	"${FILESDIR}/0015-Fix-building-with-PGO-when-using-GCC.patch"
-	"${FILESDIR}/0016-libaom-Use-NEON_FLAGS-instead-of-VPX_ASFLAGS-for-lib.patch"
-	"${FILESDIR}/0017-build-Disable-Werror.patch"
-	"${FILESDIR}/0019-Disable-FFVPX-with-VA-API.patch"
-	"${FILESDIR}/0020-Enable-FLAC-on-platforms-without-ffvpx-via-ffmpeg.patch"
-	"${FILESDIR}/0021-bmo-1670333-OpenH264-Fix-decoding-if-it-starts-on-no.patch"
-	"${FILESDIR}/0022-bmo-1663844-OpenH264-Allow-using-OpenH264-GMP-decode.patch"
-	"${FILESDIR}/0023-PATCH-30-30-bgo-816975-Fix-build-on-x86.patch"
-	"${FILESDIR}/0024-PATCH-31-30-bgo-831903-pip-don-t-fail-with-optional-.patch"
-	"${FILESDIR}/0025-Skip-pip-check.patch"
-	"${FILESDIR}/0026-bmo-1753182-Resolve-fs-symlinks.patch"
 	"${FILESDIR}/0027-Support-for-building-firefox-without-X11.patch"
 	"${FILESDIR}/0028-Accept-mold-as-linker.patch"
 	"${FILESDIR}/0029-gni-changes-to-disable-x11-dependency.patch"
@@ -61,18 +66,29 @@ PATCHES=(
 DESCRIPTION="Firefox Web Browser"
 HOMEPAGE="https://www.mozilla.com/firefox"
 
-KEYWORDS="~amd64"
+KEYWORDS="~amd64 ~arm64 ~ppc64 ~x86"
 
 SLOT="rapid"
 LICENSE="MPL-2.0 GPL-2 LGPL-2.1"
 
-IUSE="+clang +dbus eme-free"
-IUSE+=" lto +mold +openh264 pgo sndio"
-IUSE+=" +system-harfbuzz +system-icu +system-jpeg +system-libevent +system-libvpx system-png +system-webp"
+IUSE="+clang cpu_flags_arm_neon dbus debug eme-free hardened hwaccel"
+IUSE+=" jack libproxy lto mold +openh264 pgo pulseaudio pipewire sndio selinux"
+IUSE+=" +system-av1 +system-harfbuzz +system-icu +system-jpeg +system-libevent +system-libvpx +system-png +system-webp"
+IUSE+=" +wayland wifi X"
 
-REQUIRED_USE="
+# Firefox-only IUSE
+IUSE+=" geckodriver"
+IUSE+=" +gmp-autoupdate"
+IUSE+=" screencast"
+
+REQUIRED_USE="debug? ( !system-av1 )
 	pgo? ( lto )
-	dbus"
+	wayland? ( dbus )
+	wifi? ( dbus )
+	|| ( wayland X )"
+
+# Firefox-only REQUIRED_USE flags
+REQUIRED_USE+="	screencast? ( wayland )"
 
 BDEPEND="${PYTHON_DEPS}
 	app-arch/unzip
@@ -87,32 +103,42 @@ BDEPEND="${PYTHON_DEPS}
 		sys-devel/lld
 		pgo? ( sys-libs/compiler-rt-sanitizers[profile] )
 	)
-	dev-lang/nasm"
+	amd64? ( dev-lang/nasm )
+	x86? ( dev-lang/nasm )"
 
 COMMON_DEPEND="
+	dev-libs/glib
+	dev-libs/libffi
 	dev-libs/nss
 	dev-libs/nspr
 	dev-libs/atk
 	dev-libs/expat
-	x11-libs/cairo
-	x11-libs/gtk+
-	x11-libs/gdk-pixbuf
-	x11-libs/pango
-	media-libs/mesa
+	media-libs/alsa-lib
 	media-libs/fontconfig
 	media-libs/freetype
-	kernel_linux? ( media-libs/alsa-lib )
-	virtual/freedesktop-icon-theme
-	x11-libs/pixman
-	dev-libs/glib
-	sys-libs/zlib
-	dev-libs/libffi
+	media-libs/mesa
 	media-video/ffmpeg
+	sys-libs/zlib
+	x11-libs/cairo
+	x11-libs/gdk-pixbuf
+	x11-libs/gtk+
+	x11-libs/pango
+	x11-libs/pixman
+	virtual/freedesktop-icon-theme
 	dbus? (
 		sys-apps/dbus
 		dev-libs/dbus-glib
 	)
-	media-video/pipewire
+	jack? ( virtual/jack )
+	libproxy? ( net-libs/libproxy )
+	pipewire? ( media-video/pipewire )
+	selinux? ( sec-policy/selinux-mozilla )
+	screencast? ( media-video/pipewire )
+	sndio? ( media-sound/sndio )
+	system-av1? (
+		media-libs/dav1d
+		media-libs/libaom
+	)
 	system-harfbuzz? (
 		media-libs/harfbuzz
 		media-gfx/graphite2
@@ -123,15 +149,58 @@ COMMON_DEPEND="
 	system-libvpx? ( media-libs/libvpx[postproc] )
 	system-png? ( media-libs/libpng[apng] )
 	system-webp? ( media-libs/libwebp )
-	sndio? ( media-sound/sndio )"
+	wifi? (
+		kernel_linux? (
+			sys-apps/dbus
+			dev-libs/dbus-glib
+			net-misc/networkmanager
+		)
+	)
+	X? (
+		x11-libs/cairo[X]
+		x11-libs/gtk+[X]
+		x11-libs/libX11
+		x11-libs/libXcomposite
+		x11-libs/libXdamage
+		x11-libs/libXext
+		x11-libs/libXfixes
+		x11-libs/libXrandr
+		x11-libs/libXrender
+		x11-libs/libXtst
+		x11-libs/libxcb
+	)"
 
 RDEPEND="${COMMON_DEPEND}
 	!www-client/firefox:0
 	!www-client/firefox:esr
-	openh264? ( media-libs/openh264[plugin] )"
+	openh264? ( media-libs/openh264[plugin] )
+	pulseaudio? (
+		|| (
+			media-sound/apulse
+			media-sound/pulseaudio
+		)
+	)
+	selinux? ( sec-policy/selinux-mozilla )"
 
 DEPEND="${COMMON_DEPEND}
-	x11-libs/gtk+[wayland]"
+	amd64? ( virtual/opengl )
+	x86? ( virtual/opengl )
+	pgo? (
+		wayland? ( ${VIRTUALWL_DEPEND} )
+		!wayland? ( ${VIRTUALX_DEPEND} )
+	)
+	pulseaudio? (
+		|| (
+			media-sound/apulse[sdk]
+			media-sound/pulseaudio
+		)
+	)
+	wayland? ( x11-libs/gtk+[wayland] )
+	X? (
+		x11-libs/gtk+[X]
+		x11-libs/libICE
+		x11-libs/libSM
+	)"
 
 S="${WORKDIR}/${PN}-${PV%_*}"
 
@@ -165,8 +234,77 @@ llvm_check_deps() {
 }
 
 MOZ_LANGS=(
-	en-US
+	af ar ast be bg br ca cak cs cy da de dsb
+	el en-CA en-GB en-US es-AR es-ES et eu
+	fi fr fy-NL ga-IE gd gl he hr hsb hu
+	id is it ja ka kab kk ko lt lv ms nb-NO nl nn-NO
+	pa-IN pl pt-BR pt-PT rm ro ru
+	sk sl sq sr sv-SE th tr uk uz vi zh-CN zh-TW
 )
+
+# Firefox-only LANGS
+MOZ_LANGS+=( ach )
+MOZ_LANGS+=( an )
+MOZ_LANGS+=( az )
+MOZ_LANGS+=( bn )
+MOZ_LANGS+=( bs )
+MOZ_LANGS+=( ca-valencia )
+MOZ_LANGS+=( eo )
+MOZ_LANGS+=( es-CL )
+MOZ_LANGS+=( es-MX )
+MOZ_LANGS+=( fa )
+MOZ_LANGS+=( ff )
+MOZ_LANGS+=( gn )
+MOZ_LANGS+=( gu-IN )
+MOZ_LANGS+=( hi-IN )
+MOZ_LANGS+=( hy-AM )
+MOZ_LANGS+=( ia )
+MOZ_LANGS+=( km )
+MOZ_LANGS+=( kn )
+MOZ_LANGS+=( lij )
+MOZ_LANGS+=( mk )
+MOZ_LANGS+=( mr )
+MOZ_LANGS+=( my )
+MOZ_LANGS+=( ne-NP )
+MOZ_LANGS+=( oc )
+MOZ_LANGS+=( sco )
+MOZ_LANGS+=( si )
+MOZ_LANGS+=( son )
+MOZ_LANGS+=( szl )
+MOZ_LANGS+=( ta )
+MOZ_LANGS+=( te )
+MOZ_LANGS+=( tl )
+MOZ_LANGS+=( trs )
+MOZ_LANGS+=( ur )
+MOZ_LANGS+=( xh )
+
+mozilla_set_globals() {
+	# https://bugs.gentoo.org/587334
+	local MOZ_TOO_REGIONALIZED_FOR_L10N=(
+		fy-NL ga-IE gu-IN hi-IN hy-AM nb-NO ne-NP nn-NO pa-IN sv-SE
+	)
+
+	local lang xflag
+	for lang in "${MOZ_LANGS[@]}" ; do
+		# en and en_US are handled internally
+		if [[ ${lang} == en ]] || [[ ${lang} == en-US ]] ; then
+			continue
+		fi
+
+		# strip region subtag if $lang is in the list
+		if has ${lang} "${MOZ_TOO_REGIONALIZED_FOR_L10N[@]}" ; then
+			xflag=${lang%%-*}
+		else
+			xflag=${lang}
+		fi
+
+		SRC_URI+=" l10n_${xflag/[_@]/-}? ("
+		SRC_URI+=" ${MOZ_SRC_BASE_URI}/linux-x86_64/xpi/${lang}.xpi -> ${MOZ_P_DISTFILES}-${lang}.xpi"
+		SRC_URI+=" )"
+		IUSE+=" l10n_${xflag/[_@]/-}"
+	done
+}
+mozilla_set_globals
 
 moz_clear_vendor_checksums() {
 	debug-print-function ${FUNCNAME} "$@"
@@ -282,7 +420,7 @@ pkg_pretend() {
 		fi
 
 		# Ensure we have enough disk space to compile
-		if use pgo || use lto ; then
+		if use pgo || use lto || use debug ; then
 			CHECKREQS_DISK_BUILD="13500M"
 		else
 			CHECKREQS_DISK_BUILD="6500M"
@@ -301,10 +439,17 @@ pkg_setup() {
 		fi
 
 		# Ensure we have enough disk space to compile
-		if use pgo || use lto ; then
+		if use pgo || use lto || use debug ; then
 			CHECKREQS_DISK_BUILD="13500M"
 		else
 			CHECKREQS_DISK_BUILD="6400M"
+		fi
+
+		# Esnure we have sufficient ulimits to compile when using mold
+		if use mold ; then
+			if ! ulimit -n 8192 1>/dev/null 2>&1 ; then
+				eerror "For builds with mold, please raise the open file limit to 8192 (ulimit -n 8192) before calling the package manager"
+			fi
 		fi
 
 		check-reqs_pkg_setup
@@ -316,19 +461,9 @@ pkg_setup() {
 			[[ -n ${version_lld} ]] && version_lld=$(ver_cut 1 "${version_lld}")
 			[[ -z ${version_lld} ]] && die "Failed to read ld.lld version!"
 
-			# temp fix for https://bugs.gentoo.org/768543
-			# we can assume that rust 1.{49,50}.0 always uses llvm 11
-			local version_rust=$(rustc -Vv 2>/dev/null | grep -F -- 'release:' | awk '{ print $2 }')
-			[[ -n ${version_rust} ]] && version_rust=$(ver_cut 1-2 "${version_rust}")
-			[[ -z ${version_rust} ]] && die "Failed to read version from rustc!"
-
-			if ver_test "${version_rust}" -ge "1.49" && ver_test "${version_rust}" -le "1.50" ; then
-				local version_llvm_rust="11"
-			else
-				local version_llvm_rust=$(rustc -Vv 2>/dev/null | grep -F -- 'LLVM version:' | awk '{ print $3 }')
-				[[ -n ${version_llvm_rust} ]] && version_llvm_rust=$(ver_cut 1 "${version_llvm_rust}")
-				[[ -z ${version_llvm_rust} ]] && die "Failed to read used LLVM version from rustc!"
-			fi
+			local version_llvm_rust=$(rustc -Vv 2>/dev/null | grep -F -- 'LLVM version:' | awk '{ print $3 }')
+			[[ -n ${version_llvm_rust} ]] && version_llvm_rust=$(ver_cut 1 "${version_llvm_rust}")
+			[[ -z ${version_llvm_rust} ]] && die "Failed to read used LLVM version from rustc!"
 
 			if ver_test "${version_lld}" -ne "${version_llvm_rust}" ; then
 				eerror "Rust is using LLVM version ${version_llvm_rust} but ld.lld version belongs to LLVM version ${version_lld}."
@@ -353,6 +488,7 @@ pkg_setup() {
 		# These should *always* be cleaned up anyway
 		unset \
 			DBUS_SESSION_BUS_ADDRESS \
+			WAYLAND_DISPLAY \
 			DISPLAY \
 			ORBIT_SOCKETDIR \
 			SESSION_MANAGER \
@@ -365,12 +501,22 @@ pkg_setup() {
 
 		if use pgo ; then
 			# Allow access to GPU during PGO run
-			local mesa_cards render_cards
+			local ati_cards mesa_cards nvidia_cards render_cards
 			shopt -s nullglob
+
+			ati_cards=$(echo -n /dev/ati/card* | sed 's/ /:/g')
+			if [[ -n "${ati_cards}" ]] ; then
+				addpredict "${ati_cards}"
+			fi
 
 			mesa_cards=$(echo -n /dev/dri/card* | sed 's/ /:/g')
 			if [[ -n "${mesa_cards}" ]] ; then
 				addpredict "${mesa_cards}"
+			fi
+
+			nvidia_cards=$(echo -n /dev/nvidia* | sed 's/ /:/g')
+			if [[ -n "${nvidia_cards}" ]] ; then
+				addpredict "${nvidia_cards}"
 			fi
 
 			render_cards=$(echo -n /dev/dri/renderD128* | sed 's/ /:/g')
@@ -432,10 +578,10 @@ src_unpack() {
 }
 
 src_prepare() {
-	if ! use lto ; then
-		eapply "${FILESDIR}/0018-LTO-Only-enable-LTO-for-Rust-when-complete-build-use.patch"
-	fi
+	use lto && rm -v "${WORKDIR}"/firefox-patches/*-LTO-Only-enable-LTO-*.patch
+	eapply "${WORKDIR}/firefox-patches"
 
+	# Allow ebuild patches & user to apply any additional patches without modifing ebuild
 	default
 
 	# Make cargo respect MAKEOPTS
@@ -478,6 +624,8 @@ src_prepare() {
 	echo -n "${MOZ_API_KEY_GOOGLE//gGaPi/}" > "${S}"/api-google.key || die
 	echo -n "${MOZ_API_KEY_LOCATION//gGaPi/}" > "${S}"/api-location.key || die
 	echo -n "${MOZ_API_KEY_MOZILLA//m0ap1/}" > "${S}"/api-mozilla.key || die
+
+	xdg_src_prepare
 }
 
 src_configure() {
@@ -494,6 +642,7 @@ src_configure() {
 		einfo "Enforcing the use of clang due to USE=clang ..."
 		have_switched_compiler=yes
 		AR=llvm-ar
+		AS=llvm-as
 		CC=${CHOST}-clang
 		CXX=${CHOST}-clang++
 		NM=llvm-nm
@@ -520,6 +669,11 @@ src_configure() {
 	export HOST_CXX="$(tc-getBUILD_CXX)"
 	tc-export CC CXX LD AR NM OBJDUMP RANLIB PKG_CONFIG
 
+	# Pass the correct toolchain paths through cbindgen
+	if tc-is-cross-compiler ; then
+		export BINDGEN_CFLAGS="${SYSROOT:+--sysroot=${ESYSROOT}} --target=${CHOST} ${BINDGEN_CFLAGS-}"
+	fi
+
 	# Set MOZILLA_FIVE_HOME
 	export MOZILLA_FIVE_HOME="/usr/$(get_libdir)/${PN}"
 
@@ -542,7 +696,6 @@ src_configure() {
 		--allow-addon-sideload \
 		--disable-cargo-incremental \
 		--disable-crashreporter \
-		--disable-pulseaudio \
 		--disable-install-strip \
 		--disable-parental-controls \
 		--disable-strip \
@@ -570,8 +723,22 @@ src_configure() {
 		--x-libraries="${SYSROOT}${EPREFIX}/usr/$(get_libdir)"
 
 	# Set update channel
-	mozconfig_add_options_ac '' --update-channel=release
-	mozconfig_add_options_ac '' --enable-sandbox
+	local update_channel=release
+	[[ -n ${MOZ_ESR} ]] && update_channel=esr
+	mozconfig_add_options_ac '' --update-channel=${update_channel}
+
+	if ! use x86 && [[ ${CHOST} != armv*h* ]] ; then
+		mozconfig_add_options_ac '' --enable-rust-simd
+	fi
+
+	# For future keywording: This is currently (97.0) only supported on:
+	# amd64, arm, arm64 & x86.
+	# Might want to flip the logic around if Firefox is to support more arches.
+	if use ppc64; then
+		mozconfig_add_options_ac '' --disable-sandbox
+	else
+		mozconfig_add_options_ac '' --enable-sandbox
+	fi
 
 	einfo "Building without Google API key ..."
 	einfo "Building without Location API key ..."
@@ -588,6 +755,7 @@ src_configure() {
 		einfo "Building without Mozilla API key ..."
 	fi
 
+	mozconfig_use_with system-av1
 	mozconfig_use_with system-harfbuzz
 	mozconfig_use_with system-harfbuzz system-graphite2
 	mozconfig_use_with system-icu
@@ -598,33 +766,49 @@ src_configure() {
 	mozconfig_use_with system-webp
 
 	mozconfig_use_enable dbus
+	mozconfig_use_enable libproxy
 
 	use eme-free && mozconfig_add_options_ac '+eme-free' --disable-eme
 
+	mozconfig_use_enable geckodriver
+
+	if use hardened ; then
+		mozconfig_add_options_ac "+hardened" --enable-hardening
+		append-ldflags "-Wl,-z,relro -Wl,-z,now"
+	fi
+
+	mozconfig_use_enable jack
+
+	mozconfig_use_enable pulseaudio
+	# force the deprecated alsa sound code if pulseaudio is disabled
+	if use kernel_linux && ! use pulseaudio && ! use pipewire; then
+		mozconfig_add_options_ac '-pulseaudio' --enable-alsa
+	fi
+
 	mozconfig_use_enable sndio
 
-	mozconfig_add_options_ac '+wayland' --enable-default-toolkit=cairo-gtk3-wayland
+	mozconfig_use_enable wifi necko-wifi
+
+	if use wayland ; then
+		mozconfig_add_options_ac '+wayland' --enable-default-toolkit=cairo-gtk3-wayland
+	else
+		mozconfig_add_options_ac '' --enable-default-toolkit=cairo-gtk3
+	fi
+
+	# Upstream only supports lld when using clang
+	if use mold ; then
+		mozconfig_add_options_ac "linker is set to mold" --enable-linker=mold
+	else
+		if use clang ; then
+			mozconfig_add_options_ac "forcing ld=lld due to USE=clang" --enable-linker=lld
+		else
+			mozconfig_add_options_ac "linker is set to bfd" --enable-linker=bfd
+		fi
+	fi
 
 	if use lto ; then
-		if use clang ; then
-			# Upstream only supports lld when using clang
-			if use mold ; then
-				mozconfig_add_options_ac "forcing ld=mold due to USE=clang and USE=lto" --enable-linker=mold
-			else
-				mozconfig_add_options_ac "forcing ld=lld due to USE=clang and USE=lto" --enable-linker=lld
-			fi
-
-			mozconfig_add_options_ac '+lto' --enable-lto=cross
-
-		else
-			# ThinLTO is currently broken, see bmo#1644409
-			mozconfig_add_options_ac '+lto' --enable-lto=full
-			if use mold ; then
-				mozconfig_add_options_ac "linker is set to mold" --enable-linker=mold
-			else
-				mozconfig_add_options_ac "linker is set to bfd" --enable-linker=bfd
-			fi
-		fi
+		# ThinLTO is currently broken for gcc, see bmo#1644409
+		mozconfig_add_options_ac '+lto' --enable-lto=$(usex clang cross full)
 
 		if use pgo ; then
 			mozconfig_add_options_ac '+pgo' MOZ_PGO=1
@@ -634,37 +818,77 @@ src_configure() {
 				export LLVM_PROFDATA="llvm-profdata"
 			fi
 		fi
+	fi
+
+	# LTO flag was handled via configure
+	filter-flags '-flto*'
+
+	mozconfig_use_enable debug
+	if use debug ; then
+		mozconfig_add_options_ac '+debug' --disable-optimize
 	else
-		# Avoid auto-magic on linker
-		if use clang ; then
-			# This is upstream's default
-			if use mold; then
-				mozconfig_add_options_ac "forcing ld=mold due to USE=clang" --enable-linker=mold
+		if is-flag '-g*' ; then
+			if use clang ; then
+				mozconfig_add_options_ac 'from CFLAGS' --enable-debug-symbols=$(get-flag '-g*')
 			else
-				mozconfig_add_options_ac "forcing ld=lld due to USE=clang" --enable-linker=lld
+				mozconfig_add_options_ac 'from CFLAGS' --enable-debug-symbols
 			fi
 		else
-			if use mold; then
-				mozconfig_add_options_ac "linker is set to mold" --enable-linker=mold
-			else
-				mozconfig_add_options_ac "linker is set to bfd" --enable-linker=bfd
-			fi
+			mozconfig_add_options_ac 'Gentoo default' --disable-debug-symbols
+		fi
+
+		if is-flag '-O0' ; then
+			mozconfig_add_options_ac "from CFLAGS" --enable-optimize=-O0
+		elif is-flag '-O4' ; then
+			mozconfig_add_options_ac "from CFLAGS" --enable-optimize=-O4
+		elif is-flag '-O3' ; then
+			mozconfig_add_options_ac "from CFLAGS" --enable-optimize=-O3
+		elif is-flag '-O1' ; then
+			mozconfig_add_options_ac "from CFLAGS" --enable-optimize=-O1
+		elif is-flag '-Os' ; then
+			mozconfig_add_options_ac "from CFLAGS" --enable-optimize=-Os
+		else
+			mozconfig_add_options_ac "Gentoo default" --enable-optimize=-O2
 		fi
 	fi
 
-	mozconfig_add_options_ac 'Gentoo default' --disable-debug-symbols
-	mozconfig_add_options_ac "from CFLAGS" --enable-optimize=-O3
-
-	filter-flags '-flto*'
+	# Debug flag was handled via configure
 	filter-flags '-g*'
+
+	# Optimization flag was handled via configure
 	filter-flags '-O*'
+
+	# Modifications to better support ARM, bug #553364
+	if use cpu_flags_arm_neon ; then
+		mozconfig_add_options_ac '+cpu_flags_arm_neon' --with-fpu=neon
+
+		if ! tc-is-clang ; then
+			# thumb options aren't supported when using clang, bug 666966
+			mozconfig_add_options_ac '+cpu_flags_arm_neon' \
+				--with-thumb=yes \
+				--with-thumb-interwork=no
+		fi
+	fi
+
+	if [[ ${CHOST} == armv*h* ]] ; then
+		mozconfig_add_options_ac 'CHOST=armv*h*' --with-float-abi=hard
+
+		if ! use system-libvpx ; then
+			sed -i \
+				-e "s|softfp|hard|" \
+				"${S}"/media/libvpx/moz.build \
+				|| die
+		fi
+	fi
 
 	if use clang ; then
 		# https://bugzilla.mozilla.org/show_bug.cgi?id=1482204
 		# https://bugzilla.mozilla.org/show_bug.cgi?id=1483822
 		# toolkit/moz.configure Elfhack section: target.cpu in ('arm', 'x86', 'x86_64')
 		local disable_elf_hack=
-		disable_elf_hack=yes
+		if use amd64 || use x86 || use arm ; then
+			disable_elf_hack=yes
+		fi
 
 		if [[ -n ${disable_elf_hack} ]] ; then
 			mozconfig_add_options_ac 'elf-hack is broken when using Clang' --disable-elf-hack
@@ -675,6 +899,21 @@ src_configure() {
 			append-cxxflags -fno-tree-loop-vectorize
 		fi
 	fi
+
+	# Additional ARCH support
+	case "${ARCH}" in
+		arm)
+			# Reduce the memory requirements for linking
+			if use clang ; then
+				# Nothing to do
+				:;
+			elif use lto ; then
+				append-ldflags -Wl,--no-keep-memory
+			else
+				append-ldflags -Wl,--no-keep-memory -Wl,--reduce-memory-overheads
+			fi
+			;;
+	esac
 
 	if ! use elibc_glibc ; then
 		mozconfig_add_options_ac '!elibc_glibc' --disable-jemalloc
@@ -739,10 +978,15 @@ src_configure() {
 }
 
 src_compile() {
-	local virtwl_cmd=
+	local virt_cmd=
+	local gdk_backend=
 
 	if use pgo ; then
-		local virtwl_cmd=virtwl
+		if use wayland ; then
+			virt_cmd=virtwl
+		else
+			virt_cmd=virtx
+		fi
 
 		# Reset and cleanup environment variables used by GNOME/XDG
 		gnome2_environment_reset
@@ -750,9 +994,16 @@ src_compile() {
 		addpredict /root
 	fi
 
-	local -x GDK_BACKEND=wayland
+	if use wayland ; then
+		gdk_backend=wayland
+	elif use X ; then
+		gdk_backend=x11
+	fi
 
-	${virtwl_cmd} ./mach build --verbose || die
+	local -x GDK_BACKEND=${gdk_backend}
+
+	${virtx_cmd} ./mach build --verbose \
+		|| die
 }
 
 src_install() {
@@ -785,19 +1036,49 @@ src_install() {
 
 	local GENTOO_PREFS="${ED}${PREFS_DIR}/gentoo-prefs.js"
 
-	local plugin
-	for plugin in "${MOZ_GMP_PLUGIN_LIST[@]}" ; do
-		einfo "Disabling auto-update for ${plugin} plugin ..."
-		cat >>"${GENTOO_PREFS}" <<-EOF || die "failed to disable autoupdate for ${plugin} media plugin"
-		pref("media.${plugin}.autoupdate",   false);
-		EOF
-	done
+	# Set dictionary path to use system hunspell
+	cat >>"${GENTOO_PREFS}" <<-EOF || die "failed to set spellchecker.dictionary_path pref"
+	pref("spellchecker.dictionary_path",       "${EPREFIX}/usr/share/myspell");
+	EOF
+
+	# Force hwaccel prefs if USE=hwaccel is enabled
+	if use hwaccel ; then
+		cat "${FILESDIR}"/gentoo-hwaccel-prefs.js-r1 \
+		>>"${GENTOO_PREFS}" \
+		|| die "failed to add prefs to force hardware-accelerated rendering to all-gentoo.js"
+	fi
+
+	if ! use gmp-autoupdate ; then
+		local plugin
+		for plugin in "${MOZ_GMP_PLUGIN_LIST[@]}" ; do
+			einfo "Disabling auto-update for ${plugin} plugin ..."
+			cat >>"${GENTOO_PREFS}" <<-EOF || die "failed to disable autoupdate for ${plugin} media plugin"
+			pref("media.${plugin}.autoupdate",   false);
+			EOF
+		done
+	fi
 
 	# Force the graphite pref if USE=system-harfbuzz is enabled, since the pref cannot disable it
 	if use system-harfbuzz ; then
 		cat >>"${GENTOO_PREFS}" <<-EOF || die "failed to set gfx.font_rendering.graphite.enabled pref"
 		sticky_pref("gfx.font_rendering.graphite.enabled", true);
 		EOF
+	fi
+
+	# Install language packs
+	local langpacks=( $(find "${WORKDIR}/language_packs" -type f -name '*.xpi') )
+	if [[ -n "${langpacks}" ]] ; then
+		moz_install_xpi "${MOZILLA_FIVE_HOME}/distribution/extensions" "${langpacks[@]}"
+	fi
+
+	# Install geckodriver
+	if use geckodriver ; then
+		einfo "Installing geckodriver into ${ED}${MOZILLA_FIVE_HOME} ..."
+		pax-mark m "${BUILD_DIR}"/dist/bin/geckodriver
+		exeinto "${MOZILLA_FIVE_HOME}"
+		doexe "${BUILD_DIR}"/dist/bin/geckodriver
+
+		dosym ${MOZILLA_FIVE_HOME}/geckodriver /usr/bin/geckodriver
 	fi
 
 	# Install icons
@@ -825,6 +1106,11 @@ src_install() {
 	local desktop_filename="${PN}.desktop"
 	local exec_command="${PN}"
 	local icon="${PN}"
+	local use_wayland="false"
+
+	if use wayland ; then
+		use_wayland="true"
+	fi
 
 	cp "${desktop_file}" "${WORKDIR}/${PN}.desktop-template" || die
 
@@ -848,28 +1134,82 @@ src_install() {
 		-e "s:@PREFIX@:${EPREFIX}/usr:" \
 		-e "s:@MOZ_FIVE_HOME@:${MOZILLA_FIVE_HOME}:" \
 		-e "s:@APULSELIB_DIR@:${apulselib}:" \
-		-e "s:@DEFAULT_WAYLAND@:true:" \
+		-e "s:@DEFAULT_WAYLAND@:${use_wayland}:" \
 		"${ED}/usr/bin/${PN}" \
 		|| die
 }
 
 pkg_preinst() {
 	xdg_pkg_preinst
+
+	# If the apulse libs are available in MOZILLA_FIVE_HOME then apulse
+	# does not need to be forced into the LD_LIBRARY_PATH
+	if use pulseaudio && has_version ">=media-sound/apulse-0.1.12-r4" ; then
+		einfo "APULSE found; Generating library symlinks for sound support ..."
+		local lib
+		pushd "${ED}${MOZILLA_FIVE_HOME}" &>/dev/null || die
+		for lib in ../apulse/libpulse{.so{,.0},-simple.so{,.0}} ; do
+			# A quickpkg rolled by hand will grab symlinks as part of the package,
+			# so we need to avoid creating them if they already exist.
+			if [[ ! -L ${lib##*/} ]] ; then
+				ln -s "${lib}" ${lib##*/} || die
+			fi
+		done
+		popd &>/dev/null || die
+	fi
 }
 
 pkg_postinst() {
 	xdg_pkg_postinst
 
-	elog "Build has disabled the following plugins from updating or"
-	elog "installing into new profiles:"
-	local plugin
-	for plugin in "${MOZ_GMP_PLUGIN_LIST[@]}" ; do
-		elog "\t ${plugin}"
-	done
-	elog
+	if ! use gmp-autoupdate ; then
+		elog "USE='-gmp-autoupdate' has disabled the following plugins from updating or"
+		elog "installing into new profiles:"
+		local plugin
+		for plugin in "${MOZ_GMP_PLUGIN_LIST[@]}" ; do
+			elog "\t ${plugin}"
+		done
+		elog
+	fi
 
-	local show_normandy_information=yes
+	if use pulseaudio && has_version ">=media-sound/apulse-0.1.12-r4" ; then
+		elog "Apulse was detected at merge time on this system and so it will always be"
+		elog "used for sound.  If you wish to use pulseaudio instead please unmerge"
+		elog "media-sound/apulse."
+		elog
+	fi
 
+	local show_doh_information
+	local show_normandy_information
+	local show_shortcut_information
+
+	if [[ -z "${REPLACING_VERSIONS}" ]] ; then
+		# New install; Tell user that DoH is disabled by default
+		show_doh_information=yes
+		show_normandy_information=yes
+		show_shortcut_information=no
+	else
+		local replacing_version
+		for replacing_version in ${REPLACING_VERSIONS} ; do
+			if ver_test "${replacing_version}" -lt 91.0 ; then
+				# Tell user that we no longer install a shortcut
+				# per supported display protocol
+				show_shortcut_information=yes
+			fi
+		done
+	fi
+
+	if [[ -n "${show_doh_information}" ]] ; then
+		elog
+		elog "Note regarding Trusted Recursive Resolver aka DNS-over-HTTPS (DoH):"
+		elog "Due to privacy concerns (encrypting DNS might be a good thing, sending all"
+		elog "DNS traffic to Cloudflare by default is not a good idea and applications"
+		elog "should respect OS configured settings), \"network.trr.mode\" was set to 5"
+		elog "(\"Off by choice\") by default."
+		elog "You can enable DNS-over-HTTPS in ${PN^}'s preferences."
+	fi
+
+	# bug 713782
 	if [[ -n "${show_normandy_information}" ]] ; then
 		elog
 		elog "Upstream operates a service named Normandy which allows Mozilla to"
@@ -884,5 +1224,14 @@ pkg_postinst() {
 		elog "    app.normandy.enabled=true"
 		elog
 		elog "in about:config."
+	fi
+
+	if [[ -n "${show_shortcut_information}" ]] ; then
+		elog
+		elog "Since ${PN}-91.0 we no longer install multiple shortcuts for"
+		elog "each supported display protocol.  Instead we will only install"
+		elog "one generic Mozilla ${PN^} shortcut."
+		elog "If you still want to be able to select between running Mozilla ${PN^}"
+		elog "on X11 or Wayland, you have to re-create these shortcuts on your own."
 	fi
 }
