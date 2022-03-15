@@ -1002,7 +1002,7 @@ src_compile() {
 
 	local -x GDK_BACKEND=${gdk_backend}
 
-	${virtx_cmd} ./mach build --verbose \
+	${virt_cmd} ./mach build --verbose \
 		|| die
 }
 
