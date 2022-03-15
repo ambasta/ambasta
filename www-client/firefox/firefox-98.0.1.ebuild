@@ -183,8 +183,8 @@ RDEPEND="${COMMON_DEPEND}
 	selinux? ( sec-policy/selinux-mozilla )"
 
 DEPEND="${COMMON_DEPEND}
-	amd64? ( virtual/opengl )
-	x86? ( virtual/opengl )
+	amd64? ( X? ( virtual/opengl ) )
+	x86? ( X? ( virtual/opengl ) )
 	pgo? (
 		wayland? ( ${VIRTUALWL_DEPEND} )
 		!wayland? ( ${VIRTUALX_DEPEND} )
