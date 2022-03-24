@@ -5,7 +5,7 @@ EAPI="8"
 
 FIREFOX_PATCHSET="firefox-98-patches-03j.tar.xz"
 
-LLVM_MAX_SLOT=13
+LLVM_MAX_SLOT=14
 
 PYTHON_COMPAT=( python3_10 )
 PYTHON_REQ_USE="ncurses,sqlite,ssl"
