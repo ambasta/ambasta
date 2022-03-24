@@ -114,6 +114,7 @@ RDEPEND="${RDEPEND}
 LLVM_MAX_SLOT="14"
 LLVM_DEPSTR="
 	|| (
+		sys-devel/llvm:14[${MULTILIB_USEDEP}]
 		sys-devel/llvm:13[${MULTILIB_USEDEP}]
 		sys-devel/llvm:12[${MULTILIB_USEDEP}]
 		sys-devel/llvm:11[${MULTILIB_USEDEP}]
