@@ -697,9 +697,11 @@ src_configure() {
 		--disable-cargo-incremental \
 		--disable-crashreporter \
 		--disable-install-strip \
+		--disable-minify \
 		--disable-parental-controls \
 		--disable-strip \
 		--disable-updater \
+		--enable-dom-streams \
 		--enable-negotiateauth \
 		--enable-new-pass-manager \
 		--enable-official-branding \
