@@ -21,11 +21,6 @@ fi
 DESCRIPTION="Vulkan Validation Layers"
 HOMEPAGE="https://github.com/KhronosGroup/Vulkan-ValidationLayers"
 
-PATCHES=(
-	"${FILESDIR}"/${P}-Fix-dependency-detection.patch
-	"${FILESDIR}"/${P}-Dont-use-static-spirv-tools.patch
-)
-
 LICENSE="Apache-2.0"
 SLOT="0"
 IUSE="wayland X"
@@ -54,7 +49,6 @@ multilib_src_configure() {
 		-DBUILD_WSI_XCB_SUPPORT=$(usex X)
 		-DBUILD_WSI_XLIB_SUPPORT=$(usex X)
 		-DBUILD_TESTS=OFF
-		-DGLSLANG_INSTALL_DIR="${ESYSROOT}/usr"
 		-DCMAKE_INSTALL_INCLUDEDIR="${EPREFIX}/usr/include/"
 	)
 	cmake_src_configure
