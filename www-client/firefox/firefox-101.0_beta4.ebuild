@@ -3,7 +3,7 @@
 
 EAPI="8"
 
-FIREFOX_PATCHSET="firefox-99-patches-01j.tar.xz"
+FIREFOX_PATCHSET="firefox-100-patches-01j.tar.xz"
 
 LLVM_MAX_SLOT=14
 
@@ -56,10 +56,7 @@ SRC_URI="${MOZ_SRC_BASE_URI}/source/${MOZ_P}.source.tar.xz -> ${MOZ_P_DISTFILES}
 	${PATCH_URIS[@]}"
 
 PATCHES=(
-	"${FILESDIR}/0027-Support-for-building-firefox-without-X11.patch"
 	"${FILESDIR}/0028-Accept-mold-as-linker.patch"
-	"${FILESDIR}/0029-gni-changes-to-disable-x11-dependency.patch"
-	"${FILESDIR}/0031-Auto-generated-mozbuild-gn-configs-based-on-gni-chan.patch"
 	"${FILESDIR}/0032-Strip-as-needed-from-libmozgtk.patch"
 )
 
