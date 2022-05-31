@@ -3,7 +3,7 @@
 
 EAPI="8"
 
-FIREFOX_PATCHSET="firefox-100-patches-02j.tar.xz"
+FIREFOX_PATCHSET="firefox-101-patches-01j.tar.xz"
 
 LLVM_MAX_SLOT=14
 
@@ -57,7 +57,6 @@ SRC_URI="${MOZ_SRC_BASE_URI}/source/${MOZ_P}.source.tar.xz -> ${MOZ_P_DISTFILES}
 
 PATCHES=(
 	"${FILESDIR}/0028-Accept-mold-as-linker.patch"
-	"${FILESDIR}/0032-Strip-as-needed-from-libmozgtk.patch"
 )
 
 DESCRIPTION="Firefox Web Browser"
@@ -698,7 +697,6 @@ src_configure() {
 		--disable-parental-controls \
 		--disable-strip \
 		--disable-updater \
-		--enable-dom-streams \
 		--enable-negotiateauth \
 		--enable-new-pass-manager \
 		--enable-official-branding \
