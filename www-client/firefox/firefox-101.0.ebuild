@@ -7,7 +7,7 @@ FIREFOX_PATCHSET="firefox-101-patches-01j.tar.xz"
 
 LLVM_MAX_SLOT=14
 
-PYTHON_COMPAT=( python3_10 )
+PYTHON_COMPAT=( python3_{8..10} )
 PYTHON_REQ_USE="ncurses,sqlite,ssl"
 
 WANT_AUTOCONF="2.1"
@@ -67,15 +67,13 @@ KEYWORDS="~amd64 ~arm64 ~ppc64 ~x86"
 SLOT="rapid"
 LICENSE="MPL-2.0 GPL-2 LGPL-2.1"
 
-IUSE="+clang cpu_flags_arm_neon dbus debug eme-free hardened hwaccel"
+IUSE="+clang cpu_flags_arm_neon dbus debug eme-free hardened"
 IUSE+=" jack libproxy lto mold +openh264 pgo pulseaudio pipewire sndio selinux"
-IUSE+=" +system-av1 +system-harfbuzz +system-icu +system-jpeg +system-libevent +system-libvpx +system-png +system-webp"
+IUSE+=" +system-av1 +system-harfbuzz +system-icu +system-jpeg +system-libevent +system-libvpx +system-png +system-python-libs +system-webp"
 IUSE+=" +wayland wifi X"
 
 # Firefox-only IUSE
-IUSE+=" geckodriver"
-IUSE+=" +gmp-autoupdate"
-IUSE+=" screencast"
+IUSE+=" geckodriver +gmp-autoupdate screencast"
 
 REQUIRED_USE="debug? ( !system-av1 )
 	pgo? ( lto )
@@ -89,72 +87,92 @@ REQUIRED_USE+="	screencast? ( wayland )"
 BDEPEND="${PYTHON_DEPS}
 	app-arch/unzip
 	app-arch/zip
-	dev-util/cbindgen
-	net-libs/nodejs
+	>=dev-util/cbindgen-0.23.0
+	>=net-libs/nodejs-10.23.1
 	virtual/pkgconfig
-	virtual/rust
-	sys-devel/clang
-	sys-devel/llvm
-	clang? (
-		sys-devel/lld
-		pgo? ( sys-libs/compiler-rt-sanitizers[profile] )
+	>=virtual/rust-1.59.0
+	|| (
+		(
+			sys-devel/clang:14
+			sys-devel/llvm:14
+			clang? (
+				=sys-devel/lld-14*
+				pgo? ( =sys-libs/compiler-rt-sanitizers-14*[profile] )
+			)
+		)
+		(
+			sys-devel/clang:13
+			sys-devel/llvm:13
+			clang? (
+				=sys-devel/lld-13*
+				pgo? ( =sys-libs/compiler-rt-sanitizers-13*[profile] )
+			)
+		)
+		(
+			sys-devel/clang:12
+			sys-devel/llvm:12
+			clang? (
+				=sys-devel/lld-12*
+				pgo? ( =sys-libs/compiler-rt-sanitizers-12*[profile] )
+			)
+		)
 	)
-	amd64? ( dev-lang/nasm )
-	x86? ( dev-lang/nasm )"
+	amd64? ( >=dev-lang/nasm-2.14 )
+	x86? ( >=dev-lang/nasm-2.14 )"
 
 COMMON_DEPEND="
-	dev-libs/glib
-	dev-libs/libffi
-	dev-libs/nss
-	dev-libs/nspr
 	dev-libs/atk
 	dev-libs/expat
+	dev-libs/glib:2
+	dev-libs/libffi:=
+	>=dev-libs/nss-3.78
+	>=dev-libs/nspr-4.32
 	media-libs/alsa-lib
 	media-libs/fontconfig
 	media-libs/freetype
 	media-libs/mesa
 	media-video/ffmpeg
 	sys-libs/zlib
+	virtual/freedesktop-icon-theme
 	x11-libs/cairo
 	x11-libs/gdk-pixbuf
-	x11-libs/gtk+
+	x11-libs/gtk+:3
 	x11-libs/pango
 	x11-libs/pixman
-	virtual/freedesktop-icon-theme
 	dbus? (
 		sys-apps/dbus
 		dev-libs/dbus-glib
 	)
 	jack? ( virtual/jack )
 	libproxy? ( net-libs/libproxy )
+	screencast? ( media-video/pipewire )
 	pipewire? ( media-video/pipewire )
 	selinux? ( sec-policy/selinux-mozilla )
-	screencast? ( media-video/pipewire )
 	sndio? ( media-sound/sndio )
 	system-av1? (
-		media-libs/dav1d
-		media-libs/libaom
+		>=media-libs/dav1d-0.9.3:=
+		>=media-libs/libaom-1.0.0:=
 	)
 	system-harfbuzz? (
-		media-libs/harfbuzz
-		media-gfx/graphite2
+		>=media-gfx/graphite2-1.3.13
+		>=media-libs/harfbuzz-2.8.1:0=
 	)
-	system-icu? ( dev-libs/icu )
-	system-jpeg? ( media-libs/libjpeg-turbo )
-	system-libevent? ( dev-libs/libevent[threads] )
-	system-libvpx? ( media-libs/libvpx[postproc] )
-	system-png? ( media-libs/libpng[apng] )
-	system-webp? ( media-libs/libwebp )
+	system-icu? ( >=dev-libs/icu-71.1:= )
+	system-jpeg? ( >=media-libs/libjpeg-turbo-1.2.1 )
+	system-libevent? ( >=dev-libs/libevent-2.0:0=[threads] )
+	system-libvpx? ( >=media-libs/libvpx-1.8.2:0=[postproc] )
+	system-png? ( >=media-libs/libpng-1.6.35:0=[apng] )
+	system-webp? ( >=media-libs/libwebp-1.1.0:0= )
 	wifi? (
 		kernel_linux? (
-			sys-apps/dbus
 			dev-libs/dbus-glib
 			net-misc/networkmanager
+			sys-apps/dbus
 		)
 	)
 	X? (
 		x11-libs/cairo[X]
-		x11-libs/gtk+[X]
+		x11-libs/gtk+:3[X]
 		x11-libs/libX11
 		x11-libs/libXcomposite
 		x11-libs/libXdamage
@@ -163,40 +181,41 @@ COMMON_DEPEND="
 		x11-libs/libXrandr
 		x11-libs/libXrender
 		x11-libs/libXtst
-		x11-libs/libxcb
+		x11-libs/libxcb:=
 	)"
 
 RDEPEND="${COMMON_DEPEND}
 	!www-client/firefox:0
 	!www-client/firefox:esr
-	openh264? ( media-libs/openh264[plugin] )
+	jack? ( virtual/jack )
+	openh264? ( media-libs/openh264:*[plugin] )
 	pulseaudio? (
 		|| (
-			media-sound/apulse
 			media-sound/pulseaudio
+			>=media-sound/apulse-0.1.12-r4
 		)
 	)
 	selinux? ( sec-policy/selinux-mozilla )"
 
 DEPEND="${COMMON_DEPEND}
-	amd64? ( X? ( virtual/opengl ) )
-	x86? ( X? ( virtual/opengl ) )
 	pgo? (
 		wayland? ( ${VIRTUALWL_DEPEND} )
 		!wayland? ( ${VIRTUALX_DEPEND} )
 	)
-	pulseaudio? (
-		|| (
-			media-sound/apulse[sdk]
-			media-sound/pulseaudio
-		)
-	)
-	wayland? ( x11-libs/gtk+[wayland] )
 	X? (
-		x11-libs/gtk+[X]
+		x11-libs/gtk+:3[X]
 		x11-libs/libICE
 		x11-libs/libSM
-	)"
+	)
+	pulseaudio? (
+		|| (
+			media-sound/pulseaudio
+			>=media-sound/apulse-0.1.12-r4[sdk]
+		)
+	)
+	wayland? ( >=x11-libs/gtk+-3.11:3[wayland] )
+	amd64? ( X? ( virtual/opengl ) )
+	x86? ( X? ( virtual/opengl ) )"
 
 S="${WORKDIR}/${PN}-${PV%_*}"
 
@@ -467,6 +486,8 @@ pkg_setup() {
 				eerror "  - Manually switch rust version using 'eselect rust' to match used LLVM version"
 				eerror "  - Switch to dev-lang/rust[system-llvm] which will guarantee matching version"
 				eerror "  - Build ${CATEGORY}/${PN} without USE=lto"
+				eerror "  - Rebuild lld with llvm that was used to build rust (may need to rebuild the whole "
+				eerror "    llvm/clang/lld/rust chain depending on your @world updates)"
 				die "LLVM version used by Rust (${version_llvm_rust}) does not match with ld.lld version (${version_lld})!"
 			fi
 		fi
@@ -577,8 +598,8 @@ src_prepare() {
 	use lto && rm -v "${WORKDIR}"/firefox-patches/*-LTO-Only-enable-LTO-*.patch
 	eapply "${WORKDIR}/firefox-patches"
 
-	# Allow ebuild patches & user to apply any additional patches without modifing ebuild
-	default
+	# Allow user to apply any additional patches without modifing ebuild
+	eapply_user
 
 	# Make cargo respect MAKEOPTS
 	export CARGO_BUILD_JOBS="$(makeopts_jobs)"
@@ -621,7 +642,7 @@ src_prepare() {
 	echo -n "${MOZ_API_KEY_LOCATION//gGaPi/}" > "${S}"/api-location.key || die
 	echo -n "${MOZ_API_KEY_MOZILLA//m0ap1/}" > "${S}"/api-mozilla.key || die
 
-	xdg_src_prepare
+	xdg_environment_reset
 }
 
 src_configure() {
@@ -692,8 +713,8 @@ src_configure() {
 		--allow-addon-sideload \
 		--disable-cargo-incremental \
 		--disable-crashreporter \
+		--disable-gpsd \
 		--disable-install-strip \
-		--disable-minify \
 		--disable-parental-controls \
 		--disable-strip \
 		--disable-updater \
@@ -716,8 +737,8 @@ src_configure() {
 		--with-system-zlib \
 		--with-toolchain-prefix="${CHOST}-" \
 		--with-unsigned-addon-scopes=app,system \
-		--x-includes="${SYSROOT}${EPREFIX}/usr/include" \
-		--x-libraries="${SYSROOT}${EPREFIX}/usr/$(get_libdir)"
+		--x-includes="${ESYSROOT}/usr/include" \
+		--x-libraries="${ESYSROOT}/usr/$(get_libdir)"
 
 	# Set update channel
 	local update_channel=release
@@ -774,15 +795,13 @@ src_configure() {
 		append-ldflags "-Wl,-z,relro -Wl,-z,now"
 	fi
 
-	mozconfig_use_enable jack
+	local myaudiobackends=""
+	use jack && myaudiobackends+="jack,"
+	use sndio && myaudiobackends+="sndio,"
+	use pulseaudio && myaudiobackends+="pulseaudio,"
+	! use pulseaudio && myaudiobackends+="alsa,"
 
-	mozconfig_use_enable pulseaudio
-	# force the deprecated alsa sound code if pulseaudio is disabled
-	if use kernel_linux && ! use pulseaudio && ! use pipewire; then
-		mozconfig_add_options_ac '-pulseaudio' --enable-alsa
-	fi
-
-	mozconfig_use_enable sndio
+	mozconfig_add_options_ac '--enable-audio-backends' --enable-audio-backends="${myaudiobackends::-1}"
 
 	mozconfig_use_enable wifi necko-wifi
 
@@ -927,10 +946,13 @@ src_configure() {
 	export MOZ_MAKE_FLAGS="${MAKEOPTS}"
 
 	# Use system's Python environment
-	export MACH_USE_SYSTEM_PYTHON=1
-	export MACH_SYSTEM_ASSERTED_COMPATIBLE_WITH_MACH_SITE=1
-	export MACH_SYSTEM_ASSERTED_COMPATIBLE_WITH_BUILD_SITE=1
-	export PIP_NO_CACHE_DIR=off
+	PIP_NETWORK_INSTALL_RESTRICTED_VIRTUALENVS=mach
+
+	if use system-python-libs; then
+		export MACH_BUILD_PYTHON_NATIVE_PACKAGE_SOURCE="system"
+	else
+		export MACH_BUILD_PYTHON_NATIVE_PACKAGE_SOURCE="none"
+	fi
 
 	# Disable notification when build system has finished
 	export MOZ_NOSPAM=1
@@ -1037,13 +1059,6 @@ src_install() {
 	cat >>"${GENTOO_PREFS}" <<-EOF || die "failed to set spellchecker.dictionary_path pref"
 	pref("spellchecker.dictionary_path",       "${EPREFIX}/usr/share/myspell");
 	EOF
-
-	# Force hwaccel prefs if USE=hwaccel is enabled
-	if use hwaccel ; then
-		cat "${FILESDIR}"/gentoo-hwaccel-prefs.js-r1 \
-		>>"${GENTOO_PREFS}" \
-		|| die "failed to add prefs to force hardware-accelerated rendering to all-gentoo.js"
-	fi
 
 	if ! use gmp-autoupdate ; then
 		local plugin
@@ -1231,4 +1246,12 @@ pkg_postinst() {
 		elog "If you still want to be able to select between running Mozilla ${PN^}"
 		elog "on X11 or Wayland, you have to re-create these shortcuts on your own."
 	fi
+
+	elog
+	elog "Unfortunately Firefox-100.0 breaks compatibility with some sites using "
+	elog "useragent checks. To temporarily fix this, enter about:config and modify "
+	elog "network.http.useragent.forceVersion preference to \"99\"."
+	elog "Or install an addon to change your useragent."
+	elog "See: https://support.mozilla.org/en-US/kb/difficulties-opening-or-using-website-firefox-100"
+	elog
 }
