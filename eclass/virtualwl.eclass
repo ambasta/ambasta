@@ -109,11 +109,11 @@ virtwl() {
 	debug-print "${FUNCNAME}: running headless sway"
 
 	einfo "Scanning for an open WAYLAND_DISPLAY to start wayland..."
-	WL_DISPLAY=$(idx=1; while [[ -f /tmp/wayland-${idx}.lock ]] ; do ((idx++)); done; echo ${idx})
+	WL_DISPLAY=$(idx=1; while [[ -f ${T}/wayland-${idx}.lock ]] ; do ((idx++)); done; echo ${idx})
 	debug-print "${FUNCNAME}: WL_DISPLAY=${WL_DISPLAY}"
 
 	export WLR_BACKENDS=headless
-	export XDG_RUNTIME_DIR=/tmp
+	export XDG_RUNTIME_DIR=${T}
 	export XDG_SESSION_TYPE=wayland
 	export WLR_RENDERER=pixman
 	export WAYLAND_DISPLAY="wayland-${WL_DISPLAY}"
@@ -131,8 +131,8 @@ virtwl() {
 	sleep 5
 
 	local start=${WL_DISPLAY}
-	while [[ ! -f /tmp/wayland-${WL_DISPLAY}.lock ]]; do
-		einfo "No wayland session found at /tmp/wayland-${WL_DISPLAY}.lock"
+	while [[ ! -f ${T}/wayland-${WL_DISPLAY}.lock ]]; do
+		einfo "No wayland session found at ${T}/wayland-${WL_DISPLAY}.lock"
 		# Stop trying after 5 tries
 		if ((WL_DISPLAY - start > 5)) ; then
 			eerror "'${swayenv} WAYLAND_DISPLAY=\"wayland-${WL_DISPLAY}\" ${DBUS} ${SWAY} ${swayargs}' returns:"
@@ -161,7 +161,7 @@ virtwl() {
 	retval=$?
 
 	# Now kill sway
-	fuser -k -TERM /tmp/wayland-${WL_DISPLAY}.lock
+	fuser -k -TERM ${T}/wayland-${WL_DISPLAY}.lock
 
 	# die if our command failed
 	[[ ${retval} -ne 0 ]] && die "Command '$@' failed with return code ${retval}"
