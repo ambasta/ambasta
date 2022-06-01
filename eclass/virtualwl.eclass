@@ -99,12 +99,12 @@ virtwl() {
 	local idx=0
 	local retval=0
 	local OLD_SANDBOX_ON="${SANDBOX_ON}"
-	local SWAY SEATD WL_DISPLAY
+	local SWAY DBUS WL_DISPLAY
 	local swayargs="-d"
 	local swayenv
 
 	SWAY=$(type -p sway) || die
-	SEATD=$(type -p seatd-launch) || die
+	DBUS=$(type -p dbus-launch) || die
 
 	debug-print "${FUNCNAME}: running headless sway"
 
@@ -113,22 +113,21 @@ virtwl() {
 	debug-print "${FUNCNAME}: WL_DISPLAY=${WL_DISPLAY}"
 
 	export WLR_BACKENDS=headless
-	export WLR_LIBINPUT_NO_DEVICES=1
 	export XDG_RUNTIME_DIR=/tmp
 	export XDG_SESSION_TYPE=wayland
 	export WLR_RENDERER=pixman
 	export WAYLAND_DISPLAY="wayland-${WL_DISPLAY}"
 
 	swayenv+="WLR_BACKENDS=headless"
-	swayenv+=" WLR_LIBINPUT_NO_DEVICES=1"
-	swayenv+=" XDG_RUNTIME_DIR=/tmp"
+	swayenv+=" WLR_RENDERER=pixman"
+	swayenv+=" XDG_RUNTIME_DIR=${T}"
 	swayenv+=" XDG_SESSION_TYPE=wayland"
 
 	# We really do not want SANDBOX enabled here
 	export SANDBOX_ON="0"
 
-	debug-print "${FUNCNAME}: ${SEATD} ${SWAY} -- ${swayargs}"
-	${SEATD} ${SWAY} -- ${swayargs} &>/dev/null &
+	debug-print "${FUNCNAME}: ${DBUS} ${SWAY} ${swayargs}"
+	${DBUS} ${SWAY} ${swayargs} &>/dev/null &
 	sleep 5
 
 	local start=${WL_DISPLAY}
@@ -136,17 +135,17 @@ virtwl() {
 		einfo "No wayland session found at /tmp/wayland-${WL_DISPLAY}.lock"
 		# Stop trying after 5 tries
 		if ((WL_DISPLAY - start > 5)) ; then
-			eerror "'${swayenv} WAYLAND_DISPLAY=\"wayland-${WL_DISPLAY}\" ${SEATD} ${SWAY} -- ${swayargs}' returns:"
+			eerror "'${swayenv} WAYLAND_DISPLAY=\"wayland-${WL_DISPLAY}\" ${DBUS} ${SWAY} ${swayargs}' returns:"
 			echo
-			${SEATD} ${SWAY} -- ${swayargs} &>/dev/null &
+			${DBUS} ${SWAY} ${swayargs} &>/dev/null &
 			echo
 			eerror "If possible, correct the above error and try your emerge again."
 			die "Unable to start sway"
 		fi
 			((WL_DISPLAY++))
 		export WAYLAND_DISPLAY="wayland-${WL_DISPLAY}"
-		debug-print "${FUNCNAME}: ${SEATD} :${SWAY} -- ${swayargs}"
-		${SEATD} ${SWAY} -- ${swayargs} &>/dev/null &
+		debug-print "${FUNCNAME}: ${DBUS} :${SWAY} ${swayargs}"
+		${DBUS} ${SWAY} ${swayargs} &>/dev/null &
 		sleep 5
 	done
 
