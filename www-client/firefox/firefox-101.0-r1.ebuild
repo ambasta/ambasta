@@ -38,8 +38,7 @@ MOZ_PV_DISTFILES="${MOZ_PV}${MOZ_PV_SUFFIX}"
 MOZ_P_DISTFILES="${MOZ_PN}-${MOZ_PV_DISTFILES}"
 
 inherit autotools check-reqs desktop flag-o-matic gnome2-utils linux-info \
-	llvm multiprocessing pax-utils python-any-r1 toolchain-funcs \
-	virtualx xdg
+	llvm multiprocessing pax-utils python-any-r1 toolchain-funcs xdg
 
 MOZ_SRC_BASE_URI="https://archive.mozilla.org/pub/${MOZ_PN}/releases/${MOZ_PV}"
 
@@ -63,7 +62,7 @@ SLOT="rapid"
 LICENSE="MPL-2.0 GPL-2 LGPL-2.1"
 
 IUSE="+clang cpu_flags_arm_neon dbus debug eme-free hardened"
-IUSE+=" jack libproxy lto +openh264 pgo pulseaudio sndio selinux"
+IUSE+=" jack libproxy lto +openh264 pulseaudio sndio selinux"
 IUSE+=" +system-av1 +system-harfbuzz +system-icu +system-jpeg +system-libevent +system-libvpx system-png system-python-libs +system-webp"
 IUSE+=" +wayland wifi"
 
@@ -71,7 +70,6 @@ IUSE+=" +wayland wifi"
 IUSE+=" geckodriver +gmp-autoupdate screencast"
 
 REQUIRED_USE="debug? ( !system-av1 )
-	pgo? ( lto )
 	wayland? ( dbus )
 	wifi? ( dbus )"
 
@@ -91,7 +89,6 @@ BDEPEND="${PYTHON_DEPS}
 			sys-devel/llvm:14
 			clang? (
 				=sys-devel/lld-14*
-				pgo? ( =sys-libs/compiler-rt-sanitizers-14*[profile] )
 			)
 		)
 		(
@@ -99,7 +96,6 @@ BDEPEND="${PYTHON_DEPS}
 			sys-devel/llvm:13
 			clang? (
 				=sys-devel/lld-13*
-				pgo? ( =sys-libs/compiler-rt-sanitizers-13*[profile] )
 			)
 		)
 		(
@@ -107,7 +103,6 @@ BDEPEND="${PYTHON_DEPS}
 			sys-devel/llvm:12
 			clang? (
 				=sys-devel/lld-12*
-				pgo? ( =sys-libs/compiler-rt-sanitizers-12*[profile] )
 			)
 		)
 	)
@@ -204,13 +199,6 @@ llvm_check_deps() {
 		if ! has_version -b "=sys-devel/lld-${LLVM_SLOT}*" ; then
 			einfo "=sys-devel/lld-${LLVM_SLOT}* is missing! Cannot use LLVM slot ${LLVM_SLOT} ..." >&2
 			return 1
-		fi
-
-		if use pgo ; then
-			if ! has_version -b "=sys-libs/compiler-rt-sanitizers-${LLVM_SLOT}*" ; then
-				einfo "=sys-libs/compiler-rt-sanitizers-${LLVM_SLOT}* is missing! Cannot use LLVM slot ${LLVM_SLOT} ..." >&2
-				return 1
-			fi
 		fi
 	fi
 
@@ -397,14 +385,8 @@ mozconfig_use_with() {
 
 pkg_pretend() {
 	if [[ ${MERGE_TYPE} != binary ]] ; then
-		if use pgo ; then
-			if ! has usersandbox $FEATURES ; then
-				die "You must enable usersandbox as X server can not run as root!"
-			fi
-		fi
-
 		# Ensure we have enough disk space to compile
-		if use pgo || use lto || use debug ; then
+		if use lto || use debug ; then
 			CHECKREQS_DISK_BUILD="13500M"
 		else
 			CHECKREQS_DISK_BUILD="6500M"
@@ -416,14 +398,8 @@ pkg_pretend() {
 
 pkg_setup() {
 	if [[ ${MERGE_TYPE} != binary ]] ; then
-		if use pgo ; then
-			if ! has userpriv ${FEATURES} ; then
-				eerror "Building ${PN} with USE=pgo and FEATURES=-userpriv is not supported!"
-			fi
-		fi
-
 		# Ensure we have enough disk space to compile
-		if use pgo || use lto || use debug ; then
+		if use lto || use debug ; then
 			CHECKREQS_DISK_BUILD="13500M"
 		else
 			CHECKREQS_DISK_BUILD="6400M"
@@ -476,34 +452,6 @@ pkg_setup() {
 
 		# Build system is using /proc/self/oom_score_adj, bug #604394
 		addpredict /proc/self/oom_score_adj
-
-		if use pgo ; then
-			# Allow access to GPU during PGO run
-			local ati_cards mesa_cards nvidia_cards render_cards
-			shopt -s nullglob
-
-			ati_cards=$(echo -n /dev/ati/card* | sed 's/ /:/g')
-			if [[ -n "${ati_cards}" ]] ; then
-				addpredict "${ati_cards}"
-			fi
-
-			mesa_cards=$(echo -n /dev/dri/card* | sed 's/ /:/g')
-			if [[ -n "${mesa_cards}" ]] ; then
-				addpredict "${mesa_cards}"
-			fi
-
-			nvidia_cards=$(echo -n /dev/nvidia* | sed 's/ /:/g')
-			if [[ -n "${nvidia_cards}" ]] ; then
-				addpredict "${nvidia_cards}"
-			fi
-
-			render_cards=$(echo -n /dev/dri/renderD128* | sed 's/ /:/g')
-			if [[ -n "${render_cards}" ]] ; then
-				addpredict "${render_cards}"
-			fi
-
-			shopt -u nullglob
-		fi
 
 		if ! mountpoint -q /dev/shm ; then
 			# If /dev/shm is not available, configure is known to fail with
@@ -784,15 +732,6 @@ src_configure() {
 			mozconfig_add_options_ac '+lto' --enable-lto=full
 			mozconfig_add_options_ac "linker is set to bfd" --enable-linker=bfd
 		fi
-
-		if use pgo ; then
-			mozconfig_add_options_ac '+pgo' MOZ_PGO=1
-
-			if use clang ; then
-				# Used in build/pgo/profileserver.py
-				export LLVM_PROFDATA="llvm-profdata"
-			fi
-		fi
 	else
 		# Avoid auto-magic on linker
 		if use clang ; then
@@ -968,21 +907,10 @@ src_configure() {
 }
 
 src_compile() {
-	local virt_cmd=
-
-	if use pgo ; then
-		virt_cmd=virtx
-
-		# Reset and cleanup environment variables used by GNOME/XDG
-		gnome2_environment_reset
-
-		addpredict /root
-	fi
 
 	local -x GDK_BACKEND=wayland
 
-	${virt_cmd} ./mach build --verbose \
-		|| die
+	./mach build --verbose || die
 }
 
 src_install() {
