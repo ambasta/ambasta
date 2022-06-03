@@ -718,6 +718,7 @@ src_configure() {
 		--disable-parental-controls \
 		--disable-strip \
 		--disable-updater \
+		--disable-unified-build \
 		--enable-negotiateauth \
 		--enable-new-pass-manager \
 		--enable-official-branding \
