@@ -1,30 +1,207 @@
-From c08b109a8182e4e8f670fa89f6602041d0a74343 Mon Sep 17 00:00:00 2001
+From d8d7983ed2664a6a1e7f3992f6a3524ce2d46b37 Mon Sep 17 00:00:00 2001
 From: Amit Prakash Ambasta <amit.prakash.ambasta@gmail.com>
 Date: Fri, 3 Jun 2022 16:13:48 +0530
-Subject: [PATCH 2/2] Signed-off-by: Amit Prakash Ambasta
- <amit.prakash.ambasta@gmail.com>
+Subject: [PATCH 2/2] bmo-1772513:
 
-Include <gdk-pixbuf/gdk-pixbuf.h> in nsClipboard.cpp because it uses
-GdkPixbuf using a forward declaration when calling
-nsImageToPixbuf::ImageToPixbuf(image) while nsClipboard.cpp itself is
-kept in a separate chunk during unified builds.
+  Fix various non-unified build issues in GTK widget code
+  Don't require unified build in widget
+
+  By: emilio@mozilla
 
 Signed-off-by: Amit Prakash Ambasta <amit.prakash.ambasta@gmail.com>
 ---
- widget/gtk/nsClipboard.cpp | 1 +
- 1 file changed, 1 insertion(+)
+ widget/gtk/CompositorWidgetParent.cpp       | 7 +++----
+ widget/gtk/GtkCompositorWidget.cpp          | 1 +
+ widget/gtk/IMContextWrapper.cpp             | 1 +
+ widget/gtk/InProcessGtkCompositorWidget.cpp | 7 +++----
+ widget/gtk/MPRISServiceHandler.cpp          | 1 +
+ widget/gtk/WindowSurfaceX11.cpp             | 7 ++-----
+ widget/gtk/WindowSurfaceX11.h               | 7 +++----
+ widget/gtk/moz.build                        | 3 +--
+ widget/gtk/nsApplicationChooser.cpp         | 1 +
+ widget/gtk/nsClipboard.cpp                  | 1 +
+ widget/gtk/nsGtkKeyUtils.h                  | 1 +
+ 11 files changed, 18 insertions(+), 19 deletions(-)
 
+diff --git a/widget/gtk/CompositorWidgetParent.cpp b/widget/gtk/CompositorWidgetParent.cpp
+index 4382ccfd44..998614622e 100644
+--- a/widget/gtk/CompositorWidgetParent.cpp
++++ b/widget/gtk/CompositorWidgetParent.cpp
+@@ -6,9 +6,9 @@
+ #include "CompositorWidgetParent.h"
+ #include "mozilla/Unused.h"
+ #include "mozilla/widget/PlatformWidgetTypes.h"
++#include "nsWindow.h"
+ 
+-namespace mozilla {
+-namespace widget {
++namespace mozilla::widget {
+ 
+ CompositorWidgetParent::CompositorWidgetParent(
+     const CompositorWidgetInitData& aInitData,
+@@ -51,5 +51,4 @@ mozilla::ipc::IPCResult CompositorWidgetParent::RecvEnableRendering(
+   return IPC_OK();
+ }
+ 
+-}  // namespace widget
+-}  // namespace mozilla
++}  // namespace mozilla::widget
+diff --git a/widget/gtk/GtkCompositorWidget.cpp b/widget/gtk/GtkCompositorWidget.cpp
+index 07a12262af..0a1d88894c 100644
+--- a/widget/gtk/GtkCompositorWidget.cpp
++++ b/widget/gtk/GtkCompositorWidget.cpp
+@@ -5,6 +5,7 @@
+ 
+ #include "GtkCompositorWidget.h"
+ 
++#include "mozilla/gfx/gfxVars.h"
+ #include "mozilla/layers/CompositorThread.h"
+ #include "mozilla/widget/InProcessCompositorWidget.h"
+ #include "mozilla/widget/PlatformWidgetTypes.h"
+diff --git a/widget/gtk/IMContextWrapper.cpp b/widget/gtk/IMContextWrapper.cpp
+index cc84d402bb..e2180f572f 100644
+--- a/widget/gtk/IMContextWrapper.cpp
++++ b/widget/gtk/IMContextWrapper.cpp
+@@ -7,6 +7,7 @@
+ #include "mozilla/Logging.h"
+ #include "nsString.h"
+ #include "prtime.h"
++#include "prenv.h"
+ 
+ #include "IMContextWrapper.h"
+ #include "nsGtkKeyUtils.h"
+diff --git a/widget/gtk/InProcessGtkCompositorWidget.cpp b/widget/gtk/InProcessGtkCompositorWidget.cpp
+index 41581184fb..bffd6f5a7f 100644
+--- a/widget/gtk/InProcessGtkCompositorWidget.cpp
++++ b/widget/gtk/InProcessGtkCompositorWidget.cpp
+@@ -8,10 +8,10 @@
+ #include "mozilla/widget/PlatformWidgetTypes.h"
+ 
+ #include "InProcessGtkCompositorWidget.h"
++#include "VsyncDispatcher.h"
+ #include "nsWindow.h"
+ 
+-namespace mozilla {
+-namespace widget {
++namespace mozilla::widget {
+ 
+ /* static */
+ RefPtr<CompositorWidget> CompositorWidget::CreateLocal(
+@@ -41,5 +41,4 @@ void InProcessGtkCompositorWidget::ObserveVsync(VsyncObserver* aObserver) {
+   }
+ }
+ 
+-}  // namespace widget
+-}  // namespace mozilla
++}  // namespace mozilla::widget
+diff --git a/widget/gtk/MPRISServiceHandler.cpp b/widget/gtk/MPRISServiceHandler.cpp
+index ad85082f78..e21e46f114 100644
+--- a/widget/gtk/MPRISServiceHandler.cpp
++++ b/widget/gtk/MPRISServiceHandler.cpp
+@@ -12,6 +12,7 @@
+ 
+ #include "MPRISInterfaceDescription.h"
+ #include "mozilla/dom/MediaControlUtils.h"
++#include "mozilla/GRefPtr.h"
+ #include "mozilla/GUniquePtr.h"
+ #include "mozilla/UniquePtrExtensions.h"
+ #include "mozilla/Maybe.h"
+diff --git a/widget/gtk/WindowSurfaceX11.cpp b/widget/gtk/WindowSurfaceX11.cpp
+index a32cc12e18..36b238a98b 100644
+--- a/widget/gtk/WindowSurfaceX11.cpp
++++ b/widget/gtk/WindowSurfaceX11.cpp
+@@ -6,10 +6,8 @@
+ 
+ #include "WindowSurfaceX11.h"
+ #include "gfxPlatform.h"
+-#include "X11UndefineNone.h"
+ 
+-namespace mozilla {
+-namespace widget {
++namespace mozilla::widget {
+ 
+ WindowSurfaceX11::WindowSurfaceX11(Display* aDisplay, Window aWindow,
+                                    Visual* aVisual, unsigned int aDepth)
+@@ -46,5 +44,4 @@ gfx::SurfaceFormat WindowSurfaceX11::GetVisualFormat(const Visual* aVisual,
+   return gfx::SurfaceFormat::UNKNOWN;
+ }
+ 
+-}  // namespace widget
+-}  // namespace mozilla
++}  // namespace mozilla::widget
+diff --git a/widget/gtk/WindowSurfaceX11.h b/widget/gtk/WindowSurfaceX11.h
+index d297ec6b66..dda17bf0d0 100644
+--- a/widget/gtk/WindowSurfaceX11.h
++++ b/widget/gtk/WindowSurfaceX11.h
+@@ -13,9 +13,9 @@
+ #  include "mozilla/gfx/Types.h"
+ 
+ #  include <X11/Xlib.h>
++#  include "X11UndefineNone.h"
+ 
+-namespace mozilla {
+-namespace widget {
++namespace mozilla::widget {
+ 
+ class WindowSurfaceX11 : public WindowSurface {
+  public:
+@@ -33,8 +33,7 @@ class WindowSurfaceX11 : public WindowSurface {
+   const gfx::SurfaceFormat mFormat;
+ };
+ 
+-}  // namespace widget
+-}  // namespace mozilla
++}  // namespace mozilla::widget
+ 
+ #endif  // MOZ_X11
+ #endif  // _MOZILLA_WIDGET_GTK_WINDOW_SURFACE_X11_H
+diff --git a/widget/gtk/moz.build b/widget/gtk/moz.build
+index 5218c7df06..2e578b9f97 100644
+--- a/widget/gtk/moz.build
++++ b/widget/gtk/moz.build
+@@ -187,6 +187,5 @@ if CONFIG["MOZ_ENABLE_DBUS"]:
+         "AsyncDBus.cpp",
+     ]
+     CXXFLAGS += CONFIG["MOZ_DBUS_GLIB_CFLAGS"]
+-CXXFLAGS += ["-Werror=switch"]
+ 
+-REQUIRES_UNIFIED_BUILD = True
++CXXFLAGS += ["-Werror=switch"]
+diff --git a/widget/gtk/nsApplicationChooser.cpp b/widget/gtk/nsApplicationChooser.cpp
+index 2ebb62fd1d..6752c52caf 100644
+--- a/widget/gtk/nsApplicationChooser.cpp
++++ b/widget/gtk/nsApplicationChooser.cpp
+@@ -11,6 +11,7 @@
+ #include "WidgetUtils.h"
+ #include "nsIMIMEInfo.h"
+ #include "nsIWidget.h"
++#include "nsIFile.h"
+ #include "nsCExternalHandlerService.h"
+ #include "nsComponentManagerUtils.h"
+ #include "nsGtkUtils.h"
 diff --git a/widget/gtk/nsClipboard.cpp b/widget/gtk/nsClipboard.cpp
-index 555e8ce45c..6d7bfeaf40 100644
+index 555e8ce45c..8d6121d30f 100644
 --- a/widget/gtk/nsClipboard.cpp
 +++ b/widget/gtk/nsClipboard.cpp
-@@ -4,6 +4,7 @@
- /* This Source Code Form is subject to the terms of the Mozilla Public
-  * License, v. 2.0. If a copy of the MPL was not distributed with this
-  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-+#include <gdk-pixbuf/gdk-pixbuf.h>
+@@ -31,6 +31,7 @@
+ #include "nsIObserverService.h"
+ #include "mozilla/Services.h"
+ #include "mozilla/RefPtr.h"
++#include "mozilla/GRefPtr.h"
+ #include "mozilla/SchedulerGroup.h"
+ #include "mozilla/StaticPrefs_widget.h"
+ #include "mozilla/TimeStamp.h"
+diff --git a/widget/gtk/nsGtkKeyUtils.h b/widget/gtk/nsGtkKeyUtils.h
+index 6fcc3e9305..8462b6d03a 100644
+--- a/widget/gtk/nsGtkKeyUtils.h
++++ b/widget/gtk/nsGtkKeyUtils.h
+@@ -20,6 +20,7 @@
+ #  include <gdk/gdkwayland.h>
+ #  include <xkbcommon/xkbcommon.h>
+ #endif
++#include "X11UndefineNone.h"
  
- #include "mozilla/ArrayUtils.h"
+ class nsWindow;
  
 -- 
 2.35.1
