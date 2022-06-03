@@ -1,0 +1,31 @@
+From c08b109a8182e4e8f670fa89f6602041d0a74343 Mon Sep 17 00:00:00 2001
+From: Amit Prakash Ambasta <amit.prakash.ambasta@gmail.com>
+Date: Fri, 3 Jun 2022 16:13:48 +0530
+Subject: [PATCH 2/2] Signed-off-by: Amit Prakash Ambasta
+ <amit.prakash.ambasta@gmail.com>
+
+Include <gdk-pixbuf/gdk-pixbuf.h> in nsClipboard.cpp because it uses
+GdkPixbuf using a forward declaration when calling
+nsImageToPixbuf::ImageToPixbuf(image) while nsClipboard.cpp itself is
+kept in a separate chunk during unified builds.
+
+Signed-off-by: Amit Prakash Ambasta <amit.prakash.ambasta@gmail.com>
+---
+ widget/gtk/nsClipboard.cpp | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/widget/gtk/nsClipboard.cpp b/widget/gtk/nsClipboard.cpp
+index 555e8ce45c..6d7bfeaf40 100644
+--- a/widget/gtk/nsClipboard.cpp
++++ b/widget/gtk/nsClipboard.cpp
+@@ -4,6 +4,7 @@
+ /* This Source Code Form is subject to the terms of the Mozilla Public
+  * License, v. 2.0. If a copy of the MPL was not distributed with this
+  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
++#include <gdk-pixbuf/gdk-pixbuf.h>
+ 
+ #include "mozilla/ArrayUtils.h"
+ 
+-- 
+2.35.1
+

@@ -56,7 +56,9 @@ SRC_URI="${MOZ_SRC_BASE_URI}/source/${MOZ_P}.source.tar.xz -> ${MOZ_P_DISTFILES}
 	${PATCH_URIS[@]}"
 
 PATCHES=(
-	"${FILESDIR}/0028-Accept-mold-as-linker.patch"
+	"${FILESDIR}/0001-Accept-mold-as-linker.patch"
+	"${FILESDIR}/0002-www-firefox-www-firefox-esr-mail-thunderbird-fix-bui.patch"
+	"${FILESDIR}/0003-Signed-off-by-Amit-Prakash-Ambasta-amit.prakash.amba.patch"
 )
 
 DESCRIPTION="Firefox Web Browser"
