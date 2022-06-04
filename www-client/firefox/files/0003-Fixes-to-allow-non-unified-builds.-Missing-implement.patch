@@ -1,0 +1,118 @@
+From 31fb68b28efd27836598e91bd6ea2836bfe4fef1 Mon Sep 17 00:00:00 2001
+From: Amit Prakash Ambasta <amit.prakash.ambasta@gmail.com>
+Date: Sat, 4 Jun 2022 08:53:55 +0530
+Subject: [PATCH 1/2] Fixes to allow non-unified builds. Missing implementation
+ includes in HTMLSelectAccessible.cpp, HTMLTableAccessible.cpp, XULPersist.h,
+ GtkCompositorWidget.cpp, WindowSurfaceProvider.cpp and nsTraceRefcnt.cpp
+
+Signed-off-by: Amit Prakash Ambasta <amit.prakash.ambasta@gmail.com>
+---
+ accessible/html/HTMLSelectAccessible.cpp | 2 +-
+ accessible/html/HTMLTableAccessible.cpp  | 2 +-
+ dom/xul/XULPersist.cpp                   | 1 +
+ dom/xul/XULPersist.h                     | 1 +
+ widget/gtk/GtkCompositorWidget.cpp       | 4 ++++
+ widget/gtk/WindowSurfaceProvider.cpp     | 4 ++++
+ xpcom/base/nsTraceRefcnt.cpp             | 5 ++++-
+ 7 files changed, 16 insertions(+), 3 deletions(-)
+
+diff --git a/accessible/html/HTMLSelectAccessible.cpp b/accessible/html/HTMLSelectAccessible.cpp
+index 9f64d14041..66f76a1960 100644
+--- a/accessible/html/HTMLSelectAccessible.cpp
++++ b/accessible/html/HTMLSelectAccessible.cpp
+@@ -8,7 +8,7 @@
+ #include "LocalAccessible-inl.h"
+ #include "nsAccessibilityService.h"
+ #include "nsAccUtils.h"
+-#include "DocAccessible.h"
++#include "DocAccessible-inl.h"
+ #include "nsEventShell.h"
+ #include "nsTextEquivUtils.h"
+ #include "Role.h"
+diff --git a/accessible/html/HTMLTableAccessible.cpp b/accessible/html/HTMLTableAccessible.cpp
+index efd121deb6..883bd399db 100644
+--- a/accessible/html/HTMLTableAccessible.cpp
++++ b/accessible/html/HTMLTableAccessible.cpp
+@@ -11,7 +11,7 @@
+ #include "nsAccUtils.h"
+ #include "AccAttributes.h"
+ #include "CacheConstants.h"
+-#include "DocAccessible.h"
++#include "DocAccessible-inl.h"
+ #include "LocalAccessible-inl.h"
+ #include "nsTextEquivUtils.h"
+ #include "Relation.h"
+diff --git a/dom/xul/XULPersist.cpp b/dom/xul/XULPersist.cpp
+index e119b79d7d..6a9986b7c5 100644
+--- a/dom/xul/XULPersist.cpp
++++ b/dom/xul/XULPersist.cpp
+@@ -17,6 +17,7 @@
+ #include "mozilla/dom/Element.h"
+ #include "nsContentUtils.h"
+ #include "nsIAppWindow.h"
++#include "nsServiceManagerUtils.h"
+ 
+ namespace mozilla {
+ namespace dom {
+diff --git a/dom/xul/XULPersist.h b/dom/xul/XULPersist.h
+index d6cd20eae3..46e47e505a 100644
+--- a/dom/xul/XULPersist.h
++++ b/dom/xul/XULPersist.h
+@@ -8,6 +8,7 @@
+ #define mozilla_dom_XULPersist_h
+ 
+ #include "nsStubDocumentObserver.h"
++#include "nsCOMPtr.h"
+ 
+ #ifndef MOZ_NEW_XULSTORE
+ class nsIXULStore;
+diff --git a/widget/gtk/GtkCompositorWidget.cpp b/widget/gtk/GtkCompositorWidget.cpp
+index 07a12262af..136c8374a7 100644
+--- a/widget/gtk/GtkCompositorWidget.cpp
++++ b/widget/gtk/GtkCompositorWidget.cpp
+@@ -18,6 +18,10 @@
+ #  include "mozilla/layers/NativeLayerWayland.h"
+ #endif
+ 
++#ifdef MOZ_WIDGET_GTK
++#  include "mozilla/WidgetUtilsGtk.h"
++#endif
++
+ #ifdef MOZ_LOGGING
+ #  undef LOG
+ #  define LOG(...)                                    \
+diff --git a/widget/gtk/WindowSurfaceProvider.cpp b/widget/gtk/WindowSurfaceProvider.cpp
+index 82d6ba3caa..a522b1fc15 100644
+--- a/widget/gtk/WindowSurfaceProvider.cpp
++++ b/widget/gtk/WindowSurfaceProvider.cpp
+@@ -21,6 +21,10 @@
+ #  include "WindowSurfaceX11SHM.h"
+ #endif
+ 
++#ifdef MOZ_WIDGET_GTK
++#  include "mozilla/WidgetUtilsGtk.h"
++#endif
++
+ #undef LOG
+ #ifdef MOZ_LOGGING
+ #  include "mozilla/Logging.h"
+diff --git a/xpcom/base/nsTraceRefcnt.cpp b/xpcom/base/nsTraceRefcnt.cpp
+index de74896321..227218be91 100644
+--- a/xpcom/base/nsTraceRefcnt.cpp
++++ b/xpcom/base/nsTraceRefcnt.cpp
+@@ -52,8 +52,11 @@
+ #  include <dlfcn.h>
+ #endif
+ 
+-#ifdef MOZ_DMD
++#ifdef MOZ_ENABLE_FORKSERVER
+ #  include "base/process_util.h"
++#endif
++
++#ifdef MOZ_DMD
+ #  include "nsMemoryInfoDumper.h"
+ #endif
+ 
+-- 
+2.35.1
+

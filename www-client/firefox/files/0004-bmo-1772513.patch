@@ -1,4 +1,4 @@
-From d8d7983ed2664a6a1e7f3992f6a3524ce2d46b37 Mon Sep 17 00:00:00 2001
+From f5666e6647255dec2782b73df4d0a029e1a7264a Mon Sep 17 00:00:00 2001
 From: Amit Prakash Ambasta <amit.prakash.ambasta@gmail.com>
 Date: Fri, 3 Jun 2022 16:13:48 +0530
 Subject: [PATCH 2/2] bmo-1772513:
@@ -47,7 +47,7 @@ index 4382ccfd44..998614622e 100644
 -}  // namespace mozilla
 +}  // namespace mozilla::widget
 diff --git a/widget/gtk/GtkCompositorWidget.cpp b/widget/gtk/GtkCompositorWidget.cpp
-index 07a12262af..0a1d88894c 100644
+index 136c8374a7..bdd5522708 100644
 --- a/widget/gtk/GtkCompositorWidget.cpp
 +++ b/widget/gtk/GtkCompositorWidget.cpp
 @@ -5,6 +5,7 @@
