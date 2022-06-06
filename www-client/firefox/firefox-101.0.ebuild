@@ -60,7 +60,7 @@ PATCHES=(
 	"${FILESDIR}/0002-www-firefox-www-firefox-esr-mail-thunderbird-fix-bui.patch"
 	"${FILESDIR}/0003-Fixes-to-allow-non-unified-builds.-Missing-implement.patch"
 	"${FILESDIR}/0004-bmo-1772513.patch"
-	"${FILESDIR}/0005-widget-gtk-mozgtk.c.patch"
+	"${FILESDIR}/0005-bmo-1772721.patch"
 )
 
 DESCRIPTION="Firefox Web Browser"

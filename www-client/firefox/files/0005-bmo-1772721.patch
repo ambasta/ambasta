@@ -1,0 +1,65 @@
+From d157de345447e512be05eb35232411403454bd5a Mon Sep 17 00:00:00 2001
+From: Amit Prakash Ambasta <amit.prakash.ambasta@gmail.com>
+Date: Mon, 6 Jun 2022 20:05:57 +0530
+Subject: [PATCH] bmo#1772721:
+
+  mozgtk.c: Introduced a dummy function `mozgtk_ensure_linked`
+
+  nsWindow.cpp: Call `mozgtk_ensure_linked` in all codepaths
+  (wayland/X11) to ensure linkage w/ mozgtk even when --as-needed is
+  passed as a CFLAG
+
+Signed-off-by: Amit Prakash Ambasta <amit.prakash.ambasta@gmail.com>
+---
+ widget/gtk/mozgtk/mozgtk.c |  3 +++
+ widget/gtk/nsWindow.cpp    | 11 +++++++----
+ 2 files changed, 10 insertions(+), 4 deletions(-)
+
+diff --git a/widget/gtk/mozgtk/mozgtk.c b/widget/gtk/mozgtk/mozgtk.c
+index d7dbbc6fd9..928df57cb4 100644
+--- a/widget/gtk/mozgtk/mozgtk.c
++++ b/widget/gtk/mozgtk/mozgtk.c
+@@ -6,6 +6,9 @@
+ 
+ #include "mozilla/Types.h"
+ 
++// Dummy symbol to make sure that we get linked even on Wayland-only builds.
++MOZ_EXPORT void mozgtk_ensure_linked() {}
++
+ #ifdef MOZ_X11
+ #  include <X11/Xlib.h>
+ // Bug 1271100
+diff --git a/widget/gtk/nsWindow.cpp b/widget/gtk/nsWindow.cpp
+index c21ed38565..f76d2d6596 100644
+--- a/widget/gtk/nsWindow.cpp
++++ b/widget/gtk/nsWindow.cpp
+@@ -5286,6 +5286,10 @@ bool nsWindow::GetShapedState() {
+   return mIsTransparent && !mHasAlphaVisual && !mTransparencyBitmapForTitlebar;
+ }
+ 
++extern "C" {
++  void mozgtk_ensure_linked();
++}
++
+ void nsWindow::ConfigureGdkWindow() {
+   LOG("nsWindow::ConfigureGdkWindow() [%p]", this);
+ 
+@@ -5305,12 +5309,11 @@ void nsWindow::ConfigureGdkWindow() {
+     // tearing because Gecko does not align its framebuffer updates with
+     // vblank.
+     SetCompositorHint(GTK_WIDGET_COMPOSIDED_ENABLED);
+-
+-    // Dummy call to a function in mozgtk to prevent the linker from removing
+-    // the dependency with --as-needed.
+-    XShmQueryExtension(DefaultXDisplay());
+   }
+ #endif
++  // Dummy call to a function in mozgtk to prevent the linker from removing
++  // the dependency with --as-needed.
++  mozgtk_ensure_linked();
+ #ifdef MOZ_WAYLAND
+   if (GdkIsWaylandDisplay()) {
+     mSurfaceProvider.Initialize(this);
+-- 
+2.35.1
+
