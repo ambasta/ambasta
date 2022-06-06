@@ -1,10 +1,10 @@
-# Copyright 2020-2021 Gentoo Authors
+# Copyright 2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
 EGO_PN="github.com/snapcore/${PN}"
-inherit autotools bash-completion-r1 golang-vcs-snapshot linux-info readme.gentoo-r1 systemd xdg-utils
+inherit autotools bash-completion-r1 flag-o-matic golang-vcs-snapshot linux-info readme.gentoo-r1 systemd xdg-utils
 
 DESCRIPTION="Service and tools for management of snap packages"
 HOMEPAGE="http://snapcraft.io/"
@@ -61,6 +61,9 @@ pkg_setup() {
 		CONFIG_CHECK+=" ~SECURITY_APPARMOR"
 	fi
 	linux-info_pkg_setup
+
+	# Seems to have issues with -O3, switch to -O2
+	replace-flags -O3 -O2
 }
 
 src_prepare() {
@@ -148,7 +151,7 @@ src_install() {
 
 	exeinto /usr/lib/snapd
 	doexe "${GOBIN}/"{snapd,snap-bootstrap,snap-failure,snap-exec,snap-preseed,snap-recovery-chooser,snap-repair,snap-seccomp,snap-update-ns} \
-		"${MY_S}/"{cmd/snap-confine/snap-device-helper,cmd/snap-discard-ns/snap-discard-ns,cmd/snap-gdb-shim/snap-gdb-shim,cmd/snap-mgmt/snap-mgmt} \
+		"${MY_S}/"{cmd/snap-device-helper/snap-device-helper,cmd/snap-discard-ns/snap-discard-ns,cmd/snap-gdb-shim/snap-gdb-shim,cmd/snap-mgmt/snap-mgmt} \
 		"${MY_S}/data/completion/bash/"{complete.sh,etelpmoc.sh,}
 
 	dobashcomp "${MY_S}/data/completion/bash/snap"
