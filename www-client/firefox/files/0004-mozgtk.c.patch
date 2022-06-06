@@ -1,0 +1,34 @@
+From b515893d771e3f9a0d49f7df94bbd8aeca6e9508 Mon Sep 17 00:00:00 2001
+From: Amit Prakash Ambasta <amit.prakash.ambasta@gmail.com>
+Date: Mon, 6 Jun 2022 16:42:32 +0530
+Subject: [PATCH] toolkit/library/moz.build:
+
+  Move libmozgtk to os_libs to avoid skipping libmozgtk when using --as-needed CFLAG
+
+Signed-off-by: Amit Prakash Ambasta <amit.prakash.ambasta@gmail.com>
+---
+ toolkit/library/moz.build | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
+
+diff --git a/toolkit/library/moz.build b/toolkit/library/moz.build
+index 32c8208306..ac06b3d24d 100644
+--- a/toolkit/library/moz.build
++++ b/toolkit/library/moz.build
+@@ -179,9 +179,13 @@ if CONFIG["MOZ_WIDGET_TOOLKIT"] == "gtk":
+     # get symbols from libwayland-client too.
+     # In the case where Gtk+ doesn't have wayland support, libwayland-client is
+     # not loaded, and libxul ends up using the mozwayland symbols.
+-    USE_LIBS += [
++    no_as_needed = ["-Wl,--no-as-needed"]
++    as_needed = ["-Wl,--as-needed"]
++    OS_LIBS += no_as_needed
++    OS_LIBS += [
+         "mozgtk",
+     ]
++    OS_LIBS += as_needed
+     OS_LIBS += CONFIG["MOZ_GTK3_LIBS"]
+ 
+ if CONFIG["MOZ_WAYLAND"]:
+-- 
+2.35.1
+
