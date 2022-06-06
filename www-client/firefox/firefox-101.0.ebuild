@@ -58,8 +58,8 @@ SRC_URI="${MOZ_SRC_BASE_URI}/source/${MOZ_P}.source.tar.xz -> ${MOZ_P_DISTFILES}
 PATCHES=(
 	"${FILESDIR}/0001-Accept-mold-as-linker.patch"
 	"${FILESDIR}/0002-www-firefox-www-firefox-esr-mail-thunderbird-fix-bui.patch"
-	"${FILESDIR}/0003-Fixes-to-allow-non-unified-builds.-Missing-implement.patch"
-	"${FILESDIR}/0004-bmo-1772513.patch"
+	"${FILESDIR}/0003-bmo-1772513.patch"
+	"${FILESDIR}/0004-widget-gtk-mozgtk.c.patch"
 )
 
 DESCRIPTION="Firefox Web Browser"
