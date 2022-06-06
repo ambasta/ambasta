@@ -1,50 +1,36 @@
-From d157de345447e512be05eb35232411403454bd5a Mon Sep 17 00:00:00 2001
+From 65fbe2f3bd0819263693b09090fc50783632a34e Mon Sep 17 00:00:00 2001
 From: Amit Prakash Ambasta <amit.prakash.ambasta@gmail.com>
-Date: Mon, 6 Jun 2022 20:05:57 +0530
+Date: Mon, 6 Jun 2022 22:28:23 +0530
 Subject: [PATCH] bmo#1772721:
-
-  mozgtk.c: Introduced a dummy function `mozgtk_ensure_linked`
 
   nsWindow.cpp: Call `mozgtk_ensure_linked` in all codepaths
   (wayland/X11) to ensure linkage w/ mozgtk even when --as-needed is
-  passed as a CFLAG
+  passed against CFLAGS
 
 Signed-off-by: Amit Prakash Ambasta <amit.prakash.ambasta@gmail.com>
 ---
- widget/gtk/mozgtk/mozgtk.c |  3 +++
- widget/gtk/nsWindow.cpp    | 11 +++++++----
- 2 files changed, 10 insertions(+), 4 deletions(-)
+ widget/gtk/mozgtk/mozgtk.c | 2 ++
+ widget/gtk/nsWindow.cpp    | 7 +++----
+ 2 files changed, 5 insertions(+), 4 deletions(-)
 
 diff --git a/widget/gtk/mozgtk/mozgtk.c b/widget/gtk/mozgtk/mozgtk.c
-index d7dbbc6fd9..928df57cb4 100644
+index d7dbbc6fd9..fd88c49428 100644
 --- a/widget/gtk/mozgtk/mozgtk.c
 +++ b/widget/gtk/mozgtk/mozgtk.c
-@@ -6,6 +6,9 @@
+@@ -6,6 +6,8 @@
  
  #include "mozilla/Types.h"
  
-+// Dummy symbol to make sure that we get linked even on Wayland-only builds.
-+MOZ_EXPORT void mozgtk_ensure_linked() {}
++MOZ_EXPORT unsigned int gtk_get_debug_flags(void) { return 0; }
 +
  #ifdef MOZ_X11
  #  include <X11/Xlib.h>
  // Bug 1271100
 diff --git a/widget/gtk/nsWindow.cpp b/widget/gtk/nsWindow.cpp
-index c21ed38565..f76d2d6596 100644
+index c21ed38565..5f6fa20047 100644
 --- a/widget/gtk/nsWindow.cpp
 +++ b/widget/gtk/nsWindow.cpp
-@@ -5286,6 +5286,10 @@ bool nsWindow::GetShapedState() {
-   return mIsTransparent && !mHasAlphaVisual && !mTransparencyBitmapForTitlebar;
- }
- 
-+extern "C" {
-+  void mozgtk_ensure_linked();
-+}
-+
- void nsWindow::ConfigureGdkWindow() {
-   LOG("nsWindow::ConfigureGdkWindow() [%p]", this);
- 
-@@ -5305,12 +5309,11 @@ void nsWindow::ConfigureGdkWindow() {
+@@ -5305,12 +5305,11 @@ void nsWindow::ConfigureGdkWindow() {
      // tearing because Gecko does not align its framebuffer updates with
      // vblank.
      SetCompositorHint(GTK_WIDGET_COMPOSIDED_ENABLED);
@@ -54,9 +40,9 @@ index c21ed38565..f76d2d6596 100644
 -    XShmQueryExtension(DefaultXDisplay());
    }
  #endif
-+  // Dummy call to a function in mozgtk to prevent the linker from removing
-+  // the dependency with --as-needed.
-+  mozgtk_ensure_linked();
++    // Dummy call to a function in mozgtk to prevent the linker from removing
++    // the dependency with --as-needed.
++    gtk_get_debug_flags();
  #ifdef MOZ_WAYLAND
    if (GdkIsWaylandDisplay()) {
      mSurfaceProvider.Initialize(this);
