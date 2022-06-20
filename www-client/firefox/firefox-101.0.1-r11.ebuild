@@ -3,7 +3,7 @@
 
 EAPI="8"
 
-FIREFOX_PATCHSET="firefox-101-patches-03j.tar.xz"
+FIREFOX_PATCHSET="firefox-101-patches-08j.tar.xz"
 
 LLVM_MAX_SLOT=14
 
@@ -55,13 +55,6 @@ PATCH_URIS=(
 SRC_URI="${MOZ_SRC_BASE_URI}/source/${MOZ_P}.source.tar.xz -> ${MOZ_P_DISTFILES}.source.tar.xz
 	${PATCH_URIS[@]}"
 
-PATCHES=(
-	"${FILESDIR}/0001-Accept-mold-as-linker.patch"
-	"${FILESDIR}/0002-www-firefox-www-firefox-esr-mail-thunderbird-fix-bui.patch"
-	"${FILESDIR}/0003-Fixes-to-allow-non-unified-builds.-Missing-implement.patch"
-	"${FILESDIR}/0004-bmo-1772513.patch"
-)
-
 DESCRIPTION="Firefox Web Browser"
 HOMEPAGE="https://www.mozilla.com/firefox"
 
@@ -70,27 +63,27 @@ KEYWORDS="~amd64 ~arm64 ~ppc64 ~x86"
 SLOT="rapid"
 LICENSE="MPL-2.0 GPL-2 LGPL-2.1"
 
-IUSE="+clang cpu_flags_arm_neon dbus debug eme-free hardened"
-IUSE+=" jack libproxy lto mold +openh264 pgo pulseaudio pipewire sndio selinux"
-IUSE+=" +system-av1 +system-harfbuzz +system-icu +system-jpeg +system-libevent +system-libvpx +system-png +system-python-libs +system-webp"
-IUSE+=" +wayland wifi X"
+IUSE="+clang cpu_flags_arm_neon dbus debug eme-free hardened hwaccel"
+IUSE+=" jack libproxy lto +openh264 pgo pulseaudio sndio selinux"
+IUSE+=" +system-av1 +system-harfbuzz +system-icu +system-jpeg +system-libevent +system-libvpx system-png system-python-libs +system-webp"
+IUSE+=" wayland wifi X"
 
 # Firefox-only IUSE
-IUSE+=" geckodriver +gmp-autoupdate screencast"
+IUSE+=" geckodriver +gmp-autoupdate screencast +X"
 
 REQUIRED_USE="debug? ( !system-av1 )
 	pgo? ( lto )
 	wayland? ( dbus )
-	wifi? ( dbus )
-	|| ( wayland X )"
+	wifi? ( dbus )"
 
 # Firefox-only REQUIRED_USE flags
-REQUIRED_USE+="	screencast? ( wayland )"
+REQUIRED_USE+=" || ( X wayland )"
+REQUIRED_USE+=" screencast? ( wayland )"
 
 BDEPEND="${PYTHON_DEPS}
 	app-arch/unzip
 	app-arch/zip
-	>=dev-util/cbindgen-0.23.0
+	>=dev-util/cbindgen-0.24.0
 	>=net-libs/nodejs-10.23.1
 	virtual/pkgconfig
 	>=virtual/rust-1.59.0
@@ -124,9 +117,9 @@ BDEPEND="${PYTHON_DEPS}
 	x86? ( >=dev-lang/nasm-2.14 )"
 
 COMMON_DEPEND="
+	dev-libs/glib:2
 	dev-libs/atk
 	dev-libs/expat
-	dev-libs/glib:2
 	dev-libs/libffi:=
 	>=dev-libs/nss-3.78
 	>=dev-libs/nspr-4.32
@@ -139,19 +132,17 @@ COMMON_DEPEND="
 	virtual/freedesktop-icon-theme
 	x11-libs/cairo
 	x11-libs/gdk-pixbuf
-	x11-libs/gtk+:3
 	x11-libs/pango
 	x11-libs/pixman
 	dbus? (
-		sys-apps/dbus
 		dev-libs/dbus-glib
+		sys-apps/dbus
 	)
 	jack? ( virtual/jack )
 	libproxy? ( net-libs/libproxy )
-	screencast? ( media-video/pipewire )
-	pipewire? ( media-video/pipewire )
 	selinux? ( sec-policy/selinux-mozilla )
-	sndio? ( media-sound/sndio )
+	sndio? ( >=media-sound/sndio-1.8.0-r1 )
+	screencast? ( media-video/pipewire:= )
 	system-av1? (
 		>=media-libs/dav1d-0.9.3:=
 		>=media-libs/libaom-1.0.0:=
@@ -166,6 +157,12 @@ COMMON_DEPEND="
 	system-libvpx? ( >=media-libs/libvpx-1.8.2:0=[postproc] )
 	system-png? ( >=media-libs/libpng-1.6.35:0=[apng] )
 	system-webp? ( >=media-libs/libwebp-1.1.0:0= )
+	wayland? (
+		>=media-libs/libepoxy-1.5.10-r1
+		x11-libs/gtk+:3[wayland]
+		x11-libs/libdrm
+		x11-libs/libxkbcommon[wayland]
+	)
 	wifi? (
 		kernel_linux? (
 			dev-libs/dbus-glib
@@ -174,6 +171,7 @@ COMMON_DEPEND="
 		)
 	)
 	X? (
+		virtual/opengl
 		x11-libs/cairo[X]
 		x11-libs/gtk+:3[X]
 		x11-libs/libX11
@@ -181,8 +179,8 @@ COMMON_DEPEND="
 		x11-libs/libXdamage
 		x11-libs/libXext
 		x11-libs/libXfixes
+		x11-libs/libxkbcommon[X]
 		x11-libs/libXrandr
-		x11-libs/libXrender
 		x11-libs/libXtst
 		x11-libs/libxcb:=
 	)"
@@ -205,20 +203,16 @@ DEPEND="${COMMON_DEPEND}
 		wayland? ( ${VIRTUALWL_DEPEND} )
 		!wayland? ( ${VIRTUALX_DEPEND} )
 	)
-	X? (
-		x11-libs/gtk+:3[X]
-		x11-libs/libICE
-		x11-libs/libSM
-	)
 	pulseaudio? (
 		|| (
 			media-sound/pulseaudio
 			>=media-sound/apulse-0.1.12-r4[sdk]
 		)
 	)
-	wayland? ( >=x11-libs/gtk+-3.11:3[wayland] )
-	amd64? ( X? ( virtual/opengl ) )
-	x86? ( X? ( virtual/opengl ) )"
+	X? (
+		x11-libs/libICE
+		x11-libs/libSM
+	)"
 
 S="${WORKDIR}/${PN}-${PV%_*}"
 
@@ -441,7 +435,7 @@ pkg_pretend() {
 		if use pgo || use lto || use debug ; then
 			CHECKREQS_DISK_BUILD="13500M"
 		else
-			CHECKREQS_DISK_BUILD="6500M"
+			CHECKREQS_DISK_BUILD="6600M"
 		fi
 
 		check-reqs_pkg_pretend
@@ -461,13 +455,6 @@ pkg_setup() {
 			CHECKREQS_DISK_BUILD="13500M"
 		else
 			CHECKREQS_DISK_BUILD="6400M"
-		fi
-
-		# Esnure we have sufficient ulimits to compile when using mold
-		if use mold ; then
-			if ! ulimit -n 8192 1>/dev/null 2>&1 ; then
-				eerror "For builds with mold, please raise the open file limit to 8192 (ulimit -n 8192) before calling the package manager"
-			fi
 		fi
 
 		check-reqs_pkg_setup
@@ -508,7 +495,6 @@ pkg_setup() {
 		# These should *always* be cleaned up anyway
 		unset \
 			DBUS_SESSION_BUS_ADDRESS \
-			WAYLAND_DISPLAY \
 			DISPLAY \
 			ORBIT_SOCKETDIR \
 			SESSION_MANAGER \
@@ -721,7 +707,6 @@ src_configure() {
 		--disable-parental-controls \
 		--disable-strip \
 		--disable-updater \
-		--disable-unified-build \
 		--enable-negotiateauth \
 		--enable-new-pass-manager \
 		--enable-official-branding \
@@ -809,35 +794,12 @@ src_configure() {
 
 	mozconfig_use_enable wifi necko-wifi
 
-	if use wayland ; then
+	if use X && use wayland ; then
+		mozconfig_add_options_ac '+x11+wayland' --enable-default-toolkit=cairo-gtk3-x11-wayland
+	elif ! use X && use wayland ; then
 		mozconfig_add_options_ac '+wayland' --enable-default-toolkit=cairo-gtk3-wayland-only
 	else
-		mozconfig_add_options_ac '' --enable-default-toolkit=cairo-gtk3
-	fi
-
-	# Upstream only supports lld when using clang
-	if use mold ; then
-		mozconfig_add_options_ac "linker is set to mold" --enable-linker=mold
-	else
-		if use clang ; then
-			mozconfig_add_options_ac "forcing ld=lld due to USE=clang" --enable-linker=lld
-		else
-			mozconfig_add_options_ac "linker is set to bfd" --enable-linker=bfd
-		fi
-	fi
-
-	if use lto ; then
-		# ThinLTO is currently broken for gcc, see bmo#1644409
-		mozconfig_add_options_ac '+lto' --enable-lto=$(usex clang cross full)
-
-		if use pgo ; then
-			mozconfig_add_options_ac '+pgo' MOZ_PGO=1
-
-			if use clang ; then
-				# Used in build/pgo/profileserver.py
-				export LLVM_PROFDATA="llvm-profdata"
-			fi
-		fi
+		mozconfig_add_options_ac '+x11' --enable-default-toolkit=cairo-gtk3
 	fi
 
 	# LTO flag was handled via configure
@@ -906,7 +868,11 @@ src_configure() {
 		# https://bugzilla.mozilla.org/show_bug.cgi?id=1483822
 		# toolkit/moz.configure Elfhack section: target.cpu in ('arm', 'x86', 'x86_64')
 		local disable_elf_hack=
-		if use amd64 || use x86 || use arm ; then
+		if use amd64 ; then
+			disable_elf_hack=yes
+		elif use x86 ; then
+			disable_elf_hack=yes
+		elif use arm ; then
 			disable_elf_hack=yes
 		fi
 
@@ -1017,13 +983,11 @@ src_compile() {
 		addpredict /root
 	fi
 
-	if use wayland ; then
-		gdk_backend=wayland
-	elif use X ; then
-		gdk_backend=x11
+	if ! use X && use wayland; then
+		local -x GDK_BACKEND=wayland
+	else
+		local -x GDK_BACKEND=x11
 	fi
-
-	local -x GDK_BACKEND=${gdk_backend}
 
 	${virt_cmd} ./mach build --verbose \
 		|| die
@@ -1063,6 +1027,23 @@ src_install() {
 	cat >>"${GENTOO_PREFS}" <<-EOF || die "failed to set spellchecker.dictionary_path pref"
 	pref("spellchecker.dictionary_path",       "${EPREFIX}/usr/share/myspell");
 	EOF
+
+	# Force hwaccel prefs if USE=hwaccel is enabled
+	if use hwaccel ; then
+		cat "${FILESDIR}"/gentoo-hwaccel-prefs.js-r2 \
+		>>"${GENTOO_PREFS}" \
+		|| die "failed to add prefs to force hardware-accelerated rendering to all-gentoo.js"
+
+		if use wayland; then
+			cat >>"${GENTOO_PREFS}" <<-EOF || die "failed to set hwaccel wayland prefs"
+			pref("gfx.x11-egl.force-enabled",          false);
+			EOF
+		else
+			cat >>"${GENTOO_PREFS}" <<-EOF || die "failed to set hwaccel x11 prefs"
+			pref("gfx.x11-egl.force-enabled",          true);
+			EOF
+		fi
+	fi
 
 	if ! use gmp-autoupdate ; then
 		local plugin
@@ -1249,6 +1230,14 @@ pkg_postinst() {
 		elog "one generic Mozilla ${PN^} shortcut."
 		elog "If you still want to be able to select between running Mozilla ${PN^}"
 		elog "on X11 or Wayland, you have to re-create these shortcuts on your own."
+	fi
+
+	# bug 835078
+	if use hwaccel && has_version "x11-drivers/xf86-video-nouveau"; then
+		ewarn "You have nouveau drivers installed in your system and 'hwaccel' "
+		ewarn "enabled for Firefox. Nouveau / your GPU might not supported the "
+		ewarn "required EGL, so either disable 'hwaccel' or try the workaround "
+		ewarn "explained in https://bugs.gentoo.org/835078#c5 if Firefox crashes."
 	fi
 
 	elog
