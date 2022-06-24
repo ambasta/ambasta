@@ -96,63 +96,27 @@ virtwl() {
 
 	[[ $# -lt 1 ]] && die "${FUNCNAME} needs at least one argument. Missing command to run"
 
-	local idx=0
 	local retval=0
-	local OLD_SANDBOX_ON="${SANDBOX_ON}"
 	local SWAY DBUS WL_DISPLAY
 	local swayargs="-d"
-	local swayenv
 
 	SWAY=$(type -p sway) || die
 	DBUS=$(type -p dbus-launch) || die
 
 	debug-print "${FUNCNAME}: running headless sway"
 
-	einfo "Scanning for an open WAYLAND_DISPLAY to start wayland..."
-	WL_DISPLAY=$(idx=1; while [[ -f ${T}/wayland-${idx}.lock ]] ; do ((idx++)); done; echo ${idx})
-	debug-print "${FUNCNAME}: WL_DISPLAY=${WL_DISPLAY}"
-
-	export WLR_BACKENDS=headless
+	export WLR_BACKEND=drm
 	export XDG_RUNTIME_DIR=${T}
 	export XDG_SESSION_TYPE=wayland
-	export WLR_RENDERER=pixman
-	export WAYLAND_DISPLAY="wayland-${WL_DISPLAY}"
+	export WLR_RENDERER=vulkan
 
-	swayenv+="WLR_BACKENDS=headless"
-	swayenv+=" WLR_RENDERER=pixman"
-	swayenv+=" XDG_RUNTIME_DIR=${T}"
-	swayenv+=" XDG_SESSION_TYPE=wayland"
-
-	# We really do not want SANDBOX enabled here
-	export SANDBOX_ON="0"
+	einfo "Starting wayland..."
 
 	debug-print "${FUNCNAME}: ${DBUS} ${SWAY} ${swayargs}"
 	${DBUS} ${SWAY} ${swayargs} &>/dev/null &
 	sleep 5
 
-	local start=${WL_DISPLAY}
-	while [[ ! -f ${T}/wayland-${WL_DISPLAY}.lock ]]; do
-		einfo "No wayland session found at ${T}/wayland-${WL_DISPLAY}.lock"
-		# Stop trying after 5 tries
-		if ((WL_DISPLAY - start > 5)) ; then
-			eerror "'${swayenv} WAYLAND_DISPLAY=\"wayland-${WL_DISPLAY}\" ${DBUS} ${SWAY} ${swayargs}' returns:"
-			echo
-			${DBUS} ${SWAY} ${swayargs} &>/dev/null &
-			echo
-			eerror "If possible, correct the above error and try your emerge again."
-			die "Unable to start sway"
-		fi
-			((WL_DISPLAY++))
-		export WAYLAND_DISPLAY="wayland-${WL_DISPLAY}"
-		debug-print "${FUNCNAME}: ${DBUS} :${SWAY} ${swayargs}"
-		${DBUS} ${SWAY} ${swayargs} &>/dev/null &
-		sleep 5
-	done
-
-	# Now enable SANDBOX again if needed.
-	export SANDBOX_ON="${OLD_SANDBOX_ON}"
-
-	einfo "Starting sway on \$WAYLAND_DISPLAY=${WAYLAND_DISPLAY} ..."
+	echo "Started wayland on socket ${WAYLAND_DISPLAY}"
 
 	# Do not break on error, but setup $retval, as we need
 	# to kill the started wayland session.
@@ -161,7 +125,7 @@ virtwl() {
 	retval=$?
 
 	# Now kill sway
-	fuser -k -TERM ${T}/wayland-${WL_DISPLAY}.lock
+	fuser -k -TERM ${T}/${WAYLAND_DISPLAY}.lock
 
 	# die if our command failed
 	[[ ${retval} -ne 0 ]] && die "Command '$@' failed with return code ${retval}"
