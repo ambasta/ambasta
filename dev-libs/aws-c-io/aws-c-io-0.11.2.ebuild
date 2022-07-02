@@ -13,9 +13,11 @@ LICENSE="Apache-2.0"
 SLOT="0"
 KEYWORDS="~amd64"
 
-IUSE="ssl static-libs tests"
+IUSE="ssl static-libs tests vsock"
 
 DEPEND="dev-libs/aws-c-common
+	dev-libs/aws-c-cal
+	dev-libs/s2n-tls
 	ssl? ( dev-libs/openssl )"
 RDEPEND="${DEPEND}"
 BDEPEND=""
@@ -23,7 +25,7 @@ BDEPEND=""
 src_configure() {
 	local mycmakeargs=(
 		-DBYO_CRYPTO=$(usex !ssl)
-		-DUSE_OPENSSL=$(usex ssl)
+		-DUSE_VSOCK=$(usex vsock)
 		-DBUILD_SHARED_LIBS=$(usex !static-libs)
 		-DBUILD_TESTING=$(usex tests)
 	)
