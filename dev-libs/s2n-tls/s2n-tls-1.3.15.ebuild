@@ -17,7 +17,7 @@ KEYWORDS="~amd64"
 
 IUSE="lto static-libs trace tests"
 
-DEPEND="dev-libs/openssl[static-libs(+)]"
+DEPEND="dev-libs/openssl[static-libs?]"
 RDEPEND="${DEPEND}"
 BDEPEND=""
 
