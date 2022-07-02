@@ -3,6 +3,8 @@
 
 EAPI=8
 
+inherit cmake
+
 DESCRIPTION="AWS C99 implementation of the MQTT 3.1.1 specification."
 HOMEPAGE="https://github.com/awslabs/aws-c-mqtt"
 SRC_URI="https://github.com/awslabs/${PN}/archive/v${PV}.tar.gz -> ${P}.tar.gz"
