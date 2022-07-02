@@ -5,8 +5,8 @@ EAPI=8
 
 inherit cmake
 
-DESCRIPTION="AWS Crypto Abstraction Layer"
-HOMEPAGE="https://github.com/awslabs/aws-c-cal"
+DESCRIPTION="AWS C99 IO library"
+HOMEPAGE="https://github.com/awslabs/aws-c-io"
 SRC_URI="https://github.com/awslabs/${PN}/archive/v${PV}.tar.gz -> ${P}.tar.gz"
 
 LICENSE="Apache-2.0"
