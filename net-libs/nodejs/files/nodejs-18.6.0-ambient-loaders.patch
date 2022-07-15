@@ -1,0 +1,48 @@
+From d9316d4e5c3cab9317759c40dab663b2763133f7 Mon Sep 17 00:00:00 2001
+From: Amit Prakash Ambasta <amit.prakash.ambasta@gmail.com>
+Date: Fri, 15 Jul 2022 11:37:24 +0530
+Subject: [PATCH] Ambient loaders
+
+Signed-off-by: Amit Prakash Ambasta <amit.prakash.ambasta@gmail.com>
+---
+ lib/internal/process/esm_loader.js | 19 +++++++++++++------
+ 1 file changed, 13 insertions(+), 6 deletions(-)
+
+diff --git a/lib/internal/process/esm_loader.js b/lib/internal/process/esm_loader.js
+index 4634ff5a..7f16cc14 100644
+--- a/lib/internal/process/esm_loader.js
++++ b/lib/internal/process/esm_loader.js
+@@ -60,17 +60,24 @@ async function initializeLoader() {
+     cwd = 'file:///';
+   }
+ 
++  const keyedExportsList = [];
++
+   // A separate loader instance is necessary to avoid cross-contamination
+   // between internal Node.js and userland. For example, a module with internal
+   // state (such as a counter) should be independent.
+   const internalEsmLoader = new ESMLoader();
+ 
+-  // Importation must be handled by internal loader to avoid poluting userland
+-  const keyedExportsList = await internalEsmLoader.import(
+-    customLoaders,
+-    pathToFileURL(cwd).href,
+-    ObjectCreate(null),
+-  );
++  for (let idx = 0; idx < customLoaders.length; idx += 1) {
++    // Importation must be handled by internal loader to avoid poluting userland
++    const keyExportsSublist = await internalEsmLoader.import(
++      [customLoaders[idx]],
++      pathToFileUrl(cwd).href,
++      ObjectCreate(null)
++    );
++
++    await internalEsmLoader.addCustomLoaders(keyedExportsSublist);
++    ArrayPrototypePushApply(keyedExportsList, keyedExportsSublist);
++  }
+ 
+   // Hooks must then be added to external/public loader
+   // (so they're triggered in userland)
+-- 
+2.35.1
+
