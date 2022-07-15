@@ -1,18 +1,26 @@
-From 3abc826074900f6d072e269ae95ab8fbfa6243ef Mon Sep 17 00:00:00 2001
+From 5cba4ba52f05e9552eb1eea30740ca1e7bd55d86 Mon Sep 17 00:00:00 2001
 From: Amit Prakash Ambasta <amit.prakash.ambasta@gmail.com>
 Date: Fri, 15 Jul 2022 11:37:24 +0530
 Subject: [PATCH] Ambient loaders
 
 Signed-off-by: Amit Prakash Ambasta <amit.prakash.ambasta@gmail.com>
 ---
- lib/internal/process/esm_loader.js | 21 +++++++++++++++------
- 1 file changed, 15 insertions(+), 6 deletions(-)
+ lib/internal/process/esm_loader.js | 22 ++++++++++++++++------
+ 1 file changed, 16 insertions(+), 6 deletions(-)
 
 diff --git a/lib/internal/process/esm_loader.js b/lib/internal/process/esm_loader.js
-index 4634ff5a..c47b33e1 100644
+index 4634ff5a..5975bf6f 100644
 --- a/lib/internal/process/esm_loader.js
 +++ b/lib/internal/process/esm_loader.js
-@@ -60,17 +60,26 @@ async function initializeLoader() {
+@@ -1,6 +1,7 @@
+ 'use strict';
+ 
+ const {
++  ArrayPrototypePushApply,
+   ObjectCreate,
+ } = primordials;
+ 
+@@ -60,17 +61,26 @@ async function initializeLoader() {
      cwd = 'file:///';
    }
  
