@@ -1,4 +1,4 @@
-From c0bb12a554d84f6a6921177421298810baa519ce Mon Sep 17 00:00:00 2001
+From 3abc826074900f6d072e269ae95ab8fbfa6243ef Mon Sep 17 00:00:00 2001
 From: Amit Prakash Ambasta <amit.prakash.ambasta@gmail.com>
 Date: Fri, 15 Jul 2022 11:37:24 +0530
 Subject: [PATCH] Ambient loaders
@@ -9,7 +9,7 @@ Signed-off-by: Amit Prakash Ambasta <amit.prakash.ambasta@gmail.com>
  1 file changed, 15 insertions(+), 6 deletions(-)
 
 diff --git a/lib/internal/process/esm_loader.js b/lib/internal/process/esm_loader.js
-index 4634ff5a..8d8a03fb 100644
+index 4634ff5a..c47b33e1 100644
 --- a/lib/internal/process/esm_loader.js
 +++ b/lib/internal/process/esm_loader.js
 @@ -60,17 +60,26 @@ async function initializeLoader() {
@@ -33,7 +33,7 @@ index 4634ff5a..8d8a03fb 100644
 +    const customLoader = customLoaders[idx];
 +
 +    // Importation must be handled by internal loader to avoid poluting userland
-+    const keyExportsSublist = await internalEsmLoader.import(
++    const keyedExportsSublist = await internalEsmLoader.import(
 +      [customLoader],
 +      pathToFileURL(cwd).href,
 +      ObjectCreate(null)
