@@ -126,7 +126,7 @@ src_compile() {
 }
 
 src_install() {
-	local LIBDIR="${ED}/usr/$(get_libdir)"
+	local LIBDIR="/usr/$(get_libdir)"
 	default
 
 	# set up a symlink structure that node-gyp expects..
