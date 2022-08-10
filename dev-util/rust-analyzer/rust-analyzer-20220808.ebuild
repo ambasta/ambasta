@@ -196,3 +196,8 @@ DEPEND="virtual/rust"
 RDEPEND="${DEPEND}"
 
 S=${WORKDIR}/${PN}-${MY_PV}
+
+src_install() {
+	cargo_src_install --path "./crates/rust-analyzer"
+	dodoc README.md
+}
