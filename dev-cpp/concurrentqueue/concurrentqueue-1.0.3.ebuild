@@ -3,7 +3,7 @@
 
 EAPI=7
 
-inherit cmake-utils
+inherit cmake
 
 DESCRIPTION="An industrial-strength lock-free queue for C++"
 HOMEPAGE="https://github.com/cameron314/concurrentqueue"
