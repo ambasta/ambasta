@@ -1,13 +1,13 @@
 # Copyright 2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
 
-inherit cmake-utils
+inherit cmake
 
 DESCRIPTION="SQLite ORM light header only library for modern C++"
 HOMEPAGE="https://github.com/fnc12/sqlite_orm"
-SRC_URI="https://github.com/fnc12/${PN}/archive/refs/tags/${PV}.tar.gz -> ${P}.tar.gz"
+SRC_URI="https://github.com/fnc12/${PN}/archive/v${PV}.tar.gz -> ${P}.tar.gz"
 
 LICENSE="BSD"
 SLOT="0"
@@ -16,6 +16,7 @@ KEYWORDS="~amd64 ~x86"
 IUSE="examples test"
 
 DEPEND="
+	<=dev-cpp/catch-3.0
 	dev-db/sqlite
 "
 RDEPEND="${DEPEND}"
@@ -28,5 +29,5 @@ src_configure() {
 		-DBUILD_TESTING=$(usex test)
 		-DBUILD_EXAMPLES=$(usex examples)
 	)
-	cmake-utils_src_configure
+	cmake_src_configure
 }
