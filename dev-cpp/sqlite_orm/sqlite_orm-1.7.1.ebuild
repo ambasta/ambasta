@@ -26,7 +26,7 @@ PATCHES=("${FILESDIR}/system-catch2.patch")
 src_configure() {
 	local mycmakeargs=(
 		-DSQLITE_ORM_ENABLE_CXX_17=ON
-		-DBUILD_TESTING=$(usex test)
+		-DBUILD_TESTING=OFF
 		-DBUILD_EXAMPLES=$(usex examples)
 	)
 	cmake_src_configure
