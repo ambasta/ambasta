@@ -3,7 +3,7 @@
 
 EAPI=7
 
-inherit cmake-utils
+inherit cmake
 
 DESCRIPTION="Command line parser for C++11"
 HOMEPAGE="https://github.com/CLIUtils/CLI11"
@@ -14,10 +14,10 @@ LICENSE="MIT"
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
 
-IUSE='cxx doc examples'
+IUSE='libcxx doc examples'
 
 DEPEND="
-	cxx? ( sys-libs/libcxx )
+	libcxx? ( sys-libs/libcxx )
 	doc? ( app-doc/doxygen )"
 RDEPEND="${DEPEND}"
 
@@ -27,8 +27,9 @@ src_configure() {
 	local mycmakeargs=(
 		-DCLI11_BUILD_DOCS=$(usex doc)
 		-DCLI11_BUILD_TESTS=OFF
+		-DCLI11_BUILD_EXAMPLES_JSON=OFF
 		-DCLI11_BUILD_EXAMPLES=$(usex examples)
-		-DCLI11_FORCE_LIBCXX=$(usex cxx)
+		-DCLI11_FORCE_LIBCXX=$(usex libcxx)
 	)
-	cmake-utils_src_configure
+	cmake_src_configure
 }
