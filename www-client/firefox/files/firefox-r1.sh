@@ -3,7 +3,7 @@
 ##
 ## Usage:
 ##
-## $ firefox-bin
+## $ firefox
 ##
 ## This script is meant to run Mozilla Firefox in Gentoo.
 
@@ -24,23 +24,29 @@ case ${MOZ_ARCH} in
 		;;
 esac
 
-MOZ_FIREFOX_FILE="firefox-bin"
-MOZILLA_FIVE_HOME="@MOZ_FIVE_HOME@"
+MOZ_FIREFOX_FILE="firefox"
+
+if [[ ! -r ${MOZ_LIB_DIR}/firefox/${MOZ_FIREFOX_FILE} ]]; then
+	if [[ ! -r ${SECONDARY_LIB_DIR}/firefox/${MOZ_FIREFOX_FILE} ]]; then
+		echo "Error: ${MOZ_LIB_DIR}/firefox/${MOZ_FIREFOX_FILE} not found" >&2
+		if [[ -d ${SECONDARY_LIB_DIR} ]]; then
+			echo "       ${SECONDARY_LIB_DIR}/firefox/${MOZ_FIREFOX_FILE} not found" >&2
+		fi
+		exit 1
+	fi
+	MOZ_LIB_DIR="${SECONDARY_LIB_DIR}"
+fi
+MOZILLA_FIVE_HOME="${MOZ_LIB_DIR}/firefox"
 MOZ_EXTENSIONS_PROFILE_DIR="${HOME}/.mozilla/extensions/{ec8030f7-c20a-464f-9b0e-13a3a9e97384}"
 MOZ_PROGRAM="${MOZILLA_FIVE_HOME}/${MOZ_FIREFOX_FILE}"
-APULSELIB_DIR="@APULSELIB_DIR@"
-DESKTOP_FILE="firefox-bin"
 
 ##
 ## Enable Wayland backend?
 ##
 if @DEFAULT_WAYLAND@ && [[ -z ${MOZ_DISABLE_WAYLAND} ]]; then
-	if [[ -n "$WAYLAND_DISPLAY" ]]; then
-		DESKTOP_FILE="firefox-bin-wayland"
+	if [[ -n "${WAYLAND_DISPLAY}" ]]; then
 		export MOZ_ENABLE_WAYLAND=1
 	fi
-elif [[ -n ${MOZ_DISABLE_WAYLAND} ]]; then
-	DESKTOP_FILE="firefox-bin-x11"
 fi
 
 ##
@@ -75,7 +81,7 @@ export MOZ_APP_LAUNCHER="@PREFIX@/bin/${cmdname}"
 ##
 ## Disable the GNOME crash dialog, Mozilla has its own
 ##
-if [[ "$XDG_CURRENT_DESKTOP" == "GNOME" ]]; then
+if [[ "${XDG_CURRENT_DESKTOP}" == "GNOME" ]]; then
 	GNOME_DISABLE_CRASH_DIALOG=1
 	export GNOME_DISABLE_CRASH_DIALOG
 fi
@@ -106,18 +112,5 @@ fi
 # Don't throw "old profile" dialog box.
 export MOZ_ALLOW_DOWNGRADE=1
 
-##
-## Set special variables for -bin
-export LD_LIBRARY_PATH="${APULSELIB_DIR:+${APULSELIB_DIR}:}${MOZILLA_FIVE_HOME}"
-export GTK_PATH="${MOZ_LIB_DIR}/gtk-3.0"
-
-##
-## Route to the correct .desktop file to get proper
-## name and actions
-##
-if [[ $@ != *"--name "* ]]; then
-	set -- --name "${DESKTOP_FILE}" "$@"
-fi
-
 # Run the browser
-exec ${MOZ_PROGRAM} "$@"
+exec ${MOZ_PROGRAM} "${@}"
