@@ -1,46 +1,47 @@
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
 
 LUA_COMPAT=( lua5-{1..2} luajit )
 
 inherit cmake lua-single optfeature xdg
 
-DESCRIPTION="Vim-fork focused on extensibility and agility."
+DESCRIPTION="Vim-fork focused on extensibility and agility"
 HOMEPAGE="https://neovim.io"
 
-MY_PN="nvim-linux64"
+COMMIT_SHA="add27f2"
 
 if [[ ${PV} == 9999 ]]; then
 	inherit git-r3
 	EGIT_REPO_URI="https://github.com/neovim/neovim.git"
 else
-	SRC_URI="https://github.com/${PN}/${PN}/archive/refs/tags/nightly.tar.gz -> ${P}.tar.gz"
-	KEYWORDS="~amd64 ~arm ~arm64 ~riscv ~x86 ~x64-macos"
+	SRC_URI="https://github.com/neovim/neovim/tarball/${COMMIT_SHA} -> ${P}.tar.gz"
+	KEYWORDS="amd64 ~arm arm64 ~riscv x86 ~x64-macos"
 fi
 
 LICENSE="Apache-2.0 vim"
 SLOT="0"
-IUSE="+lto +nvimpager +tui"
+IUSE="+lto +nvimpager test +tui"
 
 REQUIRED_USE="${LUA_REQUIRED_USE}"
 # Upstream say the test library needs LuaJIT
 # https://github.com/neovim/neovim/blob/91109ffda23d0ce61cec245b1f4ffb99e7591b62/CMakeLists.txt#L377
-#REQUIRED_USE="test? ( lua_single_target_luajit )"
-#RESTRICT="!test? ( test )"
+REQUIRED_USE="test? ( lua_single_target_luajit )"
+# TODO: Get tests running
+RESTRICT="!test? ( test ) test"
 
 # Upstream build scripts invoke the Lua interpreter
 BDEPEND="${LUA_DEPS}
-	dev-util/gperf
+	>=dev-util/gperf-3.1
 	virtual/libiconv
 	virtual/libintl
 	virtual/pkgconfig
 "
-# TODO: add tests, dev-lua/busted has now got luajit support.
-# bug #584694
+# Check https://github.com/neovim/neovim/blob/master/third-party/CMakeLists.txt for
+# new dependency bounds and so on on bumps (obviously adjust for right branch/tag).
 DEPEND="${LUA_DEPS}
-	dev-lua/luv[${LUA_SINGLE_USEDEP}]
+	>=dev-lua/luv-1.43.0[${LUA_SINGLE_USEDEP}]
 	$(lua_gen_cond_dep '
 		dev-lua/lpeg[${LUA_USEDEP}]
 		dev-lua/mpack[${LUA_USEDEP}]
@@ -48,12 +49,12 @@ DEPEND="${LUA_DEPS}
 	$(lua_gen_cond_dep '
 		dev-lua/LuaBitOp[${LUA_USEDEP}]
 	' lua5-{1,2})
-	dev-libs/libuv:0=
-	>=dev-libs/libvterm-0.1.2
-	dev-libs/msgpack:0=
-	dev-libs/tree-sitter:=
+	>=dev-libs/libuv-1.44.1:=
+	>=dev-libs/libvterm-0.1.4
+	>=dev-libs/msgpack-3.0.0:=
+	>=dev-libs/tree-sitter-0.20.6:=
 	tui? (
-		dev-libs/libtermkey
+		>=dev-libs/libtermkey-0.22
 		>=dev-libs/unibilium-2.0.0:0=
 	)
 "
@@ -61,17 +62,16 @@ RDEPEND="
 	${DEPEND}
 	app-eselect/eselect-vi
 "
+BDEPEND="
+	test? (
+		$(lua_gen_cond_dep 'dev-lua/busted[${LUA_USEDEP}]')
+	)
+"
 
-PATCHES=(
-	"${FILESDIR}/${PN}-0.4.4-cmake_lua_version.patch"
-	"${FILESDIR}/${PN}-0.4.4-cmake-release-type.patch"
-	"${FILESDIR}/${PN}-0.4.4-cmake-darwin.patch"
-)
-
-S="${WORKDIR}/${PN}-nightly"
+S=$WORKDIR/${PN}-${PN}-${COMMIT_SHA}
 
 src_prepare() {
-	# use our system vim dir
+	# Use our system vim dir
 	sed -e "/^# define SYS_VIMRC_FILE/s|\$VIM|${EPREFIX}/etc/vim|" \
 		-i src/nvim/globals.h || die
 
@@ -110,6 +110,7 @@ src_install() {
 
 pkg_postinst() {
 	xdg_pkg_postinst
+
 	optfeature "clipboard support" x11-misc/xsel x11-misc/xclip gui-apps/wl-clipboard
 	optfeature "Python plugin support" dev-python/pynvim
 	optfeature "Ruby plugin support" dev-ruby/neovim-ruby-client
