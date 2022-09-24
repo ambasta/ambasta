@@ -3,7 +3,7 @@
 
 EAPI=8
 
-FIREFOX_PATCHSET="firefox-104-patches-02j.tar.xz"
+FIREFOX_PATCHSET="firefox-105-patches-04j.tar.xz"
 
 LLVM_MAX_SLOT=15
 
@@ -89,12 +89,24 @@ BDEPEND="${PYTHON_DEPS}
 	>=dev-util/cbindgen-0.24.3
 	net-libs/nodejs
 	virtual/pkgconfig
-	virtual/rust
-	sys-devel/clang
-	sys-devel/llvm
-	clang? (
-		sys-devel/lld
-		pgo? ( sys-libs/compiler-rt-sanitizers[profile] )
+	>=virtual/rust-1.61.0
+	|| (
+		(
+			sys-devel/clang:14
+			sys-devel/llvm:14
+			clang? (
+				=sys-devel/lld-14*
+				pgo? ( =sys-libs/compiler-rt-sanitizers-14*[profile] )
+			)
+		)
+		(
+			sys-devel/clang:13
+			sys-devel/llvm:13
+			clang? (
+				=sys-devel/lld-13*
+				pgo? ( =sys-libs/compiler-rt-sanitizers-13*[profile] )
+			)
+		)
 	)
 	amd64? ( >=dev-lang/nasm-2.14 )
 	x86? ( >=dev-lang/nasm-2.14 )"
@@ -103,7 +115,7 @@ COMMON_DEPEND="${FF_ONLY_DEPEND}
 	dev-libs/expat
 	dev-libs/glib:2
 	dev-libs/libffi:=
-	>=dev-libs/nss-3.81
+	>=dev-libs/nss-3.82
 	>=dev-libs/nspr-4.34.1
 	media-libs/alsa-lib
 	media-libs/fontconfig
@@ -222,6 +234,7 @@ MOZ_LANGS=(
 	en-US
 )
 
+# Firefox-only LANGS
 mozilla_set_globals() {
 	# https://bugs.gentoo.org/587334
 	local MOZ_TOO_REGIONALIZED_FOR_L10N=(
@@ -431,6 +444,14 @@ pkg_setup() {
 		addpredict /proc/self/oom_score_adj
 
 		if use pgo ; then
+			# Update 105.0: "/proc/self/oom_score_adj" isn't enough anymore with pgo, but not sure
+			# whether that's due to better OOM handling by Firefox (bmo#1771712), or portage
+			# (PORTAGE_SCHEDULING_POLICY) update...
+			addpredict /proc
+
+			# May need a wider addpredict when using wayland+pgo.
+			# addpredict /dev/dri
+
 			# Allow access to GPU during PGO run
 			local ati_cards mesa_cards nvidia_cards render_cards
 			shopt -s nullglob
@@ -641,6 +662,7 @@ src_configure() {
 		--enable-release \
 		--enable-system-ffi \
 		--enable-system-pixman \
+		--enable-system-policies \
 		--host="${CBUILD:-${CHOST}}" \
 		--libdir="${EPREFIX}/usr/$(get_libdir)" \
 		--prefix="${EPREFIX}/usr" \
