@@ -24,8 +24,8 @@ LICENSE="MIT"
 SLOT="0"
 RESTRICT="!test? ( test )"
 
-RADEON_CARDS="amdgpu r300 r600 radeon radeonsi"
-VIDEO_CARDS="${RADEON_CARDS} d3d12 freedreno intel lima nouveau panfrost v3d vc4 virgl vivante vmware"
+RADEON_CARDS="r300 r600 radeon radeonsi"
+VIDEO_CARDS="amdgpu ${RADEON_CARDS} d3d12 freedreno intel lima nouveau panfrost v3d vc4 virgl vivante vmware"
 for card in ${VIDEO_CARDS}; do
 	IUSE_VIDEO_CARDS+=" video_cards_${card}"
 done
@@ -102,6 +102,7 @@ for card in ${RADEON_CARDS}; do
 	"
 done
 RDEPEND="${RDEPEND}
+	video_cards_amdgpu? ( ${LIBDRM_DEPSTRING}[video_cards_amdgpu] )
 	video_cards_radeonsi? ( ${LIBDRM_DEPSTRING}[video_cards_amdgpu] )
 "
 
