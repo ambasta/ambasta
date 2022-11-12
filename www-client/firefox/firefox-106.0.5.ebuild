@@ -109,6 +109,7 @@ BDEPEND="${PYTHON_DEPS}
 	)
 	amd64? ( >=dev-lang/nasm-2.14 )
 	x86? ( >=dev-lang/nasm-2.14 )
+	mold? ( sys-devel/mold )
 	pgo? (
 		X? (
 			x11-base/xorg-server[xvfb]
