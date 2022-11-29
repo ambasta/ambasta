@@ -1,18 +1,17 @@
-From 3ca362bef379f14be71dce79d91722544fcee596 Mon Sep 17 00:00:00 2001
-From: Amit Prakash Ambasta <amit.prakash.ambasta@gmail.com>
-Date: Mon, 28 Nov 2022 17:05:21 +0530
-Subject: [PATCH] [PATCH] Remove unwanted cflags/ldflags parameters
+From ef45f2e73264e62ad3fb24d064453a17099da8d7 Mon Sep 17 00:00:00 2001
+From: Mike Gilbert <floppym@gentoo.org>
+Date: Sat, 14 Mar 2020 18:02:51 +0000
+Subject: [PATCH] Remove unwanted cflags/ldflags parameters
 
-Signed-off-by: Amit Prakash Ambasta <amit.prakash.ambasta@gmail.com>
 ---
  build/gen.py | 9 ---------
  1 file changed, 9 deletions(-)
 
 diff --git a/build/gen.py b/build/gen.py
-index fa23266..961e303 100755
+index 265b1f5..06c6d8b 100755
 --- a/build/gen.py
 +++ b/build/gen.py
-@@ -394,11 +394,6 @@ def WriteGNNinja(path, platform, host, options, args_list):
+@@ -343,11 +343,6 @@ def WriteGNNinja(path, platform, host, options):
      if options.debug:
        cflags.extend(['-O0', '-g'])
      else:
@@ -24,7 +23,7 @@ index fa23266..961e303 100755
        # Use -fdata-sections and -ffunction-sections to place each function
        # or data item into its own section so --gc-sections can eliminate any
        # unused functions and data items.
-@@ -437,7 +432,6 @@ def WriteGNNinja(path, platform, host, options, args_list):
+@@ -383,7 +378,6 @@ def WriteGNNinja(path, platform, host, options):
          '-D_FILE_OFFSET_BITS=64',
          '-D__STDC_CONSTANT_MACROS', '-D__STDC_FORMAT_MACROS',
          '-pthread',
@@ -32,7 +31,7 @@ index fa23266..961e303 100755
          '-fno-exceptions',
          '-fno-rtti',
          '-fdiagnostics-color',
-@@ -473,9 +467,6 @@ def WriteGNNinja(path, platform, host, options, args_list):
+@@ -411,9 +405,6 @@ def WriteGNNinja(path, platform, host, options):
            '-Wno-cast-function-type', # Casting FARPROC to RegDeleteKeyExPtr
            '-std=gnu++17',
          ])
@@ -43,5 +42,5 @@ index fa23266..961e303 100755
        min_mac_version_flag = '-mmacosx-version-min=10.9'
        cflags.append(min_mac_version_flag)
 -- 
-2.38.1
+2.32.0
 
