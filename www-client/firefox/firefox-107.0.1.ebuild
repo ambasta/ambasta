@@ -193,7 +193,7 @@ COMMON_DEPEND="${FF_ONLY_DEPEND}
 RDEPEND="${COMMON_DEPEND}
 	jack? ( virtual/jack )
 	openh264? ( media-libs/openh264:*[plugin] )
-	wayland ? (
+	wayland? (
 		x11-libs/libnotify
 	)
 	pulseaudio? (
