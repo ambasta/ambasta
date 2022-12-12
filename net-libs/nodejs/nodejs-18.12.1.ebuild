@@ -240,10 +240,10 @@ src_install() {
 	fi
 
 	if use corepack; then
-		dosym ${LIBDIR}/node_modules/corepack/dist/pnpm.js /usr/bin/pnpm
-		dosym ${LIBDIR}/node_modules/corepack/dist/pnpx.js /usr/bin/pnpx
-		dosym ${LIBDIR}/node_modules/corepack/dist/yarn.js /usr/bin/yarn
-		dosym ${LIBDIR}/node_modules/corepack/dist/yarnpkg.js /usr/bin/yarnpkg
+		dosym "../$(get_libdir)/node_modules/corepack/dist/pnpm.js" "/usr/bin/pnpm"
+		dosym "../$(get_libdir)/node_modules/corepack/dist/pnpx.js" "/usr/bin/pnpx"
+		dosym "../$(get_libdir)/node_modules/corepack/dist/yarn.js" "/usr/bin/yarn"
+		dosym "../$(get_libdir)/node_modules/corepack/dist/yarnpkg.js" "/usr/bin/yarnpkg"
 	fi
 
 	mv "${ED}"/usr/share/doc/node "${ED}"/usr/share/doc/${PF} || die
