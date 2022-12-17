@@ -467,13 +467,6 @@ pkg_pretend() {
 
 		check-reqs_pkg_pretend
 	fi
-
-	if use mold; then
-		# LTO with mold requires a sufficeintly high ulimit
-		# for open files for linkage to work correctly
-		original_ulimit=$(ulimit -n)
-		ulimit -n 8192
-	fi
 }
 
 pkg_setup() {
@@ -1079,6 +1072,12 @@ src_configure() {
 src_compile() {
 	local virtx_cmd=
 
+	if use mold; then
+		# LTO with mold requires a sufficeintly high ulimit
+		# for open files for linkage to work correctly
+		ulimit -n 8192
+	fi
+
 	if use pgo; then
 		# Reset and cleanup environment variables used by GNOME/XDG
 		gnome2_environment_reset
@@ -1267,11 +1266,6 @@ pkg_preinst() {
 pkg_postinst() {
 	xdg_pkg_postinst
 
-	if use mold; then
-		# Revert the ulimit to original
-		ulimit -n $original_ulimit
-	fi
-
 	if ! use gmp-autoupdate ; then
 		elog "USE='-gmp-autoupdate' has disabled the following plugins from updating or"
 		elog "installing into new profiles:"
@@ -1360,12 +1354,4 @@ pkg_postinst() {
 	elog "Or install an addon to change your useragent."
 	elog "See: https://support.mozilla.org/en-US/kb/difficulties-opening-or-using-website-firefox-100"
 	elog
-}
-
-pkg_postrm() {
-
-	if use mold; then
-		# Revert the ulimit to original even if emerge fails
-		ulimit -n $original_ulimit
-	fi
 }
