@@ -16,6 +16,7 @@ RDEPEND="${DEPEND}"
 BDEPEND=""
 
 pkg_postinst() {
+	export XDG_RUNTIME_DIR="/tmp/${USER}"
 	# Launch sway, print the WAYLAND_DISPLAY environment variable, and then shutdown sway
 	sway && echo "WAYLAND_DISPLAY=$WAYLAND_DISPLAY" && sway --kill
 }
