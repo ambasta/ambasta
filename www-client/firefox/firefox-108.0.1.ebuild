@@ -1072,6 +1072,12 @@ src_configure() {
 src_compile() {
 	local virtx_cmd=
 
+	if use mold; then
+		# LTO with mold requires a sufficeintly high ulimit
+		# for open files for linkage to work correctly
+		ulimit -n 8192
+	fi
+
 	if use pgo; then
 		# Reset and cleanup environment variables used by GNOME/XDG
 		gnome2_environment_reset
