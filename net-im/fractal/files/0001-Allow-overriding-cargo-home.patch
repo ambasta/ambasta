@@ -1,0 +1,41 @@
+From f0aec19866ebe45b02bb8a8b08b277857ee438f7 Mon Sep 17 00:00:00 2001
+From: Amit Prakash Ambasta <amit.prakash.ambasta@gmail.com>
+Date: Thu, 5 Jan 2023 12:09:27 +0530
+Subject: [PATCH] Allow overriding cargo home
+
+Signed-off-by: Amit Prakash Ambasta <amit.prakash.ambasta@gmail.com>
+---
+ meson_options.txt | 2 ++
+ src/meson.build   | 6 +++++-
+ 2 files changed, 7 insertions(+), 1 deletion(-)
+
+diff --git a/meson_options.txt b/meson_options.txt
+index d539538..9ad4f1a 100644
+--- a/meson_options.txt
++++ b/meson_options.txt
+@@ -9,3 +9,5 @@ option(
+   value: 'default',
+   description: 'The build profile for Fractal. One of "default", "development" or "hack".'
+ )
++
++option('cargo_home', type: 'boolean', value: false, description: 'Override cargo home from env')
+diff --git a/src/meson.build b/src/meson.build
+index 3243000..1e0e1ef 100644
+--- a/src/meson.build
++++ b/src/meson.build
+@@ -30,7 +30,11 @@ else
+   message('Building in debug mode')
+ endif
+ 
+-cargo_env = [ 'CARGO_HOME=' + meson.project_build_root() / 'cargo-home' ]
++if get_option('cargo_home') == 'auto'
++  cargo_env = [ 'CARGO_HOME=' + meson.project_build_root() / 'cargo-home' ]
++else
++  cargo_env = []
++endif
+ 
+ cargo_build = custom_target(
+   'cargo-build',
+-- 
+2.39.0
+

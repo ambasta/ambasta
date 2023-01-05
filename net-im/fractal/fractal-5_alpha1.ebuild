@@ -36,7 +36,15 @@ BDEPEND=""
 
 S=${WORKDIR}/${MY_P}
 
+PATCHES=(
+	"${FILESDIR}/0001-Allow-overriding-cargo-home.patch"
+)
+
 src_configure() {
+	local emesonargs=(
+		-Dcargo_home=true
+	)
+
 	meson_src_configure
 }
 
