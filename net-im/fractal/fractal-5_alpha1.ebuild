@@ -3,14 +3,21 @@
 
 EAPI=8
 
-inherit gnome2-utils meson xdg-utils
+CRATES="
+matrix-sdk-0.5.0
+"
+
+inherit gnome2-utils meson xdg-utils cargo
 
 MY_PV=$(ver_rs 0-1 -)
 MY_P=${PN}-$(ver_rs 0-1 -)
 
 DESCRIPTION="Matrix messaging app for GNOME written in Rust"
 HOMEPAGE="https://wiki.gnome.org/Apps/Fractal"
-SRC_URI="https://gitlab.gnome.org/GNOME/${PN}/-/archive/${MY_PV}/${MY_P}.tar.bz2"
+SRC_URI="
+	https://gitlab.gnome.org/GNOME/${PN}/-/archive/${MY_PV}/${MY_P}.tar.bz2
+	$(cargo_crate_uris ${CRATES})
+"
 
 LICENSE="GPL-3+"
 SLOT="0"
