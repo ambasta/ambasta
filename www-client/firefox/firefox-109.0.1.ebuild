@@ -1106,7 +1106,7 @@ src_configure() {
 src_compile() {
 	local virtx_cmd=
 
-	if use mold; then
+	if tc-ld-is-mold ; then
 		# LTO with mold requires a sufficeintly high ulimit
 		# for open files for linkage to work correctly
 		ulimit -n 8192
