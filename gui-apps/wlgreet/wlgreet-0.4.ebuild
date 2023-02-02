@@ -111,7 +111,10 @@ IUSE="+clang"
 BDEPEND="
 	clang? (
 		sys-devel/clang
-		sys-devel/lld
+		|| (
+			sys-devel/lld
+			sys-devel/mold
+		)
 		sys-devel/llvm
 	)
 "
