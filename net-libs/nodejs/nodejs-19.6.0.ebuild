@@ -19,7 +19,7 @@ SLOT="0/$(ver_cut 1)"
 KEYWORDS="~amd64 ~arm ~arm64 ~loong ~ppc64 ~riscv ~x86 ~amd64-linux ~x64-macos"
 S="${WORKDIR}/node-v${PV}"
 
-IUSE="cpu_flags_x86_sse2 debug doc +icu inspector lto pax-kernel +snapshot +ssl +system-icu +system-ssl systemtap test"
+IUSE="cpu_flags_x86_sse2 debug doc +icu inspector lto pax-kernel +snapshot +ssl +system-icu +system-ssl test"
 
 REQUIRED_USE="
 	inspector? ( icu ssl )
@@ -44,7 +44,6 @@ BDEPEND="
 	${PYTHON_DEPS}
 	sys-apps/coreutils
 	virtual/pkgconfig
-	systemtap? ( dev-util/systemtap )
 	test? ( net-misc/curl )
 	pax-kernel? ( sys-apps/elfix )
 "
