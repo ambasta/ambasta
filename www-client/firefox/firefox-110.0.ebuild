@@ -3,7 +3,7 @@
 
 EAPI=8
 
-FIREFOX_PATCHSET="firefox-109-patches-02j.tar.xz"
+FIREFOX_PATCHSET="firefox-109-patches-03j.tar.xz"
 
 LLVM_MAX_SLOT=15
 
@@ -63,7 +63,7 @@ SLOT="rapid"
 LICENSE="MPL-2.0 GPL-2 LGPL-2.1"
 
 IUSE="+clang cpu_flags_arm_neon dbus debug eme-free hardened hwaccel"
-IUSE+=" jack libproxy lto +mold +openh264 pgo pulseaudio sndio selinux"
+IUSE+=" jack libproxy lto +openh264 pgo pulseaudio sndio selinux"
 IUSE+=" +system-av1 +system-harfbuzz +system-icu +system-jpeg +system-libevent +system-libvpx system-png system-python-libs +system-webp"
 IUSE+=" wayland wifi +X"
 
@@ -88,7 +88,10 @@ BDEPEND="${PYTHON_DEPS}
 			sys-devel/clang:15
 			sys-devel/llvm:15
 			clang? (
-				sys-devel/lld:15
+				|| (
+					sys-devel/lld:15
+					sys-devel/mold
+				)
 				virtual/rust:0/llvm-15
 				pgo? ( =sys-libs/compiler-rt-sanitizers-15*[profile] )
 			)
@@ -97,7 +100,10 @@ BDEPEND="${PYTHON_DEPS}
 			sys-devel/clang:14
 			sys-devel/llvm:14
 			clang? (
-				sys-devel/lld:14
+				|| (
+					sys-devel/lld:14
+					sys-devel/mold
+				)
 				virtual/rust:0/llvm-14
 				pgo? ( =sys-libs/compiler-rt-sanitizers-14*[profile] )
 			)
@@ -112,7 +118,6 @@ BDEPEND="${PYTHON_DEPS}
 	!clang? ( virtual/rust )
 	amd64? ( >=dev-lang/nasm-2.14 )
 	x86? ( >=dev-lang/nasm-2.14 )
-	mold? ( sys-devel/mold )
 	pgo? (
 		X? (
 			sys-devel/gettext
@@ -147,6 +152,12 @@ COMMON_DEPEND="${FF_ONLY_DEPEND}
 		sys-apps/dbus
 	)
 	jack? ( virtual/jack )
+	pulseaudio? (
+		|| (
+			media-libs/libpulse
+			>=media-sound/apulse-0.1.12-r4[sdk]
+		)
+	)
 	libproxy? ( net-libs/libproxy )
 	selinux? ( sec-policy/selinux-mozilla )
 	sndio? ( >=media-sound/sndio-1.8.0-r1 )
@@ -161,7 +172,7 @@ COMMON_DEPEND="${FF_ONLY_DEPEND}
 	)
 	system-icu? ( >=dev-libs/icu-71.1:= )
 	system-jpeg? ( >=media-libs/libjpeg-turbo-1.2.1 )
-	system-libevent? ( >=dev-libs/libevent-2.1.12:0=[threads] )
+	system-libevent? ( >=dev-libs/libevent-2.1.12:0=[threads(+)] )
 	system-libvpx? ( >=media-libs/libvpx-1.8.2:0=[postproc] )
 	system-png? ( >=media-libs/libpng-1.6.35:0=[apng] )
 	system-webp? ( >=media-libs/libwebp-1.1.0:0= )
@@ -197,20 +208,8 @@ RDEPEND="${COMMON_DEPEND}
 	openh264? ( media-libs/openh264:*[plugin] )
 	wayland? (
 		x11-libs/libnotify
-	)
-	pulseaudio? (
-		|| (
-			media-libs/libpulse
-			>=media-sound/apulse-0.1.12-r4
-		)
 	)"
 DEPEND="${COMMON_DEPEND}
-	pulseaudio? (
-		|| (
-			media-libs/libpulse
-			>=media-sound/apulse-0.1.12-r4[sdk]
-		)
-	)
 	X? (
 		x11-base/xorg-proto
 		x11-libs/libICE
@@ -231,7 +230,7 @@ llvm_check_deps() {
 		return 1
 	fi
 
-	if use clang ; then
+	if use clang && tc-ld-is-lld ; then
 		if ! has_version -b "sys-devel/lld:${LLVM_SLOT}" ; then
 			einfo "sys-devel/lld:${LLVM_SLOT} is missing! Cannot use LLVM slot ${LLVM_SLOT} ..." >&2
 			return 1
@@ -431,6 +430,40 @@ mozconfig_use_with() {
 	mozconfig_add_options_ac "$(use ${1} && echo +${1} || echo -${1})" "${flag}"
 }
 
+# This is a straight copypaste from toolchain-funcs.eclass's 'tc-ld-is-lld', and is temporarily
+# placed here until toolchain-funcs.eclass gets an official support for mold linker.
+# Please see:
+# https://github.com/gentoo/gentoo/pull/28366 ||
+# https://github.com/gentoo/gentoo/pull/28355
+tc-ld-is-mold() {
+	local out
+
+	# Ensure ld output is in English.
+	local -x LC_ALL=C
+
+	# First check the linker directly.
+	out=$($(tc-getLD "$@") --version 2>&1)
+	if [[ ${out} == *"mold"* ]] ; then
+		return 0
+	fi
+
+	# Then see if they're selecting mold via compiler flags.
+	# Note: We're assuming they're using LDFLAGS to hold the
+	# options and not CFLAGS/CXXFLAGS.
+	local base="${T}/test-tc-linker"
+	cat <<-EOF > "${base}.c"
+	int main() { return 0; }
+	EOF
+	out=$($(tc-getCC "$@") ${CFLAGS} ${CPPFLAGS} ${LDFLAGS} -Wl,--version "${base}.c" -o "${base}" 2>&1)
+	rm -f "${base}"*
+	if [[ ${out} == *"mold"* ]] ; then
+		return 0
+	fi
+
+	# No mold here!
+	return 1
+}
+
 virtwl() {
 	debug-print-function ${FUNCNAME} "$@"
 
@@ -490,7 +523,7 @@ pkg_setup() {
 
 		llvm_pkg_setup
 
-		if use clang && use lto ; then
+		if use clang && use lto && tc-ld-is-lld ; then
 			local version_lld=$(ld.lld --version 2>/dev/null | awk '{ print $2 }')
 			[[ -n ${version_lld} ]] && version_lld=$(ver_cut 1 "${version_lld}")
 			[[ -z ${version_lld} ]] && die "Failed to read ld.lld version!"
@@ -616,6 +649,7 @@ src_unpack() {
 src_prepare() {
 	use lto && rm -v "${WORKDIR}"/firefox-patches/*-LTO-Only-enable-LTO-*.patch
 	! use ppc64 && rm -v "${WORKDIR}"/firefox-patches/*bmo-1775202-ppc64*.patch
+
 	eapply "${WORKDIR}/firefox-patches"
 
 	# Allow user to apply any additional patches without modifing ebuild
@@ -859,9 +893,9 @@ src_configure() {
 
 	if use lto ; then
 		if use clang ; then
-			# Upstream only supports lld when using clang
-			if use mold; then
-				mozconfig_add_options_ac "forcing ld=mold due to USE=clang and USE=lto and USE=mold" --enable-linker=mold
+			# Upstream only supports lld or mold when using clang.
+			if tc-ld-is-mold ; then
+				mozconfig_add_options_ac "using ld=mold due to system selection" --enable-linker=mold
 			else
 				mozconfig_add_options_ac "forcing ld=lld due to USE=clang and USE=lto" --enable-linker=lld
 			fi
@@ -869,14 +903,10 @@ src_configure() {
 			mozconfig_add_options_ac '+lto' --enable-lto=cross
 
 		else
-			# ThinLTO is currently broken, see bmo#1644409
+			# ThinLTO is currently broken, see bmo#1644409.
+			# mold does not support gcc+lto combination.
 			mozconfig_add_options_ac '+lto' --enable-lto=full
-
-			if use mold; then
-				mozconfig_add_options_ac "linker is set to mold" --enable-linker=mold
-			else
-				mozconfig_add_options_ac "linker is set to bfd" --enable-linker=bfd
-			fi
+			mozconfig_add_options_ac "linker is set to bfd" --enable-linker=bfd
 		fi
 
 		if use pgo ; then
@@ -890,17 +920,18 @@ src_configure() {
 	else
 		# Avoid auto-magic on linker
 		if use clang ; then
-			# This is upstream's default
-			if use mold ; then
-				mozconfig_add_options_ac "forcing ld=mold due to USE=clang and USE=mold" --enable-linker=mold
+			# lld is upstream's default
+			if tc-ld-is-mold ; then
+				mozconfig_add_options_ac "using ld=mold due to system selection" --enable-linker=mold
 			else
 				mozconfig_add_options_ac "forcing ld=lld due to USE=clang" --enable-linker=lld
 			fi
+
 		else
-			if use mold ; then
-				mozconfig_add_options_ac "linker is set to mold" --enable-linker=mold
+			if tc-ld-is-mold ; then
+				mozconfig_add_options_ac "using ld=mold due to system selection" --enable-linker=mold
 			else
-				mozconfig_add_options_ac "linker is set to bfd" --enable-linker=bfd
+				mozconfig_add_options_ac "linker is set to bfd due to USE=-clang" --enable-linker=bfd
 			fi
 		fi
 	fi
@@ -1075,7 +1106,7 @@ src_configure() {
 src_compile() {
 	local virtx_cmd=
 
-	if use mold; then
+	if tc-ld-is-mold ; then
 		# LTO with mold requires a sufficeintly high ulimit
 		# for open files for linkage to work correctly
 		ulimit -n 8192
