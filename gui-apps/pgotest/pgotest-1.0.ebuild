@@ -120,17 +120,14 @@ src_compile() {
 	fi
 
 	# Create the wayland user
-	create_wayland_user
+	# create_wayland_user
 
 	# Use the new user to run the wayland session
-	export XDG_RUNTIME_DIR="/run/user/$(id -u waylanduser)"
-	mkdir -p "${XDG_RUNTIME_DIR}"
-	chown -R waylanduser:video "${XDG_RUNTIME_DIR}"
-	chown 0700 "${XDG_RUNTIME_DIR}"
+	# export XDG_RUNTIME_DIR="/run/user/$(id -u waylanduser)"
+	# mkdir -p "${XDG_RUNTIME_DIR}"
+	# chown -R waylanduser:video "${XDG_RUNTIME_DIR}"
+	# chown 0700 "${XDG_RUNTIME_DIR}"
 
 	# Run the command using su to switch to the wayland user
-	su -l waylanduser -s /bin/bash -c "${virtx_cmd} cmake_src_compile" || die
-
-	# Delete the wayland user
-	delete_wayland_user
+	${virtx_cmd} cmake_src_compile || die
 }
