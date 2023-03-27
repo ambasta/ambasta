@@ -54,7 +54,7 @@ virtwl() {
 		export XDG_RUNTIME_DIR='${user_runtime_dir}';
 		export WAYLAND_DISPLAY=wayland-0;
 		export WLR_RENDERER=vulkan;
-		sway -C /dev/null -d & sway_pid\$!;
+		sway -d >/dev/null 2>&1 & sway_pid=\$!;
 		sleep 3;
 		$@ || exit 1;
 		kill \${sway_pid};
