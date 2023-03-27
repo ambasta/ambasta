@@ -107,9 +107,7 @@ src_compile() {
 		gnome2_environment_reset
 
 		if ! use X; then
-			virtx_cmd=vritwl
-		else
-			virtx_cmd=virtx
+			virtx_cmd=virtwl
 		fi
 	fi
 
