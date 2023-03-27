@@ -15,7 +15,7 @@ KEYWORDS="~amd64 ~x86"
 IUSE="pgo X"
 
 DEPEND="pgo? (
-	x11-libs/gtk+:4[X?]
+	gui-libs/gtk:4[X?]
 )"
 RDEPEND="${DEPEND}"
 BDEPEND=""
