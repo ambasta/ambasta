@@ -3,7 +3,7 @@
 
 EAPI=8
 
-inherit cmake
+inherit cmake gnome2-utils
 
 DESCRIPTION="A simple C++ program with PGO support"
 HOMEPAGE="https://www.example.com"
