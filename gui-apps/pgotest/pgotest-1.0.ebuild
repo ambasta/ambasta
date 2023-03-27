@@ -44,7 +44,7 @@ virtwl() {
 		export WLR_RENDERER=vulkan;
 		sway -d >/dev/null 2>&1 & sway_pid=\$!;
 		sleep 3;
-		$1 || exit 1;
+		cmake --build '${BUILD_DIR}' || exit 1;
 		kill \${sway_pid};
 		wait \${sway_pid} || exit 1;
 	" || die "virtwl failed"
@@ -67,5 +67,9 @@ src_compile() {
 		local -x GDK_BACKEND=x11
 	fi
 
-	${virtx_cmd} cmake_src_compile || die
+	if use pgo; then
+		${virtx_cmd} || die
+	else
+		cmake_src_compile
+	fi
 }
