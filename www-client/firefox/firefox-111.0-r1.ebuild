@@ -450,6 +450,33 @@ tc-ld-is-mold() {
 	return 1
 }
 
+create_wl_usr() {
+	useradd -m -G video waylandpgouser || die "Failed to create waylandpgouser"
+}
+
+delete_wl_user() {
+	userdel -r waylanduser || ewarn "Failed to delete waylandpgouser"
+}
+
+virtway() {
+	debug-print-function ${FUNCNAME} "$@"
+
+	[[ $# -lt 1 ]] && die "${FUNCNAME} needs at least one argument"
+	[[ -n $XDG_RUNTIME_DIR ]] || die "${FUNCNAME} needs XDG_RUNTIME_DIR to be set; try xdg_environment_reset"
+	sway -h > /dev/null || die 'sway -h failed'
+
+	addpredict /dev/dri
+	local VIRTWL VIRTWL_PID
+	coproc VIRTWL { WLR_RENDERER=vulkan exec sway -c /dev/null -d -E 'echo $WAYLAND_DISPLAY; read_; kill $PPID'; }
+	local -x WAYLAND_DISPLAY
+
+	debug-print "${FUNCNAME}: $@"
+	"$@"
+
+	[[ -n $VIRTWL_PID ]] || die "sway exited unexpectedly"
+	exec {VIRTWL[0]}<&- {VIRTWL[1]}>&-
+}
+
 virtwl() {
 	debug-print-function ${FUNCNAME} "$@"
 
@@ -1106,7 +1133,7 @@ src_compile() {
 		addpredict /root
 
 		if ! use X; then
-			virtx_cmd=virtwl
+			virtx_cmd=virtway
 		else
 			virtx_cmd=virtx
 		fi
@@ -1117,6 +1144,19 @@ src_compile() {
 	else
 		local -x GDK_BACKEND=x11
 	fi
+
+	# Create the wayland user
+	create_wl_usr
+
+	export XDG_RUNTIME_DIR="/run/user/$(id -u waylandpgouser)"
+	mkdir -p "${XDG_RUNTIME_DIR}"
+	chown -R waylandpgouser:video "${XDG_RUNTIME_DIR}"
+	chmod 0700 "${XDG_RUNTIME_DIR}"
+
+	su -l waylandpgouser -s /bin/bash -c "${virtx_cmd} ./mach build --verbose" || die
+
+	# Delete the wayland user
+	delete_wl_usr
 
 	${virtx_cmd} ./mach build --verbose || die
 }
