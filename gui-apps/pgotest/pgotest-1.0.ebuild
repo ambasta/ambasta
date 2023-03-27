@@ -29,11 +29,15 @@ src_configure() {
 }
 
 create_wayland_user() {
-	useradd -m -G video waylanduser || die "Failed to create waylanduser"
+	ebegin "Creating waylanduser"
+	useradd -m -G video waylanduser
+	eend $? "Failed to create waylanduser"
 }
 
 delete_wayland_user() {
-	userdel -r waylanduser || ewarn "Failed to delete waylanduser"
+	ebegin "Deleting wayland user"
+	userdel -r waylanduser
+	eend $? "Failed to delete waylanduser"
 }
 
 virtwl() {
@@ -52,8 +56,11 @@ virtwl() {
 	chown -R waylanduser:video "${user_runtime_dir}"
 	chmod 0700 "${user_runtime_dir}"
 
+	pushd "${user_runtime_dir}" > /dev/null
 	su -l waylanduser -s /bin/bash -c "XDG_RUNTIME_DIR='${user_runtime_dir}' WAYLAND_DISPLAY=wayland-0 sway -C /dev/null -d" &
 	local sway_pid=$!
+	popd > /dev/null
+
 	sleep 3 # Give sway some time to start up
 
 	su -l waylanduser -s /bin/bash -c "XDG_RUNTIME_DIR='${user_runtime_dir}' WAYLAND_DISPLAY=wayland-0 $@" || die
