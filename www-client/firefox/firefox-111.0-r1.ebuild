@@ -791,7 +791,7 @@ src_configure() {
 		--enable-negotiateauth \
 		--enable-new-pass-manager \
 		--enable-official-branding \
-		--enable-release \
+		--disable-release \
 		--enable-system-ffi \
 		--enable-system-pixman \
 		--enable-system-policies \

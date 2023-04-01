@@ -22,9 +22,9 @@ BDEPEND=""
 
 
 src_configure() {
-	local mycmakeargs=(
-		-DUSE_PGO=$(usex pgo)
-	)
+	if use pgo; then
+		CMAKE_BUILD_TYPE="PGO"
+	fi
 	cmake_src_configure
 }
 
