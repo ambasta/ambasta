@@ -1133,7 +1133,7 @@ src_compile() {
 		addpredict /root
 
 		if ! use X; then
-			virtx_cmd=virtway
+			virtx_cmd=virtwl
 		else
 			virtx_cmd=virtx
 		fi
