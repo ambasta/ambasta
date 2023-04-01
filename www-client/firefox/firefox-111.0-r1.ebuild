@@ -1146,17 +1146,17 @@ src_compile() {
 	fi
 
 	# Create the wayland user
-	create_wl_usr
+	# create_wl_usr
 
-	export XDG_RUNTIME_DIR="/run/user/$(id -u waylandpgouser)"
-	mkdir -p "${XDG_RUNTIME_DIR}"
-	chown -R waylandpgouser:video "${XDG_RUNTIME_DIR}"
-	chmod 0700 "${XDG_RUNTIME_DIR}"
+	# export XDG_RUNTIME_DIR="/run/user/$(id -u waylandpgouser)"
+	# mkdir -p "${XDG_RUNTIME_DIR}"
+	# chown -R waylandpgouser:video "${XDG_RUNTIME_DIR}"
+	# chmod 0700 "${XDG_RUNTIME_DIR}"
 
-	su -l waylandpgouser -s /bin/bash -c "${virtx_cmd} ./mach build --verbose" || die
+	# su -l waylandpgouser -s /bin/bash -c "${virtx_cmd} ./mach build --verbose" || die
 
 	# Delete the wayland user
-	delete_wl_usr
+	# delete_wl_usr
 
 	${virtx_cmd} ./mach build --verbose || die
 }
