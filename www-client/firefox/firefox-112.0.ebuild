@@ -748,7 +748,7 @@ src_configure() {
 	mozconfig_add_options_ac '' --enable-project=browser
 
 	# Set Gentoo defaults
-	export MOZILLA_OFFICIAL=1
+	# export MOZILLA_OFFICIAL=1
 
 	mozconfig_add_options_ac 'Gentoo default' \
 		--allow-addon-sideload \
@@ -764,7 +764,7 @@ src_configure() {
 		--enable-negotiateauth \
 		--enable-new-pass-manager \
 		--enable-official-branding \
-		--enable-release \
+		--disable-release \
 		--enable-system-ffi \
 		--enable-system-pixman \
 		--enable-system-policies \
