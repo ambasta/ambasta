@@ -1,22 +1,23 @@
-From 4c6376fc563932d7d7da69624c85aa161e32abf6 Mon Sep 17 00:00:00 2001
+From fa1c0457f82fa072a80b2134b404e2ec23edf29a Mon Sep 17 00:00:00 2001
 From: Amit Prakash Ambasta <amit.prakash.ambasta@gmail.com>
 Date: Mon, 15 May 2023 13:35:28 +0530
-Subject: [PATCH] gcc 13 patch
+Subject: [PATCH] gcc 13 patch, fixes segfault on node w/ gcc 13
 
+Details: https://github.com/nodejs/node/issues/47865
 Signed-off-by: Amit Prakash Ambasta <amit.prakash.ambasta@gmail.com>
 ---
  configure.py | 3 +++
  1 file changed, 3 insertions(+)
 
 diff --git a/configure.py b/configure.py
-index 83a6faea..9acae5f1 100755
+index 83a6faea..77dac73e 100755
 --- a/configure.py
 +++ b/configure.py
 @@ -1313,6 +1313,9 @@ def configure_node(o):
      raise Exception(
        'The pgo option is supported only on linux.')
  
-+  if gcc_version_ge(13,1,0):
++  if gcc_version_ge((13,1,0)):
 +      o['cflags'] += ['-fno-ipa-icf']
 +
    if flavor == 'linux':
