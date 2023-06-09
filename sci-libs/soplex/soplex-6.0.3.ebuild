@@ -24,6 +24,10 @@ BDEPEND=""
 
 S="${WORKDIR}/${PN}-release-${PV//./}"
 
+PATCHES=(
+	"${FILESDIR}/Don-t-hardcode-installation-directories.patch"
+)
+
 src_configure() {
 	local mycmakeargs=(
 		-DCMAKE_INSTALL_LIBDIR="$(get_libdir)"
