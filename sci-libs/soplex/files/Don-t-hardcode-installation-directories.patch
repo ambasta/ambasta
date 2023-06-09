@@ -1,0 +1,75 @@
+From c21b8aaba9fa95ed5eff70fd1bca1334e81e6a4b Mon Sep 17 00:00:00 2001
+From: Amit Prakash Ambasta <amit.prakash.ambasta@gmail.com>
+Date: Fri, 9 Jun 2023 11:08:59 +0530
+Subject: [PATCH] Don't hardcode installation directories
+
+Signed-off-by: Amit Prakash Ambasta <amit.prakash.ambasta@gmail.com>
+---
+ CMakeLists.txt     |  4 +++-
+ src/CMakeLists.txt | 18 +++++++++---------
+ 2 files changed, 12 insertions(+), 10 deletions(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index d1d4ec7..c1e0117 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -1,5 +1,7 @@
+ cmake_minimum_required(VERSION 3.3.0)
+ 
++include(GNUInstallDirs)
++
+ set(CMAKE_C_FLAGS_RELWITHDEBINFO "${CMAKE_C_FLAGS_DEBUG} ${CMAKE_C_FLAGS_RELEASE}")
+ set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_DEBUG} ${CMAKE_CXX_FLAGS_RELEASE}")
+ 
+@@ -68,7 +70,7 @@ endif()
+ set(CMAKE_MACOSX_RPATH ON)
+ 
+ # use C++14 standard
+-set(CMAKE_CXX_STANDARD 14)
++set(CMAKE_CXX_STANDARD 23)
+ 
+ # set function visibility default to hidden
+ set(CMAKE_CXX_VISIBILITY_PRESET hidden)
+diff --git a/src/CMakeLists.txt b/src/CMakeLists.txt
+index 27d52f1..b9634e7 100644
+--- a/src/CMakeLists.txt
++++ b/src/CMakeLists.txt
+@@ -201,18 +201,18 @@ add_executable(example EXCLUDE_FROM_ALL example.cpp)
+ target_link_libraries(example libsoplex)
+ 
+ # set the install rpath to the installed destination
+-set_target_properties(soplex PROPERTIES INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
++set_target_properties(soplex PROPERTIES INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}")
+ 
+ # install the header files of soplex
+-install(FILES ${headers} ${PROJECT_BINARY_DIR}/soplex/config.h DESTINATION include/soplex)
+-install(FILES soplex.h soplex.hpp soplex_interface.h DESTINATION include)
++install(FILES ${headers} ${PROJECT_BINARY_DIR}/soplex/config.h DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/soplex)
++install(FILES soplex.h soplex.hpp soplex_interface.h DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+ 
+ # install the binary and the library to appropriate lcoations and add them to an export group
+ install(TARGETS soplex libsoplex libsoplex-pic libsoplexshared EXPORT soplex-targets
+-        LIBRARY DESTINATION lib
+-        ARCHIVE DESTINATION lib
+-        RUNTIME DESTINATION bin
+-        INCLUDES DESTINATION include)
++        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
++        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
++        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
++        INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+ 
+ # Add library targets to the build-tree export set
+ export(TARGETS libsoplex libsoplex-pic libsoplexshared
+@@ -238,7 +238,7 @@ configure_file(${PROJECT_SOURCE_DIR}/soplex-config.cmake.in
+ 
+ # install the targets of the soplex export group and the config file so that other projects
+ # can link easily against soplex
+-install(EXPORT soplex-targets FILE soplex-targets.cmake DESTINATION lib/cmake/soplex)
++install(EXPORT soplex-targets FILE soplex-targets.cmake DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/soplex)
+ install(FILES "${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/soplex-config.cmake"
+ 	           ${CMAKE_BINARY_DIR}/soplex-config-version.cmake
+-	     DESTINATION lib/cmake/soplex)
++            DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/soplex)
+-- 
+2.41.0
+
