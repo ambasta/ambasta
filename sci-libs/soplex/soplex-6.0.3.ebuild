@@ -26,6 +26,7 @@ S="${WORKDIR}/${PN}-release-${PV//./}"
 
 src_configure() {
 	local mycmakeargs=(
+		-DCMAKE_INSTALL_LIBDIR="$(get_libdir)"
 		-DBOOST=$(usex boost)
 		-DGMP=$(usex gmp)
 		-DMPFR=$(usex mpfr)
