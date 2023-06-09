@@ -26,6 +26,7 @@ S="${WORKDIR}/${PN}-release-${PV//./}"
 
 PATCHES=(
 	"${FILESDIR}/Don-t-hardcode-installation-directories.patch"
+	"${FILESDIR}/C-23-fixes.patch"
 )
 
 src_configure() {
