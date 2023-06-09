@@ -1,0 +1,135 @@
+From 0f08136b2dcdc4c68b5ddd01601f813b4da716b9 Mon Sep 17 00:00:00 2001
+From: Amit Prakash Ambasta <amit.prakash.ambasta@gmail.com>
+Date: Fri, 9 Jun 2023 14:45:19 +0530
+Subject: [PATCH] Enforce -WError, C/C++-23, GNUInstallDirs
+
+Signed-off-by: Amit Prakash Ambasta <amit.prakash.ambasta@gmail.com>
+---
+ CMakeLists.txt       |  8 ++++++++
+ src/CMakeLists.txt   | 41 ++++++++++++++++++++++-------------------
+ tests/CMakeLists.txt |  6 +++++-
+ 3 files changed, 35 insertions(+), 20 deletions(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index adfa268..bf5042b 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -10,9 +10,15 @@ if(POLICY CMP0091)
+    cmake_policy(SET CMP0091 NEW)
+ endif()
+ 
++set(CMAKE_C_STANDARD 23)
++set(CMAKE_CXX_STANDARD 23)
++
++set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror")
++
+ set(CMAKE_C_FLAGS_RELWITHDEBINFO "${CMAKE_C_FLAGS_DEBUG} ${CMAKE_C_FLAGS_RELEASE}")
+ set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_DEBUG} ${CMAKE_CXX_FLAGS_RELEASE}")
+ 
++
+ set(SCIP_VERSION_MAJOR 8)
+ set(SCIP_VERSION_MINOR 0)
+ set(SCIP_VERSION_PATCH 3)
+@@ -39,7 +45,9 @@ set(CPACK_PACKAGE_VERSION_MINOR "${SCIP_VERSION_MINOR}")
+ set(CPACK_PACKAGE_VERSION_PATCH "${SCIP_VERSION_PATCH}")
+ set(CPACK_PACKAGE_VENDOR "Zuse Institute Berlin")
+ set(CPACK_PACKAGE_CONTACT "http://scipopt.org")
++
+ include(CPack)
++include(GNUInstallDirs)
+ 
+ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/bin)
+ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib)
+diff --git a/src/CMakeLists.txt b/src/CMakeLists.txt
+index 604badc..6fc4351 100644
+--- a/src/CMakeLists.txt
++++ b/src/CMakeLists.txt
+@@ -7,9 +7,12 @@ function(setLibProperties targetname outputname)
+         MACOSX_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
+ endfunction(setLibProperties)
+ 
+-set(CMAKE_C_STANDARD 99)
++set(CMAKE_C_STANDARD 23)
++set(CMAKE_C_EXTENSIONS ON)
+ set(CMAKE_C_STANDARD_REQUIRED on)
+-set(CMAKE_C_EXTENSIONS OFF)
++set(CMAKE_CXX_STANDARD 23)
++set(CMAKE_CXX_EXTENSIONS ON)
++set(CMAKE_CXX_STANDARD_REQUIRED on)
+ 
+ if(NOT WIN32)
+     set(SCIP_COMP_OPTIONS ${SCIP_COMP_OPTIONS} "$<$<COMPILE_LANGUAGE:C>:-D_XOPEN_SOURCE=600>")
+@@ -1096,27 +1099,27 @@ target_include_directories(scip PUBLIC
+ 
+ # set the install rpath to the installed destination
+ set_target_properties(scip PROPERTIES
+-    INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib"
++    INSTALL_RPATH "${CMAKE_INSTALL_LIBDIR}"
+     INSTALL_RPATH_USE_LINK_PATH TRUE)
+ 
+ # install the header files of scip
+-install(FILES ${lpiheaders} DESTINATION include/lpi)
+-install(FILES ${dijkstraheaders} DESTINATION include/dijkstra)
+-install(FILES ${objscipheaders} DESTINATION include/objscip)
+-install(FILES ${scipheaders} ${PROJECT_BINARY_DIR}/scip/config.h ${PROJECT_BINARY_DIR}/scip/scip_export.h DESTINATION include/scip)
+-install(FILES ${tcliqueheaders} DESTINATION include/tclique)
+-install(FILES ${tinycthreadheader} DESTINATION include/tinycthread)
+-install(FILES ${tpiheaders} DESTINATION include/tpi)
+-install(FILES ${xmlheaders} DESTINATION include/xml)
+-install(FILES ${symheaders} DESTINATION include/symmetry)
+-install(FILES ${blockmemshellheader} DESTINATION include/blockmemshell)
++install(FILES ${lpiheaders} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/lpi)
++install(FILES ${dijkstraheaders} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/dijkstra)
++install(FILES ${objscipheaders} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/objscip)
++install(FILES ${scipheaders} ${PROJECT_BINARY_DIR}/scip/config.h ${PROJECT_BINARY_DIR}/scip/scip_export.h DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/scip)
++install(FILES ${tcliqueheaders} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/tclique)
++install(FILES ${tinycthreadheader} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/tinycthread)
++install(FILES ${tpiheaders} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/tpi)
++install(FILES ${xmlheaders} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/xml)
++install(FILES ${symheaders} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/symmetry)
++install(FILES ${blockmemshellheader} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/blockmemshell)
+ 
+ # install the binary and the library to appropriate locations and add them to an export group
+ install(TARGETS scip libscip EXPORT scip-targets
+-        LIBRARY DESTINATION lib
+-        ARCHIVE DESTINATION lib
+-        RUNTIME DESTINATION bin
+-        INCLUDES DESTINATION include)
++        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
++        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
++        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
++        INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+ 
+ # Add all targets to the build-tree export set
+ export(TARGETS scip libscip ${BLISS_TARGET}
+@@ -1156,7 +1159,7 @@ configure_file(${PROJECT_SOURCE_DIR}/scip-config.cmake.in
+ 
+ # install the targets of the scip export group and the config file so that other projects
+ # can link easily against scip
+-install(EXPORT scip-targets DESTINATION lib/cmake/scip)
++install(EXPORT scip-targets DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/scip)
+ install(FILES "${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/scip-config.cmake"
+               ${PROJECT_BINARY_DIR}/scip-config-version.cmake
+-        DESTINATION lib/cmake/scip)
++              DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/scip)
+diff --git a/tests/CMakeLists.txt b/tests/CMakeLists.txt
+index eb6925d..b71c312 100644
+--- a/tests/CMakeLists.txt
++++ b/tests/CMakeLists.txt
+@@ -43,8 +43,12 @@ include(CTest)
+ #
+ # define the C99 standard for older compilers (gcc < 5.0)
+ #
+-set(CMAKE_C_STANDARD 99)
++set(CMAKE_C_STANDARD 23)
++set(CMAKE_C_EXTENSIONS ON)
+ set(CMAKE_C_STANDARD_REQUIRED on)
++set(CMAKE_CXX_STANDARD 23)
++set(CMAKE_CXX_EXTENSIONS ON)
++set(CMAKE_CXX_STANDARD_REQUIRED on)
+ 
+ #
+ # unit tests depend on the presence of the Criterion framework
+-- 
+2.41.0
+

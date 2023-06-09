@@ -9,7 +9,7 @@ DESCRIPTION="SCIP - Solving Constraint Integer Programs"
 HOMEPAGE="https://scipopt.org/"
 SRC_URI="https://github.com/scipopt/${PN}/archive/v${PV//./}.tar.gz -> ${P}.tar.gz"
 
-LICENSE=""
+LICENSE="zuse"
 SLOT="0"
 KEYWORDS="~amd64"
 
@@ -23,6 +23,10 @@ RDEPEND="${DEPEND}"
 BDEPEND=""
 
 S="${WORKDIR}/${PN}-${PV//./}"
+
+PATCHES=(
+	"${FILESDIR}/Enforce-WError-C-C-23-GNUInstallDirs.patch"
+)
 
 src_configure() {
 	local mycmakeargs=(
