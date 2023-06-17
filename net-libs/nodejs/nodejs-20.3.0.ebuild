@@ -62,6 +62,7 @@ CHECKREQS_MEMORY="8G"
 CHECKREQS_DISK_BUILD="22G"
 
 PATCHES=(
+	"${FILESDIR}/${PN}-gcc-13.patch"
 	"${FILESDIR}"/"${P}"-gcc14.patch
 	"${FILESDIR}"/"${P}"-simdutf-2.3.14.patch
 )
