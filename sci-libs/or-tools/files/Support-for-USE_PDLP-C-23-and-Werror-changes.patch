@@ -1,0 +1,538 @@
+From e401b3e7cda8047ba7c29fa85acd8cf2d63064e8 Mon Sep 17 00:00:00 2001
+From: Amit Prakash Ambasta <amit.prakash.ambasta@gmail.com>
+Date: Fri, 9 Jun 2023 17:32:29 +0530
+Subject: [PATCH] Support for USE_PDLP, C++23 and Werror changes
+
+Signed-off-by: Amit Prakash Ambasta <amit.prakash.ambasta@gmail.com>
+---
+ CMakeLists.txt                                |  5 +--
+ cmake/cpp.cmake                               |  2 +-
+ ortools/base/file.cc                          |  5 ++-
+ .../routing_lp_scheduling.cc                  |  1 +
+ ortools/constraint_solver/search.cc           |  5 +--
+ ortools/glop/initial_basis.cc                 |  4 +++
+ ortools/glop/primal_edge_norms.cc             |  1 +
+ ortools/graph/iterators.h                     | 17 +++++++--
+ ortools/linear_solver/linear_solver.cc        |  4 +++
+ ortools/linear_solver/pdlp_interface.cc       |  3 ++
+ .../proto_solver/pdlp_proto_solver.cc         |  3 ++
+ .../proto_solver/pdlp_proto_solver.h          |  3 ++
+ ortools/linear_solver/solve.cc                |  5 +--
+ ortools/lp_data/mps_reader.cc                 | 36 +++++++++----------
+ ortools/lp_data/mps_reader.h                  | 12 +++----
+ ortools/pdlp/iteration_stats.h                |  4 +++
+ ortools/pdlp/primal_dual_hybrid_gradient.h    |  3 ++
+ ortools/pdlp/quadratic_program.h              |  3 ++
+ ortools/sat/cp_model_utils.cc                 |  1 +
+ ortools/sat/linear_programming_constraint.cc  |  3 +-
+ 20 files changed, 82 insertions(+), 38 deletions(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 07bcaccc0b..aec8fc79d7 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -28,10 +28,11 @@ message(STATUS "${PROJECT_NAME} version: ${PROJECT_VERSION}")
+ if(MSVC)
+   set(CMAKE_CXX_STANDARD 20)
+ else()
+-  set(CMAKE_CXX_STANDARD 17)
++  set(CMAKE_CXX_STANDARD 23)
+ endif()
+ set(CMAKE_CXX_STANDARD_REQUIRED ON)
+-set(CMAKE_CXX_EXTENSIONS OFF)
++set(CMAKE_CXX_EXTENSIONS ON)
++set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror")
+ 
+ # Set max os target version.
+ set(CMAKE_OSX_DEPLOYMENT_TARGET 10.15)
+diff --git a/cmake/cpp.cmake b/cmake/cpp.cmake
+index daf6ba7eb8..35a94e3e8f 100644
+--- a/cmake/cpp.cmake
++++ b/cmake/cpp.cmake
+@@ -230,7 +230,7 @@ endforeach()
+ if(MSVC)
+   set(CMAKE_CXX_STANDARD 20)
+ else()
+-  set(CMAKE_CXX_STANDARD 17)
++  set(CMAKE_CXX_STANDARD 23)
+ endif()
+ set(CMAKE_CXX_STANDARD_REQUIRED ON)
+ set(CMAKE_CXX_EXTENSIONS OFF)
+diff --git a/ortools/base/file.cc b/ortools/base/file.cc
+index fa627c9393..f3bbda2d57 100644
+--- a/ortools/base/file.cc
++++ b/ortools/base/file.cc
+@@ -184,9 +184,8 @@ absl::Status GetContents(const absl::string_view& filename, std::string* output,
+     status.Update(file->Close(flags));
+     return status;
+   }
+-#endif  // _MSC_VER
+-
+-  file->Close(flags);  // Even if ReadToString() fails!
++#endif                               // _MSC_VER
++  auto closed = file->Close(flags);  // Even if ReadToString() fails!
+   return absl::Status(absl::StatusCode::kInvalidArgument,
+                       absl::StrCat("Could not read from '", filename, "'."));
+ }
+diff --git a/ortools/constraint_solver/routing_lp_scheduling.cc b/ortools/constraint_solver/routing_lp_scheduling.cc
+index a8370e71c0..e1acf01500 100644
+--- a/ortools/constraint_solver/routing_lp_scheduling.cc
++++ b/ortools/constraint_solver/routing_lp_scheduling.cc
+@@ -1337,6 +1337,7 @@ int64_t ComputeConvexPiecewiseLinearFormulationValue(
+       return PieceWiseLinearFormulationValueKnownSegment(
+           pwl, x, pwl.x_anchors.size() - 1, delta);
+   }
++  throw std::logic_error("Unhandled enum value");
+ }
+ 
+ bool DimensionCumulOptimizerCore::SetRouteTravelConstraints(
+diff --git a/ortools/constraint_solver/search.cc b/ortools/constraint_solver/search.cc
+index 4ea7186695..a71e99768d 100644
+--- a/ortools/constraint_solver/search.cc
++++ b/ortools/constraint_solver/search.cc
+@@ -2406,6 +2406,7 @@ int SolutionCollector::solution_count() const { return solution_data_.size(); }
+ 
+ int64_t SolutionCollector::wall_time(int n) const {
+   check_index(n);
++  auto rr = solution_data_[n];
+   return solution_data_[n].time;
+ }
+ 
+@@ -4233,8 +4234,8 @@ SearchLimit* RegularLimit::MakeClone() const { return MakeIdenticalClone(); }
+ 
+ RegularLimit* RegularLimit::MakeIdenticalClone() const {
+   Solver* const s = solver();
+-  return s->MakeLimit(wall_time(), branches_, failures_, solutions_,
+-                      smart_time_check_);
++  return s->MakeLimit(absl::Milliseconds(wall_time()), branches_, failures_,
++                      solutions_, smart_time_check_);
+ }
+ 
+ bool RegularLimit::CheckWithOffset(absl::Duration offset) {
+diff --git a/ortools/glop/initial_basis.cc b/ortools/glop/initial_basis.cc
+index ed4d5a65d8..060c583a92 100644
+--- a/ortools/glop/initial_basis.cc
++++ b/ortools/glop/initial_basis.cc
+@@ -17,9 +17,11 @@
+ #include <cmath>
+ #include <limits>
+ #include <queue>
++#include <stdexcept>
+ #include <vector>
+ 
+ #include "ortools/glop/markowitz.h"
++#include "ortools/lp_data/lp_types.h"
+ #include "ortools/lp_data/lp_utils.h"
+ 
+ namespace operations_research {
+@@ -218,6 +220,7 @@ int InitialBasis::GetMarosPriority(ColIndex col) const {
+     case VariableType::FIXED_VARIABLE:
+       return 0;
+   }
++  throw std::logic_error("Unhandled VariableType enum value");
+ }
+ 
+ int InitialBasis::GetMarosPriority(RowIndex row) const {
+@@ -387,6 +390,7 @@ int InitialBasis::GetColumnCategory(ColIndex col) const {
+     case VariableType::FIXED_VARIABLE:
+       return 5;
+   }
++  throw std::logic_error("Unhandled VariableType enum value");
+ }
+ 
+ Fractional InitialBasis::GetColumnPenalty(ColIndex col) const {
+diff --git a/ortools/glop/primal_edge_norms.cc b/ortools/glop/primal_edge_norms.cc
+index 0c54245faf..83e38097ce 100644
+--- a/ortools/glop/primal_edge_norms.cc
++++ b/ortools/glop/primal_edge_norms.cc
+@@ -58,6 +58,7 @@ const DenseRow& PrimalEdgeNorms::GetSquaredNorms() {
+     case GlopParameters::DEVEX:
+       return GetDevexWeights();
+   }
++  throw std::logic_error("Unhandled pricing rule");
+ }
+ 
+ const DenseRow& PrimalEdgeNorms::GetEdgeSquaredNorms() {
+diff --git a/ortools/graph/iterators.h b/ortools/graph/iterators.h
+index a89a8f5730..97398f1ad9 100644
+--- a/ortools/graph/iterators.h
++++ b/ortools/graph/iterators.h
+@@ -16,6 +16,7 @@
+ #ifndef UTIL_GRAPH_ITERATORS_H_
+ #define UTIL_GRAPH_ITERATORS_H_
+ 
++#include <compare>
+ #include <iterator>
+ #include <vector>
+ 
+@@ -102,15 +103,24 @@ BeginEndReverseIteratorWrapper<Container> Reverse(const Container& c) {
+ 
+ // Simple iterator on an integer range, see IntegerRange below.
+ template <typename IntegerType>
+-class IntegerRangeIterator
+-    : public std::iterator<std::input_iterator_tag, IntegerType> {
++class IntegerRangeIterator {
+  public:
++  using iterator_category = std::input_iterator_tag;
++  using value_type = IntegerType;
++  using difference_type = std::ptrdiff_t;
++  using pointer = IntegerType*;
++  using reference = IntegerType&;
++
+   explicit IntegerRangeIterator(IntegerType value) : index_(value) {}
+   IntegerRangeIterator(const IntegerRangeIterator& other)
+       : index_(other.index_) {}
+   IntegerRangeIterator& operator=(const IntegerRangeIterator& other) {
+     index_ = other.index_;
+   }
++
++  auto operator<=>(const IntegerRangeIterator& other) const = default;
++
++  /*
+   bool operator!=(const IntegerRangeIterator& other) const {
+     // This may seems weird, but using < instead of != avoid almost-infinite
+     // loop if one use IntegerRange<int>(1, 0) below for instance.
+@@ -119,7 +129,8 @@ class IntegerRangeIterator
+   bool operator==(const IntegerRangeIterator& other) const {
+     return index_ == other.index_;
+   }
+-  IntegerType operator*() const { return index_; }
++  */
++  value_type operator*() const { return index_; }
+   IntegerRangeIterator& operator++() {
+     ++index_;
+     return *this;
+diff --git a/ortools/linear_solver/linear_solver.cc b/ortools/linear_solver/linear_solver.cc
+index ef4f68560b..4e796d8f08 100644
+--- a/ortools/linear_solver/linear_solver.cc
++++ b/ortools/linear_solver/linear_solver.cc
+@@ -378,7 +378,9 @@ extern MPSolverInterface* BuildHighsInterface(bool mip, MPSolver* const solver);
+ #endif
+ extern MPSolverInterface* BuildBopInterface(MPSolver* const solver);
+ extern MPSolverInterface* BuildGLOPInterface(MPSolver* const solver);
++#if defined(USE_PDLP)
+ extern MPSolverInterface* BuildPdlpInterface(MPSolver* const solver);
++#endif
+ extern MPSolverInterface* BuildSatInterface(MPSolver* const solver);
+ #if defined(USE_SCIP)
+ extern MPSolverInterface* BuildSCIPInterface(MPSolver* const solver);
+@@ -401,8 +403,10 @@ MPSolverInterface* BuildSolverInterface(MPSolver* const solver) {
+       return BuildBopInterface(solver);
+     case MPSolver::GLOP_LINEAR_PROGRAMMING:
+       return BuildGLOPInterface(solver);
++#if defined(USE_PDLP)
+     case MPSolver::PDLP_LINEAR_PROGRAMMING:
+       return BuildPdlpInterface(solver);
++#endif
+     case MPSolver::SAT_INTEGER_PROGRAMMING:
+       return BuildSatInterface(solver);
+ #if defined(USE_CLP) || defined(USE_CBC)
+diff --git a/ortools/linear_solver/pdlp_interface.cc b/ortools/linear_solver/pdlp_interface.cc
+index 166c8082c6..cb2ea00b55 100644
+--- a/ortools/linear_solver/pdlp_interface.cc
++++ b/ortools/linear_solver/pdlp_interface.cc
+@@ -11,6 +11,8 @@
+ // See the License for the specific language governing permissions and
+ // limitations under the License.
+ 
++#if defined(USE_PDLP)
++
+ #include <atomic>
+ #include <cstdint>
+ #include <optional>
+@@ -305,3 +307,4 @@ MPSolverInterface* BuildPdlpInterface(MPSolver* const solver) {
+ }
+ 
+ }  // namespace operations_research
++#endif  //  #if defined(USE_PDLP)
+diff --git a/ortools/linear_solver/proto_solver/pdlp_proto_solver.cc b/ortools/linear_solver/proto_solver/pdlp_proto_solver.cc
+index f4e89531d1..c1434a5e23 100644
+--- a/ortools/linear_solver/proto_solver/pdlp_proto_solver.cc
++++ b/ortools/linear_solver/proto_solver/pdlp_proto_solver.cc
+@@ -10,6 +10,7 @@
+ // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ // See the License for the specific language governing permissions and
+ // limitations under the License.
++#if defined(USE_PDLP)
+ 
+ #include "ortools/linear_solver/proto_solver/pdlp_proto_solver.h"
+ 
+@@ -133,3 +134,5 @@ absl::StatusOr<MPSolutionResponse> PdlpSolveProto(
+ }
+ 
+ }  // namespace operations_research
++
++#endif  //  #if defined(USE_PDLP)
+diff --git a/ortools/linear_solver/proto_solver/pdlp_proto_solver.h b/ortools/linear_solver/proto_solver/pdlp_proto_solver.h
+index 8a0ce53136..2195389f33 100644
+--- a/ortools/linear_solver/proto_solver/pdlp_proto_solver.h
++++ b/ortools/linear_solver/proto_solver/pdlp_proto_solver.h
+@@ -10,6 +10,7 @@
+ // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ // See the License for the specific language governing permissions and
+ // limitations under the License.
++#if defined(USE_PDLP)
+ 
+ #ifndef OR_TOOLS_LINEAR_SOLVER_PROTO_SOLVER_PDLP_PROTO_SOLVER_H_
+ #define OR_TOOLS_LINEAR_SOLVER_PROTO_SOLVER_PDLP_PROTO_SOLVER_H_
+@@ -43,3 +44,5 @@ absl::StatusOr<MPSolutionResponse> PdlpSolveProto(
+ }  // namespace operations_research
+ 
+ #endif  // OR_TOOLS_LINEAR_SOLVER_PROTO_SOLVER_PDLP_PROTO_SOLVER_H_
++
++#endif  //  #if defined(USE_PDLP)
+diff --git a/ortools/linear_solver/solve.cc b/ortools/linear_solver/solve.cc
+index 187d451eb5..84947fce99 100644
+--- a/ortools/linear_solver/solve.cc
++++ b/ortools/linear_solver/solve.cc
+@@ -140,8 +140,9 @@ MPModelRequest ReadMipModel(const std::string& input) {
+     model_proto = std::move(result).value();
+   } else if (absl::EndsWith(input, ".mps") ||
+              absl::EndsWith(input, ".mps.gz")) {
+-    QCHECK_OK(glop::MPSReader().ParseFile(input, &model_proto))
+-        << "Error while parsing the mps file '" << input << "'.";
++    auto retval = glop::MpsFileToMPModelProto(input);
++    QCHECK_OK(retval) << "Error while parsing the mps file '" << input << "'.";
++    model_proto = *retval;
+   } else {
+     ReadFileToProto(input, &model_proto);
+     ReadFileToProto(input, &request_proto);
+diff --git a/ortools/lp_data/mps_reader.cc b/ortools/lp_data/mps_reader.cc
+index 806d5f9cde..681b2c477a 100644
+--- a/ortools/lp_data/mps_reader.cc
++++ b/ortools/lp_data/mps_reader.cc
+@@ -39,13 +39,13 @@ class MPSReaderImpl {
+   // MpModelProto for the Data type, but it should be easy to add more.
+   template <class Data>
+   absl::Status ParseFile(const std::string& file_name, Data* data,
+-                         MPSReader::Form form);
++                         MPSReaderForm form);
+ 
+   // Loads instance from string. Useful with MapReduce. Automatically detects
+   // the file's format (free or fixed).
+   template <class Data>
+   absl::Status ParseProblemFromString(const std::string& source, Data* data,
+-                                      MPSReader::Form form);
++                                      MPSReaderForm form);
+ 
+  private:
+   // Number of fields in one line of MPS file.
+@@ -523,19 +523,19 @@ class DataWrapper<MPModelProto> {
+ 
+ template <class Data>
+ absl::Status MPSReaderImpl::ParseFile(const std::string& file_name, Data* data,
+-                                      MPSReader::Form form) {
++                                      MPSReaderForm form) {
+   if (data == nullptr) {
+     return absl::InvalidArgumentError("NULL pointer passed as argument.");
+   }
+ 
+-  if (form == MPSReader::AUTO_DETECT) {
+-    if (ParseFile(file_name, data, MPSReader::FIXED).ok()) {
++  if (form == MPSReaderForm::AUTO_DETECT) {
++    if (ParseFile(file_name, data, MPSReaderForm::FIXED).ok()) {
+       return absl::OkStatus();
+     }
+-    return ParseFile(file_name, data, MPSReader::FREE);
++    return ParseFile(file_name, data, MPSReaderForm::FREE);
+   }
+ 
+-  free_form_ = form == MPSReader::FREE;
++  free_form_ = form == MPSReaderForm::FREE;
+   Reset();
+   DataWrapper<Data> data_wrapper(data);
+   data_wrapper.SetUp();
+@@ -553,15 +553,15 @@ absl::Status MPSReaderImpl::ParseFile(const std::string& file_name, Data* data,
+ template <class Data>
+ absl::Status MPSReaderImpl::ParseProblemFromString(const std::string& source,
+                                                    Data* data,
+-                                                   MPSReader::Form form) {
+-  if (form == MPSReader::AUTO_DETECT) {
+-    if (ParseProblemFromString(source, data, MPSReader::FIXED).ok()) {
++                                                   MPSReaderForm form) {
++  if (form == MPSReaderForm::AUTO_DETECT) {
++    if (ParseProblemFromString(source, data, MPSReaderForm::FIXED).ok()) {
+       return absl::OkStatus();
+     }
+-    return ParseProblemFromString(source, data, MPSReader::FREE);
++    return ParseProblemFromString(source, data, MPSReaderForm::FREE);
+   }
+ 
+-  free_form_ = form == MPSReader::FREE;
++  free_form_ = form == MPSReaderForm::FREE;
+   Reset();
+   DataWrapper<Data> data_wrapper(data);
+   data_wrapper.SetUp();
+@@ -1167,12 +1167,12 @@ absl::Status MPSReaderImpl::AppendLineToError(const absl::Status& status) {
+ 
+ // Parses instance from a file.
+ absl::Status MPSReader::ParseFile(const std::string& file_name,
+-                                  LinearProgram* data, Form form) {
++                                  LinearProgram* data, MPSReaderForm form) {
+   return MPSReaderImpl().ParseFile(file_name, data, form);
+ }
+ 
+ absl::Status MPSReader::ParseFile(const std::string& file_name,
+-                                  MPModelProto* data, Form form) {
++                                  MPModelProto* data, MPSReaderForm form) {
+   return MPSReaderImpl().ParseFile(file_name, data, form);
+ }
+ 
+@@ -1180,13 +1180,13 @@ absl::Status MPSReader::ParseFile(const std::string& file_name,
+ // the file's format (free or fixed).
+ absl::Status MPSReader::ParseProblemFromString(const std::string& source,
+                                                LinearProgram* data,
+-                                               MPSReader::Form form) {
++                                               MPSReaderForm form) {
+   return MPSReaderImpl().ParseProblemFromString(source, data, form);
+ }
+ 
+ absl::Status MPSReader::ParseProblemFromString(const std::string& source,
+                                                MPModelProto* data,
+-                                               MPSReader::Form form) {
++                                               MPSReaderForm form) {
+   return MPSReaderImpl().ParseProblemFromString(source, data, form);
+ }
+ 
+@@ -1194,7 +1194,7 @@ absl::StatusOr<MPModelProto> MpsDataToMPModelProto(
+     const std::string& mps_data) {
+   MPModelProto model;
+   RETURN_IF_ERROR(MPSReaderImpl().ParseProblemFromString(
+-      mps_data, &model, MPSReader::AUTO_DETECT));
++      mps_data, &model, MPSReaderForm::AUTO_DETECT));
+   return model;
+ }
+ 
+@@ -1202,7 +1202,7 @@ absl::StatusOr<MPModelProto> MpsFileToMPModelProto(
+     const std::string& mps_file) {
+   MPModelProto model;
+   RETURN_IF_ERROR(
+-      MPSReaderImpl().ParseFile(mps_file, &model, MPSReader::AUTO_DETECT));
++      MPSReaderImpl().ParseFile(mps_file, &model, MPSReaderForm::AUTO_DETECT));
+   return model;
+ }
+ 
+diff --git a/ortools/lp_data/mps_reader.h b/ortools/lp_data/mps_reader.h
+index 33af74971e..202fdb42fb 100644
+--- a/ortools/lp_data/mps_reader.h
++++ b/ortools/lp_data/mps_reader.h
+@@ -55,6 +55,8 @@ absl::StatusOr<MPModelProto> MpsDataToMPModelProto(const std::string& mps_data);
+ // Parses an MPS model from a file.
+ absl::StatusOr<MPModelProto> MpsFileToMPModelProto(const std::string& mps_file);
+ 
++enum MPSReaderForm { AUTO_DETECT, FREE, FIXED };
++
+ // Implementation class. Please use the 2 functions above.
+ //
+ // Reads a linear program in the mps format.
+@@ -65,22 +67,20 @@ absl::StatusOr<MPModelProto> MpsFileToMPModelProto(const std::string& mps_file);
+ // TODO(user): Remove the MPSReader class.
+ class ABSL_DEPRECATED("Use the direct methods instead") MPSReader {
+  public:
+-  enum Form { AUTO_DETECT, FREE, FIXED };
+-
+   // Parses instance from a file.
+   absl::Status ParseFile(const std::string& file_name, LinearProgram* data,
+-                         Form form = AUTO_DETECT);
++                         MPSReaderForm form = AUTO_DETECT);
+ 
+   absl::Status ParseFile(const std::string& file_name, MPModelProto* data,
+-                         Form form = AUTO_DETECT);
++                         MPSReaderForm form = AUTO_DETECT);
+   // Loads instance from string. Useful with MapReduce. Automatically detects
+   // the file's format (free or fixed).
+   absl::Status ParseProblemFromString(const std::string& source,
+                                       LinearProgram* data,
+-                                      MPSReader::Form form = AUTO_DETECT);
++                                      MPSReaderForm form = AUTO_DETECT);
+   absl::Status ParseProblemFromString(const std::string& source,
+                                       MPModelProto* data,
+-                                      MPSReader::Form form = AUTO_DETECT);
++                                      MPSReaderForm form = AUTO_DETECT);
+ };
+ 
+ }  // namespace glop
+diff --git a/ortools/pdlp/iteration_stats.h b/ortools/pdlp/iteration_stats.h
+index 8e85f04172..0fb6291eba 100644
+--- a/ortools/pdlp/iteration_stats.h
++++ b/ortools/pdlp/iteration_stats.h
+@@ -11,6 +11,8 @@
+ // See the License for the specific language governing permissions and
+ // limitations under the License.
+ 
++#if defined(USE_PDLP)
++
+ #ifndef PDLP_ITERATION_STATS_H_
+ #define PDLP_ITERATION_STATS_H_
+ 
+@@ -114,3 +116,5 @@ void SetRandomProjections(const ShardedQuadraticProgram& sharded_qp,
+ }  // namespace operations_research::pdlp
+ 
+ #endif  // PDLP_ITERATION_STATS_H_
++
++#endif  //  #if defined(USE_PDLP)
+diff --git a/ortools/pdlp/primal_dual_hybrid_gradient.h b/ortools/pdlp/primal_dual_hybrid_gradient.h
+index d5d38c1c5a..c68cfd76c2 100644
+--- a/ortools/pdlp/primal_dual_hybrid_gradient.h
++++ b/ortools/pdlp/primal_dual_hybrid_gradient.h
+@@ -10,6 +10,7 @@
+ // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ // See the License for the specific language governing permissions and
+ // limitations under the License.
++#if defined(USE_PDLP)
+ 
+ #ifndef PDLP_PRIMAL_DUAL_HYBRID_GRADIENT_H_
+ #define PDLP_PRIMAL_DUAL_HYBRID_GRADIENT_H_
+@@ -148,3 +149,5 @@ glop::ProblemSolution ComputeStatuses(const QuadraticProgram& qp,
+ }  // namespace operations_research::pdlp
+ 
+ #endif  // PDLP_PRIMAL_DUAL_HYBRID_GRADIENT_H_
++
++#endif  //  #if defined(USE_PDLP)
+diff --git a/ortools/pdlp/quadratic_program.h b/ortools/pdlp/quadratic_program.h
+index a88e1eabc8..05d41df5b2 100644
+--- a/ortools/pdlp/quadratic_program.h
++++ b/ortools/pdlp/quadratic_program.h
+@@ -10,6 +10,7 @@
+ // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ // See the License for the specific language governing permissions and
+ // limitations under the License.
++#if defined(USE_PDLP)
+ 
+ #ifndef PDLP_QUADRATIC_PROGRAM_H_
+ #define PDLP_QUADRATIC_PROGRAM_H_
+@@ -214,3 +215,5 @@ void CombineRepeatedTripletsInPlace(
+ }  // namespace operations_research::pdlp
+ 
+ #endif  // PDLP_QUADRATIC_PROGRAM_H_
++
++#endif  //  #if defined(USE_PDLP)
+diff --git a/ortools/sat/cp_model_utils.cc b/ortools/sat/cp_model_utils.cc
+index 194a486253..4bca1c61e9 100644
+--- a/ortools/sat/cp_model_utils.cc
++++ b/ortools/sat/cp_model_utils.cc
+@@ -439,6 +439,7 @@ std::string ConstraintCaseName(
+     case ConstraintProto::ConstraintCase::CONSTRAINT_NOT_SET:
+       return "kEmpty";
+   }
++  throw std::logic_error("Unhandled ConstraintCase enum value");
+ }
+ 
+ std::vector<int> UsedVariables(const ConstraintProto& ct) {
+diff --git a/ortools/sat/linear_programming_constraint.cc b/ortools/sat/linear_programming_constraint.cc
+index 532d16caf4..d7084f1244 100644
+--- a/ortools/sat/linear_programming_constraint.cc
++++ b/ortools/sat/linear_programming_constraint.cc
+@@ -2616,7 +2616,8 @@ LinearProgrammingConstraint::HeuristicLpReducedCostBinary(Model* model) {
+   std::vector<int> num_cost_to_zero(num_vars);
+   int num_calls = 0;
+ 
+-  return [=]() mutable {
++  return [this, &num_calls, &num_vars, &cost_to_zero, &num_cost_to_zero,
++          &variables]() mutable {
+     const double kEpsilon = 1e-6;
+ 
+     // Every 10000 calls, decay pseudocosts.
+-- 
+2.41.0
+
