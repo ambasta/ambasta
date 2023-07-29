@@ -63,8 +63,7 @@ CHECKREQS_DISK_BUILD="22G"
 
 PATCHES=(
 	"${FILESDIR}/${PN}-gcc-13.patch"
-	"${FILESDIR}"/"${PN}-20.3.0-gcc14.patch"
-	"${FILESDIR}"/"${PN}-20.3.0-simdutf-2.3.14.patch"
+	"${FILESDIR}"/"${PN}"-20.3.0-gcc14.patch
 )
 
 pkg_pretend() {
@@ -232,12 +231,8 @@ src_install() {
 			\) \) -exec rm -rf "{}" \;
 	fi
 
-	if use corepack; then
-		dosym "../$(get_libdir)/node_modules/corepack/dist/pnpm.js" "/usr/bin/pnpm"
-		dosym "../$(get_libdir)/node_modules/corepack/dist/pnpx.js" "/usr/bin/pnpx"
-		dosym "../$(get_libdir)/node_modules/corepack/dist/yarn.js" "/usr/bin/yarn"
-		dosym "../$(get_libdir)/node_modules/corepack/dist/yarnpkg.js" "/usr/bin/yarnpkg"
-	fi
+	use corepack &&
+		"${D}"/usr/bin/corepack enable --install-directory "${D}"/usr/bin
 
 	mv "${ED}"/usr/share/doc/node "${ED}"/usr/share/doc/${PF} || die
 }
