@@ -1047,7 +1047,7 @@ src_configure() {
 		mozconfig_add_options_ac 'valgrind requirement' --disable-jemalloc
 	fi
 
-	if ! tc-ld-is-mold ; then
+	if ! tc-ld-is-mold || ! use clang; then
 		# Allow elfhack to work in combination with unstripped binaries
 		# when they would normally be larger than 2GiB.
 		append-ldflags "-Wl,--compress-debug-sections=zlib"
