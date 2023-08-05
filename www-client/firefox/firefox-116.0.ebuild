@@ -1064,6 +1064,8 @@ src_configure() {
 			einfo "Forcing -fno-tree-loop-vectorize to workaround GCC bug, see bug 758446 ..."
 			append-cxxflags -fno-tree-loop-vectorize
 		fi
+	elif use clang && tc-ld-is-mold ; then
+		mozconfig_add_options_ac 'elf-hack is needed when using Clang + mold' --enable-elf-hack
 	fi
 
 	if use elibc_musl && use arm64 ; then
