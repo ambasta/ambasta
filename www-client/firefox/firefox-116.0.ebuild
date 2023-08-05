@@ -796,7 +796,7 @@ src_configure() {
 	mozconfig_add_options_ac 'Gentoo default' \
 		--allow-addon-sideload \
 		--disable-cargo-incremental \
-		--disable-crashreporter \
+		--enable-crashreporter \
 		--disable-gpsd \
 		--disable-install-strip \
 		--disable-legacy-profile-creation \
