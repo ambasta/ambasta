@@ -4,7 +4,7 @@
 EAPI=8
 
 PYTHON_COMPAT=( python3_{10,11,12} )
-LLVM_MAX_SLOT=15
+LLVM_MAX_SLOT=16
 
 inherit flag-o-matic linux-info llvm pam python-single-r1 systemd tmpfiles
 
