@@ -9,7 +9,9 @@ GIT_COMMIT_SHORT=${GIT_COMMIT:0:9}
 DESCRIPTION="Single Node Kubernetes Cluster"
 HOMEPAGE="https://github.com/kubernetes/minikube https://kubernetes.io"
 
-SRC_URI="https://github.com/kubernetes/minikube/archive/refs/tags/v${PV}.tar.gz -> ${P}.tar.gz"
+EGO_PN="github.com/kubernetes/${PN}"
+SRC_URI="https://github.com/ambasta/${PN}-vendor/raw/main/${P}-vendor.tar.xz
+	https://github.com/kubernetes/${PN}/archive/refs/tags/v${PV}.tar.gz -> ${P}.tar.gz"
 
 LICENSE="Apache-2.0 BSD BSD-2 CC-BY-4.0 CC-BY-SA-4.0 CC0-1.0 GPL-2 ISC LGPL-3 MIT MPL-2.0 WTFPL-2 ZLIB || ( LGPL-3+ GPL-2 ) || ( Apache-2.0 LGPL-3+ ) || ( Apache-2.0 CC-BY-4.0 )"
 SLOT="0"
