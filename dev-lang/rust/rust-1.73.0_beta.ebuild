@@ -12,7 +12,8 @@ if [[ ${PV} = *beta* ]]; then
 	betaver=${PV//*beta}
 	BETA_SNAPSHOT="${betaver:0:4}-${betaver:4:2}-${betaver:6:2}"
 	MY_P="rustc-beta"
-	SLOT="beta/${PV}"
+	ABI_VER="$(ver_cut 1-2 | ver_rs 3 -)"
+	SLOT="stable/${ABI_VER}"
 	SRC="rustc-beta-src.tar.xz -> rustc-${PV}-src.tar.xz"
 	KEYWORDS="~amd64"
 else
