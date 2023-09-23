@@ -14,6 +14,7 @@ if [[ ${PV} = *beta* ]]; then
 	MY_P="rustc-beta"
 	SLOT="beta/${PV}"
 	SRC="rustc-beta-src.tar.xz -> rustc-${PV}-src.tar.xz"
+	KEYWORDS="~amd64"
 else
 	ABI_VER="$(ver_cut 1-2)"
 	SLOT="stable/${ABI_VER}"
