@@ -652,10 +652,6 @@ src_unpack() {
 }
 
 src_prepare() {
-	if use lto; then
-		rm -v "${WORKDIR}"/firefox-patches/*-LTO-Only-enable-LTO-*.patch || die
-	fi
-
 	if ! use ppc64; then
 		rm -v "${WORKDIR}"/firefox-patches/*ppc64*.patch || die
 	fi
