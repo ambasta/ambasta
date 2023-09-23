@@ -13,13 +13,13 @@ if [[ ${PV} = *beta* ]]; then
 	BETA_SNAPSHOT="${betaver:0:4}-${betaver:4:2}-${betaver:6:2}"
 	MY_P="rustc-beta"
 	SLOT="beta/${PV}"
-	SRC="${BETA_SNAPSHOT}/rustc-beta-src.tar.xz -> rustc-${PV}-src.tar.xz"
+	SRC="rustc-beta-src.tar.xz -> rustc-${PV}-src.tar.xz"
 else
 	ABI_VER="$(ver_cut 1-2)"
 	SLOT="stable/${ABI_VER}"
 	MY_P="rustc-${PV}"
 	SRC="${MY_P}-src.tar.xz"
-	KEYWORDS="~amd64 ~arm ~arm64 ~loong ~mips ~ppc ~ppc64 ~riscv ~sparc ~x86"
+	KEYWORDS="~amd64"
 fi
 
 RUST_STAGE0_VERSION="1.$(($(ver_cut 2) - 1)).1"
@@ -34,8 +34,7 @@ SRC_URI="
 "
 
 # keep in sync with llvm ebuild of the same version as bundled one.
-ALL_LLVM_TARGETS=( AArch64 AMDGPU ARM AVR BPF Hexagon Lanai LoongArch Mips MSP430
-	NVPTX PowerPC RISCV Sparc SystemZ VE WebAssembly X86 XCore )
+ALL_LLVM_TARGETS=( AMDGPU WebAssembly X86 )
 ALL_LLVM_TARGETS=( "${ALL_LLVM_TARGETS[@]/#/llvm_targets_}" )
 LLVM_TARGET_USEDEPS=${ALL_LLVM_TARGETS[@]/%/(-)?}
 
