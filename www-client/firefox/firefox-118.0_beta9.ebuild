@@ -652,10 +652,6 @@ src_unpack() {
 }
 
 src_prepare() {
-	if ! use ppc64; then
-		rm -v "${WORKDIR}"/firefox-patches/*ppc64*.patch || die
-	fi
-
 	eapply "${WORKDIR}/firefox-patches"
 
 	# Allow user to apply any additional patches without modifing ebuild
