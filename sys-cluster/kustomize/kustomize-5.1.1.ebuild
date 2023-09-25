@@ -18,15 +18,21 @@ DEPEND=""
 RDEPEND="${DEPEND}"
 BDEPEND=""
 
-S="${WORKDIR}/${PN}-${PN}-v${PV}/${PN}"
+S="${WORKDIR}/${PN}-${PN}-v${PV}"
 
 # Non-fatal verify since ziphash for sub-project is missing
 NONFATAL_VERIFY=1
 
 src_compile() {
-	ego build
+	# ego build
+	CGO_LDFLAGS="" emake -j1 GOFLAGS="" GOLDFLAGS="" LDFLAGS="" WHAT=${PN}
 }
 
 src_install() {
 	dobin ${PN}
+	_output/bin/${PN} completion bash > ${PN}.bash || die
+	_output/bin/${PN} completion zsh > ${PN}.zsh || die
+	newbashcomp ${PN}.bash ${PN}
+	insinto /usr/share/zsh/site-functions
+	newins ${PN}.zsh _${PN}
 }
