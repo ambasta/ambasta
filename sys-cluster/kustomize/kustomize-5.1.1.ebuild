@@ -19,40 +19,9 @@ RDEPEND="${DEPEND}"
 BDEPEND=""
 
 S="${WORKDIR}/${PN}-${PN}-v${PV}/${PN}"
-NONFATAL_VERIFY=1
 
-# src_unpack() {
-# 	if use amd64 || use arm || use arm64 ||
-# 		( use ppc64 && [[ $(tc-endian) == "little" ]] ) || use s390 || use x86; then
-# 			GOFLAGS="-buildmode=pie ${GOFLAGS}"
-# 	fi
-# 	GOFLAGS="${GOFLAGS} -p=$(makeopts_jobs)"
-# 	if [[ "${#EGO_SUM[@]}" -gt 0 ]]; then
-# 		eqawarn "This ebuild uses EGO_SUM which is deprecated"
-# 		eqawarn "Please migrate to a dependency tarball"
-# 		eqawarn "This will become a fatal error in the future"
-# 		_go-module_src_unpack_gosum
-# 	elif [[ "${#EGO_VENDOR[@]}" -gt 0 ]]; then
-# 		eerror "${EBUILD} is using EGO_VENDOR which is no longer supported"
-# 		die "Please update this ebuild"
-# 	else
-# 		default
-# 		if [[ ! -d "${S}"/vendor ]]; then
-# 			cd "${S}"
-# 			local nf
-# 			[[ -n ${NONFATAL_VERIFY} ]] && nf=nonfatal
-# 		fi
-# 	fi
-# }
-#
-# src_compile() {
-# 	GOBIN="${S}/bin" emake ${PN}
-# }
-#
-# src_install() {
-# 	dobin build/${PN}
-# 	default
-# }
+# Non-fatal verify since ziphash for sub-project is missing
+NONFATAL_VERIFY=1
 
 src_compile() {
 	ego build
