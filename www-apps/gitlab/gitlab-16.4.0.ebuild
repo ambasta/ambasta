@@ -47,7 +47,7 @@ GEMS_DEPEND="
 	dev-libs/libxslt
 	dev-util/ragel
 	dev-libs/yajl
-	dev-db/postgresql:13
+	dev-db/postgresql
 	net-libs/http-parser
 	dev-python/docutils"
 
