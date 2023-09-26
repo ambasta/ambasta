@@ -37,8 +37,8 @@ icu? ( dev-libs/icu:= )
 kerberos? ( virtual/krb5 )
 ldap? ( net-nds/openldap:= )
 llvm? (
-	<sys-devel/llvm-17:=
-	<sys-devel/clang-17:=
+	sys-devel/llvm
+	sys-devel/clang
 )
 lz4? ( app-arch/lz4 )
 pam? ( sys-libs/pam )
