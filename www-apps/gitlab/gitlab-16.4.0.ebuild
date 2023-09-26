@@ -67,7 +67,7 @@ DEPEND="
 	acct-user/git[gitlab]
 	acct-group/git
 	>=net-libs/nodejs-18.17.0
-	>=dev-lang/ruby-3.0.5:3.0[ssl]
+	>=dev-lang/ruby-3.0.5:3.1[ssl]
 	>=dev-vcs/gitlab-shell-14.28.0[relative_url=]
 	pages? (
 		~www-apps/gitlab-pages-${PV}
