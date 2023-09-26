@@ -84,6 +84,10 @@ RDEPEND="${CDEPEND}
 selinux? ( sec-policy/selinux-postgresql )
 "
 
+PATCHES=(
+	"${FILESDIR}/${PN}-16-llvm-16.patch"
+)
+
 pkg_setup() {
 	use llvm && llvm_pkg_setup
 
