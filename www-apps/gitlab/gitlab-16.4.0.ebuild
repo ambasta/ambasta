@@ -78,7 +78,10 @@ DEPEND="
 	)
 	net-misc/curl
 	virtual/ssh
-	=sys-apps/yarn-1.22*
+	|| (
+		sys-apps/yarn
+		net-libs/nodejs[corepack]
+	)
 	dev-libs/re2"
 
 RDEPEND="${DEPEND}
