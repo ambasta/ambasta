@@ -4,7 +4,7 @@
 EAPI=8
 
 PYTHON_COMPAT=( python3_{10,11,12} )
-LLVM_MAX_SLOT=16
+LLVM_MAX_SLOT=17
 
 inherit flag-o-matic linux-info llvm pam python-single-r1 systemd tmpfiles
 
@@ -229,9 +229,7 @@ src_install() {
 
 	# Don't delete libpg{port,common}.a (Bug #571046). They're always
 	# needed by extensions utilizing PGXS.
-	use static-libs || \
-		find "${ED}" -name '*.a' ! -name libpgport.a ! -name libpgcommon.a \
-			 -delete
+	use static-libs || find "${ED}" -name '*.a' ! -name libpgport.a ! -name libpgcommon.a -delete
 
 	# Make slot specific links to programs
 	local f bn
