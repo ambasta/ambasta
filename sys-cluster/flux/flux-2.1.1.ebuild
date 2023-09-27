@@ -20,6 +20,10 @@ BDEPEND=">=dev-lang/go-1.19"
 RESTRICT+=" test"
 S="${WORKDIR}/flux2-${PV}"
 
+PATCHES=(
+	"$FILESDIR/flux-2.1.1-bootstrap-gitea.patch"
+)
+
 src_compile() {
 	mv "${WORKDIR}"/manifests cmd/"${PN}" || die
 	CGO_LDFLAGS="$(usex hardened '-fno-PIC ' '')" \

@@ -1,0 +1,403 @@
+From e4d7a88e484f652d639fbc6744bc0f073521359d Mon Sep 17 00:00:00 2001
+From: Jabar Asadi <jasadi@d2iq.com>
+Date: Wed, 20 Sep 2023 23:25:37 +0200
+Subject: [PATCH] feat: add gitea bootstrapper
+
+Signed-off-by: Jabar Asadi <jasadi@d2iq.com>
+
+chore(gomod/sum): updated dependencies
+
+Signed-off-by: Amit Prakash Ambasta <amit.prakash.ambasta@gmail.com>
+---
+ cmd/flux/bootstrap_gitea.go        | 275 +++++++++++++++++++++++++++++
+ go.mod                             |   2 +
+ go.sum                             |   7 +
+ pkg/bootstrap/provider/factory.go  |  12 ++
+ pkg/bootstrap/provider/provider.go |   1 +
+ 5 files changed, 297 insertions(+)
+ create mode 100644 cmd/flux/bootstrap_gitea.go
+
+diff --git a/cmd/flux/bootstrap_gitea.go b/cmd/flux/bootstrap_gitea.go
+new file mode 100644
+index 0000000..37d53c9
+--- /dev/null
++++ b/cmd/flux/bootstrap_gitea.go
+@@ -0,0 +1,275 @@
++/*
++Copyright 2023 The Flux authors
++
++Licensed under the Apache License, Version 2.0 (the "License");
++you may not use this file except in compliance with the License.
++You may obtain a copy of the License at
++
++    http://www.apache.org/licenses/LICENSE-2.0
++
++Unless required by applicable law or agreed to in writing, software
++distributed under the License is distributed on an "AS IS" BASIS,
++WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++See the License for the specific language governing permissions and
++limitations under the License.
++*/
++
++package main
++
++import (
++	"context"
++	"fmt"
++	"os"
++	"time"
++
++	"github.com/fluxcd/pkg/git"
++	"github.com/fluxcd/pkg/git/gogit"
++	"github.com/spf13/cobra"
++
++	"github.com/fluxcd/flux2/v2/internal/flags"
++	"github.com/fluxcd/flux2/v2/internal/utils"
++	"github.com/fluxcd/flux2/v2/pkg/bootstrap"
++	"github.com/fluxcd/flux2/v2/pkg/bootstrap/provider"
++	"github.com/fluxcd/flux2/v2/pkg/manifestgen"
++	"github.com/fluxcd/flux2/v2/pkg/manifestgen/install"
++	"github.com/fluxcd/flux2/v2/pkg/manifestgen/sourcesecret"
++	"github.com/fluxcd/flux2/v2/pkg/manifestgen/sync"
++)
++
++var bootstrapGiteaCmd = &cobra.Command{
++	Use:   "gitea",
++	Short: "Deploy Flux on a cluster connected to a Gitea repository",
++	Long: `The bootstrap gitea command creates the Gitea repository if it doesn't exists and
++commits the Flux manifests to the specified branch.
++Then it configures the target cluster to synchronize with that repository.
++If the Flux components are present on the cluster,
++the bootstrap command will perform an upgrade if needed.`,
++	Example: `  # Create a Gitea personal access token and export it as an env var
++  export GITEA_TOKEN=<my-token>
++
++  # Run bootstrap for a private repository owned by a Gitea organization
++  flux bootstrap gitea --owner=<organization> --repository=<repository name> --path=clusters/my-cluster
++
++  # Run bootstrap for a private repository and assign organization teams to it
++  flux bootstrap gitea --owner=<organization> --repository=<repository name> --team=<team1 slug> --team=<team2 slug> --path=clusters/my-cluster
++
++  # Run bootstrap for a private repository and assign organization teams with their access level(e.g maintain, admin) to it
++  flux bootstrap gitea --owner=<organization> --repository=<repository name> --team=<team1 slug>:<access-level> --path=clusters/my-cluster
++
++  # Run bootstrap for a public repository on a personal account
++  flux bootstrap gitea --owner=<user> --repository=<repository name> --private=false --personal=true --path=clusters/my-cluster
++
++  # Run bootstrap for a private repository hosted on Gitea Enterprise using SSH auth
++  flux bootstrap gitea --owner=<organization> --repository=<repository name> --hostname=<domain> --ssh-hostname=<domain> --path=clusters/my-cluster
++
++  # Run bootstrap for a private repository hosted on Gitea Enterprise using HTTPS auth
++  flux bootstrap gitea --owner=<organization> --repository=<repository name> --hostname=<domain> --token-auth --path=clusters/my-cluster
++
++  # Run bootstrap for an existing repository with a branch named main
++  flux bootstrap gitea --owner=<organization> --repository=<repository name> --branch=main --path=clusters/my-cluster`,
++	RunE: bootstrapGiteaCmdRun,
++}
++
++type giteaFlags struct {
++	owner        string
++	repository   string
++	interval     time.Duration
++	personal     bool
++	private      bool
++	hostname     string
++	path         flags.SafeRelativePath
++	teams        []string
++	readWriteKey bool
++	reconcile    bool
++}
++
++const (
++	gtDefaultPermission = "maintain"
++	gtDefaultDomain     = "gitea.com"
++	gtTokenEnvVar       = "GITEA_TOKEN"
++)
++
++var giteaArgs giteaFlags
++
++func init() {
++	bootstrapGiteaCmd.Flags().StringVar(&giteaArgs.owner, "owner", "", "Gitea user or organization name")
++	bootstrapGiteaCmd.Flags().StringVar(&giteaArgs.repository, "repository", "", "Gitea repository name")
++	bootstrapGiteaCmd.Flags().StringSliceVar(&giteaArgs.teams, "team", []string{}, "Gitea team and the access to be given to it(team:maintain). Defaults to maintainer access if no access level is specified (also accepts comma-separated values)")
++	bootstrapGiteaCmd.Flags().BoolVar(&giteaArgs.personal, "personal", false, "if true, the owner is assumed to be a Gitea user; otherwise an org")
++	bootstrapGiteaCmd.Flags().BoolVar(&giteaArgs.private, "private", true, "if true, the repository is setup or configured as private")
++	bootstrapGiteaCmd.Flags().DurationVar(&giteaArgs.interval, "interval", time.Minute, "sync interval")
++	bootstrapGiteaCmd.Flags().StringVar(&giteaArgs.hostname, "hostname", gtDefaultDomain, "Gitea hostname")
++	bootstrapGiteaCmd.Flags().Var(&giteaArgs.path, "path", "path relative to the repository root, when specified the cluster sync will be scoped to this path")
++	bootstrapGiteaCmd.Flags().BoolVar(&giteaArgs.readWriteKey, "read-write-key", false, "if true, the deploy key is configured with read/write permissions")
++	bootstrapGiteaCmd.Flags().BoolVar(&giteaArgs.reconcile, "reconcile", false, "if true, the configured options are also reconciled if the repository already exists")
++
++	bootstrapCmd.AddCommand(bootstrapGiteaCmd)
++}
++
++func bootstrapGiteaCmdRun(cmd *cobra.Command, args []string) error {
++	gtToken := os.Getenv(gtTokenEnvVar)
++	if gtToken == "" {
++		var err error
++		gtToken, err = readPasswordFromStdin("Please enter your Gitea personal access token (PAT): ")
++		if err != nil {
++			return fmt.Errorf("could not read token: %w", err)
++		}
++	}
++
++	if err := bootstrapValidate(); err != nil {
++		return err
++	}
++
++	ctx, cancel := context.WithTimeout(context.Background(), rootArgs.timeout)
++	defer cancel()
++
++	kubeClient, err := utils.KubeClient(kubeconfigArgs, kubeclientOptions)
++	if err != nil {
++		return err
++	}
++
++	// Manifest base
++	if ver, err := getVersion(bootstrapArgs.version); err != nil {
++		return err
++	} else {
++		bootstrapArgs.version = ver
++	}
++	manifestsBase, err := buildEmbeddedManifestBase()
++	if err != nil {
++		return err
++	}
++	defer os.RemoveAll(manifestsBase)
++
++	var caBundle []byte
++	if bootstrapArgs.caFile != "" {
++		var err error
++		caBundle, err = os.ReadFile(bootstrapArgs.caFile)
++		if err != nil {
++			return fmt.Errorf("unable to read TLS CA file: %w", err)
++		}
++	}
++	// Build Gitea provider
++	providerCfg := provider.Config{
++		Provider: provider.GitProviderGitea,
++		Hostname: giteaArgs.hostname,
++		Token:    gtToken,
++		CaBundle: caBundle,
++	}
++	providerClient, err := provider.BuildGitProvider(providerCfg)
++	if err != nil {
++		return err
++	}
++
++	tmpDir, err := manifestgen.MkdirTempAbs("", "flux-bootstrap-")
++	if err != nil {
++		return fmt.Errorf("failed to create temporary working dir: %w", err)
++	}
++	defer os.RemoveAll(tmpDir)
++
++	clientOpts := []gogit.ClientOption{gogit.WithDiskStorage(), gogit.WithFallbackToDefaultKnownHosts()}
++	gitClient, err := gogit.NewClient(tmpDir, &git.AuthOptions{
++		Transport: git.HTTPS,
++		Username:  giteaArgs.owner,
++		Password:  gtToken,
++		CAFile:    caBundle,
++	}, clientOpts...)
++	if err != nil {
++		return fmt.Errorf("failed to create a Git client: %w", err)
++	}
++
++	// Install manifest config
++	installOptions := install.Options{
++		BaseURL:                rootArgs.defaults.BaseURL,
++		Version:                bootstrapArgs.version,
++		Namespace:              *kubeconfigArgs.Namespace,
++		Components:             bootstrapComponents(),
++		Registry:               bootstrapArgs.registry,
++		ImagePullSecret:        bootstrapArgs.imagePullSecret,
++		WatchAllNamespaces:     bootstrapArgs.watchAllNamespaces,
++		NetworkPolicy:          bootstrapArgs.networkPolicy,
++		LogLevel:               bootstrapArgs.logLevel.String(),
++		NotificationController: rootArgs.defaults.NotificationController,
++		ManifestFile:           rootArgs.defaults.ManifestFile,
++		Timeout:                rootArgs.timeout,
++		TargetPath:             giteaArgs.path.ToSlash(),
++		ClusterDomain:          bootstrapArgs.clusterDomain,
++		TolerationKeys:         bootstrapArgs.tolerationKeys,
++	}
++	if customBaseURL := bootstrapArgs.manifestsPath; customBaseURL != "" {
++		installOptions.BaseURL = customBaseURL
++	}
++
++	// Source generation and secret config
++	secretOpts := sourcesecret.Options{
++		Name:         bootstrapArgs.secretName,
++		Namespace:    *kubeconfigArgs.Namespace,
++		TargetPath:   giteaArgs.path.ToSlash(),
++		ManifestFile: sourcesecret.MakeDefaultOptions().ManifestFile,
++	}
++	if bootstrapArgs.tokenAuth {
++		secretOpts.Username = "git"
++		secretOpts.Password = gtToken
++		secretOpts.CAFile = caBundle
++	} else {
++		secretOpts.PrivateKeyAlgorithm = sourcesecret.PrivateKeyAlgorithm(bootstrapArgs.keyAlgorithm)
++		secretOpts.RSAKeyBits = int(bootstrapArgs.keyRSABits)
++		secretOpts.ECDSACurve = bootstrapArgs.keyECDSACurve.Curve
++
++		secretOpts.SSHHostname = giteaArgs.hostname
++		if bootstrapArgs.sshHostname != "" {
++			secretOpts.SSHHostname = bootstrapArgs.sshHostname
++		}
++	}
++
++	// Sync manifest config
++	syncOpts := sync.Options{
++		Interval:          giteaArgs.interval,
++		Name:              *kubeconfigArgs.Namespace,
++		Namespace:         *kubeconfigArgs.Namespace,
++		Branch:            bootstrapArgs.branch,
++		Secret:            bootstrapArgs.secretName,
++		TargetPath:        giteaArgs.path.ToSlash(),
++		ManifestFile:      sync.MakeDefaultOptions().ManifestFile,
++		RecurseSubmodules: bootstrapArgs.recurseSubmodules,
++	}
++
++	entityList, err := bootstrap.LoadEntityListFromPath(bootstrapArgs.gpgKeyRingPath)
++	if err != nil {
++		return err
++	}
++
++	// Bootstrap config
++	bootstrapOpts := []bootstrap.GitProviderOption{
++		bootstrap.WithProviderRepository(giteaArgs.owner, giteaArgs.repository, giteaArgs.personal),
++		bootstrap.WithBranch(bootstrapArgs.branch),
++		bootstrap.WithBootstrapTransportType("https"),
++		bootstrap.WithSignature(bootstrapArgs.authorName, bootstrapArgs.authorEmail),
++		bootstrap.WithCommitMessageAppendix(bootstrapArgs.commitMessageAppendix),
++		bootstrap.WithProviderTeamPermissions(mapTeamSlice(giteaArgs.teams, gtDefaultPermission)),
++		bootstrap.WithReadWriteKeyPermissions(giteaArgs.readWriteKey),
++		bootstrap.WithKubeconfig(kubeconfigArgs, kubeclientOptions),
++		bootstrap.WithLogger(logger),
++		bootstrap.WithGitCommitSigning(entityList, bootstrapArgs.gpgPassphrase, bootstrapArgs.gpgKeyID),
++	}
++	if bootstrapArgs.sshHostname != "" {
++		bootstrapOpts = append(bootstrapOpts, bootstrap.WithSSHHostname(bootstrapArgs.sshHostname))
++	}
++	if bootstrapArgs.tokenAuth {
++		bootstrapOpts = append(bootstrapOpts, bootstrap.WithSyncTransportType("https"))
++	}
++	if !giteaArgs.private {
++		bootstrapOpts = append(bootstrapOpts, bootstrap.WithProviderRepositoryConfig("", "", "public"))
++	}
++	if giteaArgs.reconcile {
++		bootstrapOpts = append(bootstrapOpts, bootstrap.WithReconcile())
++	}
++
++	// Setup bootstrapper with constructed configs
++	b, err := bootstrap.NewGitProviderBootstrapper(gitClient, providerClient, kubeClient, bootstrapOpts...)
++	if err != nil {
++		return err
++	}
++
++	// Run
++	return bootstrap.Run(ctx, b, manifestsBase, installOptions, secretOpts, syncOpts, rootArgs.pollInterval, rootArgs.timeout)
++}
+diff --git a/go.mod b/go.mod
+index fcc6ae6..ef03b4f 100644
+--- a/go.mod
++++ b/go.mod
+@@ -62,6 +62,7 @@ require (
+ )
+ 
+ require (
++	code.gitea.io/sdk/gitea v0.15.1 // indirect
+ 	dario.cat/mergo v1.0.0 // indirect
+ 	github.com/Azure/azure-sdk-for-go/sdk/azcore v1.7.1 // indirect
+ 	github.com/Azure/azure-sdk-for-go/sdk/azidentity v1.3.1 // indirect
+@@ -140,6 +141,7 @@ require (
+ 	github.com/hashicorp/errwrap v1.1.0 // indirect
+ 	github.com/hashicorp/go-multierror v1.1.1 // indirect
+ 	github.com/hashicorp/go-retryablehttp v0.7.4 // indirect
++	github.com/hashicorp/go-version v1.2.1 // indirect
+ 	github.com/hashicorp/golang-lru/arc/v2 v2.0.5 // indirect
+ 	github.com/hashicorp/golang-lru/v2 v2.0.5 // indirect
+ 	github.com/imdario/mergo v0.3.15 // indirect
+diff --git a/go.sum b/go.sum
+index c16b159..2174d0c 100644
+--- a/go.sum
++++ b/go.sum
+@@ -1,5 +1,8 @@
+ cloud.google.com/go v0.26.0/go.mod h1:aQUYkXzVsufM+DwF1aE+0xfcU+56JwCaLick0ClmMTw=
+ cloud.google.com/go v0.34.0/go.mod h1:aQUYkXzVsufM+DwF1aE+0xfcU+56JwCaLick0ClmMTw=
++code.gitea.io/gitea-vet v0.2.1/go.mod h1:zcNbT/aJEmivCAhfmkHOlT645KNOf9W2KnkLgFjGGfE=
++code.gitea.io/sdk/gitea v0.15.1 h1:WJreC7YYuxbn0UDaPuWIe/mtiNKTvLN8MLkaw71yx/M=
++code.gitea.io/sdk/gitea v0.15.1/go.mod h1:klY2LVI3s3NChzIk/MzMn7G1FHrfU7qd63iSMVoHRBA=
+ dario.cat/mergo v1.0.0 h1:AGCNq9Evsj31mOgNPcLyXc+4PNABt905YmuqPYYpBWk=
+ dario.cat/mergo v1.0.0/go.mod h1:uNxQE+84aUszobStD9th8a29P2fMDhsBdgRYvZOxGmk=
+ github.com/AdaLogics/go-fuzz-headers v0.0.0-20230106234847-43070de90fa1 h1:EKPd1INOIyr5hWOWhvpmQpY6tKjeG0hT1s3AMC/9fic=
+@@ -302,6 +305,8 @@ github.com/hashicorp/go-multierror v1.1.1 h1:H5DkEtf6CXdFp0N0Em5UCwQpXMWke8IA0+l
+ github.com/hashicorp/go-multierror v1.1.1/go.mod h1:iw975J/qwKPdAO1clOe2L8331t/9/fmwbPZ6JB6eMoM=
+ github.com/hashicorp/go-retryablehttp v0.7.4 h1:ZQgVdpTdAL7WpMIwLzCfbalOcSUdkDZnpUv3/+BxzFA=
+ github.com/hashicorp/go-retryablehttp v0.7.4/go.mod h1:Jy/gPYAdjqffZ/yFGCFV2doI5wjtH1ewM9u8iYVjtX8=
++github.com/hashicorp/go-version v1.2.1 h1:zEfKbn2+PDgroKdiOzqiE8rsmLqU2uwi5PB5pBJ3TkI=
++github.com/hashicorp/go-version v1.2.1/go.mod h1:fltr4n8CU8Ke44wwGCBoEymUuxUHl09ZGVZPK5anwXA=
+ github.com/hashicorp/golang-lru/arc/v2 v2.0.5 h1:l2zaLDubNhW4XO3LnliVj0GXO3+/CGNJAg1dcN2Fpfw=
+ github.com/hashicorp/golang-lru/arc/v2 v2.0.5/go.mod h1:ny6zBSQZi2JxIeYcv7kt2sH2PXJtirBN7RDhRpxPkxU=
+ github.com/hashicorp/golang-lru/v2 v2.0.5 h1:wW7h1TG88eUIJ2i69gaE3uNVtEPIagzhGvHgwfx2Vm4=
+@@ -494,6 +499,7 @@ github.com/xeipuuv/gojsonreference v0.0.0-20180127040603-bd5ef7bd5415/go.mod h1:
+ github.com/xeipuuv/gojsonschema v1.2.0/go.mod h1:anYRn/JVcOK2ZgGU+IjEV4nwlhoK5sQluxsYJ78Id3Y=
+ github.com/xlab/treeprint v1.1.0 h1:G/1DjNkPpfZCFt9CSh6b5/nY4VimlbHF3Rh4obvtzDk=
+ github.com/xlab/treeprint v1.1.0/go.mod h1:gj5Gd3gPdKtR1ikdDK6fnFLdmIS0X30kTTuNd/WEJu0=
++github.com/yuin/goldmark v1.1.25/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
+ github.com/yuin/goldmark v1.1.27/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
+ github.com/yuin/goldmark v1.2.1/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
+ github.com/yuin/goldmark v1.4.13/go.mod h1:6yULJ656Px+3vBD8DxQVa3kxgyrAnzto9xy5taEt/CY=
+@@ -620,6 +626,7 @@ golang.org/x/tools v0.0.0-20190226205152-f727befe758c/go.mod h1:9Yl7xja0Znq3iFh3
+ golang.org/x/tools v0.0.0-20190311212946-11955173bddd/go.mod h1:LCzVGOaR6xXOjkQ3onu1FJEFr0SW1gC7cKk1uF8kGRs=
+ golang.org/x/tools v0.0.0-20190524140312-2c0ae7006135/go.mod h1:RgjU9mgBXZiqYHBnxXauZ1Gv1EHHAz9KjViQ78xBX0Q=
+ golang.org/x/tools v0.0.0-20191119224855-298f0cb1881e/go.mod h1:b+2E5dAYhXwXZwtnZ6UAqBI28+e2cm9otk0dWdXHAEo=
++golang.org/x/tools v0.0.0-20200325010219-a49f79bcc224/go.mod h1:Sl4aGygMT6LrqrWclx+PTx3U+LnKx/seiNR+3G19Ar8=
+ golang.org/x/tools v0.0.0-20200619180055-7c47624df98f/go.mod h1:EkVYQZoAsY45+roYkvgYkIh4xh/qjgUK9TdY2XT94GE=
+ golang.org/x/tools v0.0.0-20210106214847-113979e3529a/go.mod h1:emZCQorbCU4vsT4fOWvOPXz4eW1wZW4PmDk9uLelYpA=
+ golang.org/x/tools v0.1.12/go.mod h1:hNGJHUnrk76NpqgfD5Aqm5Crs+Hm0VOH/i9J2+nxYbc=
+diff --git a/pkg/bootstrap/provider/factory.go b/pkg/bootstrap/provider/factory.go
+index 575cb55..38f8349 100644
+--- a/pkg/bootstrap/provider/factory.go
++++ b/pkg/bootstrap/provider/factory.go
+@@ -19,6 +19,7 @@ package provider
+ import (
+ 	"fmt"
+ 
++	"github.com/fluxcd/go-git-providers/gitea"
+ 	"github.com/fluxcd/go-git-providers/github"
+ 	"github.com/fluxcd/go-git-providers/gitlab"
+ 	"github.com/fluxcd/go-git-providers/gitprovider"
+@@ -45,6 +46,17 @@ func BuildGitProvider(config Config) (gitprovider.Client, error) {
+ 		if client, err = github.NewClient(opts...); err != nil {
+ 			return nil, err
+ 		}
++	case GitProviderGitea:
++		opts := []gitprovider.ClientOption{}
++		if config.Hostname != "" {
++			opts = append(opts, gitprovider.WithDomain(config.Hostname))
++		}
++		if config.CaBundle != nil {
++			opts = append(opts, gitprovider.WithCustomCAPostChainTransportHook(config.CaBundle))
++		}
++		if client, err = gitea.NewClient(config.Token); err != nil {
++			return nil, err
++		}
+ 	case GitProviderGitLab:
+ 		opts := []gitprovider.ClientOption{
+ 			gitprovider.WithConditionalRequests(true),
+diff --git a/pkg/bootstrap/provider/provider.go b/pkg/bootstrap/provider/provider.go
+index 4d1f92a..f458184 100644
+--- a/pkg/bootstrap/provider/provider.go
++++ b/pkg/bootstrap/provider/provider.go
+@@ -21,6 +21,7 @@ type GitProvider string
+ 
+ const (
+ 	GitProviderGitHub GitProvider = "github"
++	GitProviderGitea  GitProvider = "gitea"
+ 	GitProviderGitLab GitProvider = "gitlab"
+ 	GitProviderStash  GitProvider = "stash"
+ )
+-- 
+2.42.0
+
