@@ -7,8 +7,8 @@ inherit bash-completion-r1 go-module
 DESCRIPTION="Flux is a tool for keeping Kubernetes clusters in sync"
 HOMEPAGE="https://fluxcd.io https://github.com/fluxcd/flux2"
 SRC_URI="https://github.com/fluxcd/flux2/archive/v${PV}.tar.gz -> ${P}.tar.gz"
-SRC_URI+=" https://github.com/ambasta/archive/${P}-deps.tar.xz"
-SRC_URI+=" https://github.com/ambasta/archive/${P}-manifests.tar.xz"
+SRC_URI+=" https://github.com/ambasta/flux2/releases/download/${PV}/${P}-deps.tar.xz"
+SRC_URI+=" https://github.com/ambasta/flux2/releases/download/${PV}/${P}-manifests.tar.xz"
 
 LICENSE="Apache-2.0 BSD BSD-2 ISC MIT MPL-2.0"
 SLOT="0"
