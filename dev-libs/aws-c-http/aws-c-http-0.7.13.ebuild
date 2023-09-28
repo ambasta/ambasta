@@ -16,8 +16,10 @@ KEYWORDS="~amd64"
 IUSE="ssl static-libs tests vsock"
 
 DEPEND="dev-libs/aws-c-common
+	dev-libs/aws-c-cal
 	dev-libs/aws-c-io
-	dev-libs/aws-c-compression"
+	dev-libs/aws-c-compression
+	dev-libs/s2n-tls"
 RDEPEND="${DEPEND}"
 BDEPEND=""
 
