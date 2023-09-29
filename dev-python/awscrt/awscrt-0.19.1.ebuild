@@ -3,12 +3,13 @@
 
 EAPI=8
 
+DISTUTILS_EXT=1
 DISTUTILS_USE_PEP517=setuptools
-PYTHON_COMPAT=( python3_11 )
+PYTHON_COMPAT=( python3_{10..12} )
 
 inherit distutils-r1 pypi
 
-DESCRIPTION=""
+DESCRIPTION="Python bindings for the AWS Common Runtime"
 HOMEPAGE="
 	https://github.com/awslabs/aws-crt-python
 	https://pypi.org/project/awscrt/
@@ -18,13 +19,13 @@ LICENSE="Apache-2.0"
 SLOT="0"
 KEYWORDS="~amd64"
 
-RDEPEND="
-"
+RDEPEND=""
 BDEPEND="
 	test? (
+		dev-python/unittest-or-fail
 		dev-python/boto3
 		dev-python/pytest
 		dev-python/websockets
 	)"
 
-distutils_enable_tests pytest
+distutils_enable_tests unittest
