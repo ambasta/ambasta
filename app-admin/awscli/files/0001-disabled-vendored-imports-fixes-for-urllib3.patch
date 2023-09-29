@@ -1,0 +1,209 @@
+From b1423e56342b8c361f8a7c381031195dd24bcbd9 Mon Sep 17 00:00:00 2001
+From: Amit Prakash Ambasta <amit.prakash.ambasta@gmail.com>
+Date: Fri, 29 Sep 2023 20:19:28 +0530
+Subject: [PATCH] disabled vendored imports, fixes for urllib3
+
+Signed-off-by: Amit Prakash Ambasta <amit.prakash.ambasta@gmail.com>
+---
+ awscli/botocore/compat.py                                 | 4 ++--
+ awscli/botocore/endpoint.py                               | 2 +-
+ awscli/botocore/exceptions.py                             | 2 +-
+ awscli/botocore/httpsession.py                            | 6 +++---
+ awscli/botocore/utils.py                                  | 2 +-
+ awscli/customizations/awslambda.py                        | 2 +-
+ awscli/customizations/configure/__init__.py               | 2 +-
+ awscli/s3transfer/__init__.py                             | 4 +---
+ tests/functional/botocore/test_six_threading.py           | 2 +-
+ tests/integration/botocore/test_client_http.py            | 2 +-
+ tests/integration/botocore/test_glacier.py                | 2 +-
+ tests/unit/botocore/test_http_client_exception_mapping.py | 2 +-
+ 12 files changed, 15 insertions(+), 17 deletions(-)
+
+diff --git a/awscli/botocore/compat.py b/awscli/botocore/compat.py
+index b189271..0f755a9 100644
+--- a/awscli/botocore/compat.py
++++ b/awscli/botocore/compat.py
+@@ -25,7 +25,7 @@ from collections import OrderedDict
+ from collections.abc import MutableMapping
+ from math import floor
+ 
+-from botocore.vendored import six
++import six
+ from botocore.exceptions import MD5UnavailableError
+ from dateutil.tz import tzlocal
+ from urllib3 import exceptions
+@@ -33,7 +33,7 @@ from urllib3 import exceptions
+ logger = logging.getLogger(__name__)
+ 
+ 
+-from botocore.vendored.six.moves import http_client
++from six.moves import http_client
+ 
+ class HTTPHeaders(http_client.HTTPMessage):
+     pass
+diff --git a/awscli/botocore/endpoint.py b/awscli/botocore/endpoint.py
+index d25afd0..dd4ba35 100644
+--- a/awscli/botocore/endpoint.py
++++ b/awscli/botocore/endpoint.py
+@@ -26,7 +26,7 @@ from botocore.httpchecksum import handle_checksum_body
+ from botocore.httpsession import URLLib3Session
+ from botocore.response import StreamingBody
+ from botocore.utils import get_environ_proxies, is_valid_endpoint_url
+-from botocore.vendored import six
++import six
+ 
+ logger = logging.getLogger(__name__)
+ history_recorder = get_global_history_recorder()
+diff --git a/awscli/botocore/exceptions.py b/awscli/botocore/exceptions.py
+index 115d244..5c4b7c2 100644
+--- a/awscli/botocore/exceptions.py
++++ b/awscli/botocore/exceptions.py
+@@ -13,7 +13,7 @@
+ # language governing permissions and limitations under the License.
+ from __future__ import unicode_literals
+ 
+-from botocore.vendored.requests.packages import urllib3
++import urllib3
+ 
+ 
+ def _exception_from_packed_args(exception_cls, args=None, kwargs=None):
+diff --git a/awscli/botocore/httpsession.py b/awscli/botocore/httpsession.py
+index 29b2103..5e2bd0b 100644
+--- a/awscli/botocore/httpsession.py
++++ b/awscli/botocore/httpsession.py
+@@ -19,7 +19,6 @@ from urllib3.exceptions import ReadTimeoutError as URLLib3ReadTimeoutError
+ from urllib3.exceptions import SSLError as URLLib3SSLError
+ from urllib3.util.retry import Retry
+ from urllib3.util.ssl_ import (
+-    DEFAULT_CIPHERS,
+     OP_NO_COMPRESSION,
+     PROTOCOL_TLS,
+     OP_NO_SSLv2,
+@@ -59,7 +58,7 @@ from botocore.exceptions import (
+     ReadTimeoutError,
+     SSLError,
+ )
+-from botocore.vendored.six.moves.urllib_parse import unquote
++from six.moves.urllib_parse import unquote
+ 
+ filter_ssl_warnings()
+ logger = logging.getLogger(__name__)
+@@ -99,7 +98,8 @@ def create_urllib3_context(
+ 
+     context = SSLContext(ssl_version)
+ 
+-    context.set_ciphers(ciphers or DEFAULT_CIPHERS)
++    if ciphers:
++        context.set_ciphers(ciphers)
+ 
+     # Setting the default here, as we may have no ssl module on import
+     cert_reqs = ssl.CERT_REQUIRED if cert_reqs is None else cert_reqs
+diff --git a/awscli/botocore/utils.py b/awscli/botocore/utils.py
+index 81b41dc..7e20ac3 100644
+--- a/awscli/botocore/utils.py
++++ b/awscli/botocore/utils.py
+@@ -70,7 +70,7 @@ from botocore.exceptions import (
+     UnsupportedS3ControlArnError,
+     UnsupportedS3ControlConfigurationError,
+ )
+-from botocore.vendored.six.moves.urllib.request import getproxies, proxy_bypass
++from six.moves.urllib.request import getproxies, proxy_bypass
+ from dateutil.tz import tzutc
+ from urllib3.exceptions import LocationParseError
+ 
+diff --git a/awscli/customizations/awslambda.py b/awscli/customizations/awslambda.py
+index 5629411..587ff0d 100644
+--- a/awscli/customizations/awslambda.py
++++ b/awscli/customizations/awslambda.py
+@@ -14,7 +14,7 @@ import zipfile
+ import copy
+ from contextlib import closing
+ 
+-from botocore.vendored import six
++import six
+ 
+ from awscli.arguments import CustomArgument, CLIArgument
+ from awscli.customizations.exceptions import ParamValidationError
+diff --git a/awscli/customizations/configure/__init__.py b/awscli/customizations/configure/__init__.py
+index ab06305..ed181f8 100644
+--- a/awscli/customizations/configure/__init__.py
++++ b/awscli/customizations/configure/__init__.py
+@@ -11,7 +11,7 @@
+ # ANY KIND, either express or implied. See the License for the specific
+ # language governing permissions and limitations under the License.
+ import string
+-from botocore.vendored.six.moves import shlex_quote
++from six.moves import shlex_quote
+ 
+ NOT_SET = '<not set>'
+ PREDEFINED_SECTION_NAMES = ('plugins')
+diff --git a/awscli/s3transfer/__init__.py b/awscli/s3transfer/__init__.py
+index 1a749c7..475f346 100644
+--- a/awscli/s3transfer/__init__.py
++++ b/awscli/s3transfer/__init__.py
+@@ -136,9 +136,7 @@ import threading
+ 
+ from botocore.compat import six  # noqa: F401
+ from botocore.exceptions import IncompleteReadError
+-from botocore.vendored.requests.packages.urllib3.exceptions import (
+-    ReadTimeoutError,
+-)
++from urllib3.exceptions import ReadTimeoutError
+ 
+ import s3transfer.compat
+ from s3transfer.exceptions import RetriesExceededError, S3UploadFailedError
+diff --git a/tests/functional/botocore/test_six_threading.py b/tests/functional/botocore/test_six_threading.py
+index 18f87ba..36a4cc6 100644
+--- a/tests/functional/botocore/test_six_threading.py
++++ b/tests/functional/botocore/test_six_threading.py
+@@ -6,7 +6,7 @@ import sys
+ import threading
+ import time
+ 
+-from botocore.vendored import six
++import six
+ 
+ 
+ _original_setattr = six.moves.__class__.__setattr__
+diff --git a/tests/integration/botocore/test_client_http.py b/tests/integration/botocore/test_client_http.py
+index d6b0902..abc7515 100644
+--- a/tests/integration/botocore/test_client_http.py
++++ b/tests/integration/botocore/test_client_http.py
+@@ -8,7 +8,7 @@ from contextlib import contextmanager
+ 
+ import botocore.session
+ from botocore.config import Config
+-from botocore.vendored.six.moves import BaseHTTPServer, socketserver
++from six.moves import BaseHTTPServer, socketserver
+ from botocore.exceptions import (
+     ConnectTimeoutError, ReadTimeoutError, EndpointConnectionError,
+     ConnectionClosedError, ClientError, ProxyConnectionError
+diff --git a/tests/integration/botocore/test_glacier.py b/tests/integration/botocore/test_glacier.py
+index 23a7f34..96cedf0 100644
+--- a/tests/integration/botocore/test_glacier.py
++++ b/tests/integration/botocore/test_glacier.py
+@@ -13,7 +13,7 @@
+ from tests import unittest
+ 
+ from botocore.exceptions import ClientError
+-from botocore.vendored import six
++import six
+ import botocore.session
+ 
+ 
+diff --git a/tests/unit/botocore/test_http_client_exception_mapping.py b/tests/unit/botocore/test_http_client_exception_mapping.py
+index 0dd2c50..574cabf 100644
+--- a/tests/unit/botocore/test_http_client_exception_mapping.py
++++ b/tests/unit/botocore/test_http_client_exception_mapping.py
+@@ -1,7 +1,7 @@
+ import pytest
+ 
+ from botocore import exceptions as botocore_exceptions
+-from botocore.vendored.requests.packages.urllib3 import exceptions as urllib3_exceptions
++from urllib3 import exceptions as urllib3_exceptions
+ 
+ 
+ @pytest.mark.parametrize(
+-- 
+2.42.0
+
