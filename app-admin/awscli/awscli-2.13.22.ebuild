@@ -4,7 +4,7 @@
 # please keep this ebuild at EAPI 8 -- sys-apps/portage dep
 EAPI=8
 
-DISTUTILS_USE_PEP517=standalone
+DISTUTILS_USE_PEP517=flit
 PYTHON_COMPAT=( python3_{10..12} )
 PYTHON_REQ_USE="threads(+)"
 
@@ -65,30 +65,7 @@ PATCHES=(
 )
 
 python_test() {
-	local EPYTEST_DESELECT=(
-		# broken xdist (signal() works only in main thread)
-		tests/functional/ecs/test_execute_command.py::TestExecuteCommand::test_execute_command_success
-		tests/unit/customizations/codeartifact/test_adapter_login.py::TestDotNetLogin::test_login_dotnet_sources_listed_with_backtracking
-		tests/unit/customizations/codeartifact/test_adapter_login.py::TestDotNetLogin::test_login_dotnet_sources_listed_with_backtracking_windows
-		tests/unit/customizations/codeartifact/test_adapter_login.py::TestNuGetLogin::test_login_nuget_sources_listed_with_backtracking
-		tests/unit/customizations/ecs/test_executecommand_startsession.py::TestExecuteCommand::test_execute_command_success
-		tests/unit/test_compat.py::TestIgnoreUserSignals
-		tests/unit/test_help.py::TestHelpPager::test_can_handle_ctrl_c
-		tests/unit/test_help.py::TestHelpPager::test_can_render_contents
-		tests/unit/test_utils.py::TestIgnoreCtrlC::test_ctrl_c_is_ignore
-	)
 	local -x PYTEST_DISABLE_PLUGIN_AUTOLOAD=1
 	# integration tests require AWS credentials and Internet access
-	epytest tests/{functional,unit} -p xdist -n "$(makeopts_jobs)"
-}
-
-python_install_all() {
-	newbashcomp bin/aws_bash_completer aws
-
-	insinto /usr/share/zsh/site-functions
-	newins bin/aws_zsh_completer.sh _aws
-
-	distutils-r1_python_install_all
-
-	rm "${ED}"/usr/bin/{aws.cmd,aws_bash_completer,aws_zsh_completer.sh} || die
+	epytest -vvv tests/{functional,unit} -p xdist -n "$(makeopts_jobs)"
 }
