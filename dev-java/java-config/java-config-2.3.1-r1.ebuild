@@ -1,13 +1,13 @@
-# Copyright 1999-2022 Gentoo Authors
+# Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=8
+EAPI=7
 
 # jython depends on java-config, so don't add it or things will break
-PYTHON_COMPAT=( python3_{7..11} )
+PYTHON_COMPAT=( python3_{9..12} )
 DISTUTILS_USE_SETUPTOOLS=no
 
-inherit distutils-r1
+inherit distutils-r1 prefix
 
 DESCRIPTION="Java environment configuration query tool"
 HOMEPAGE="https://wiki.gentoo.org/wiki/Project:Java"
@@ -15,7 +15,7 @@ SRC_URI="https://gitweb.gentoo.org/proj/${PN}.git/snapshot/${P}.tar.gz"
 
 LICENSE="GPL-2"
 SLOT="2"
-KEYWORDS="amd64 ~arm arm64 ppc64 ~riscv x86 ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+KEYWORDS="amd64 ~arm arm64 ppc64 ~riscv x86 ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x64-solaris"
 IUSE="test"
 RESTRICT="!test? ( test )"
 
@@ -25,6 +25,11 @@ DEPEND="test? ( sys-apps/portage[${PYTHON_USEDEP}] )"
 RDEPEND="
 	sys-apps/baselayout-java
 	sys-apps/portage[${PYTHON_USEDEP}]"
+
+python_configure_all() {
+	# setup.py fails to update this file
+	eprefixify src/launcher.bash
+}
 
 python_install_all() {
 	distutils-r1_python_install_all
