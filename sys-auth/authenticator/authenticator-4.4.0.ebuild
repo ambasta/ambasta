@@ -415,10 +415,6 @@ DEPEND="media-gfx/zbar
 >=x11-libs/pango-1.51.0"
 RDEPEND="${DEPEND}"
 
-# rust does not use *FLAGS from make.conf, silence portage warning
-# update with proper path to binaries this crate installs, omit leading /
-QA_FLAGS_IGNORED="usr/bin/${MY_PN}"
-
 PATCHES=(
 	"${FILESDIR}/authenticator-x11-wayland-feature.patch"
 )
