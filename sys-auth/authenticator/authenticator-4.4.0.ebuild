@@ -392,7 +392,7 @@ CRATES="
 
 # cargo must come after meson otherwise it will not respect
 # crates that we've already downloaded
-inherit meson gnome2-utils cargo
+inherit meson gnome2-utils plocale cargo
 
 DESCRIPTION="Generate Two-Factor Codes"
 HOMEPAGE="https://gitlab.gnome.org/World/Authenticator"
