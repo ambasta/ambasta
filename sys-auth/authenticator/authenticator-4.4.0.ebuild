@@ -390,6 +390,8 @@ CRATES="
 	zvariant_utils@1.0.1
 "
 
+# cargo must come after meson otherwise it will not respect
+# crates that we've already downloaded
 inherit meson gnome2-utils cargo
 
 DESCRIPTION="Generate Two-Factor Codes"
@@ -451,13 +453,16 @@ src_configure() {
 	meson_src_configure
 }
 
+src_install() {
+	# Needed since cargo ebuild will override
+	# meson_src_install if we don't specify it explicitly
+	meson_src_install
+}
+
 pkg_postinst() {
 	gnome2_schemas_update
-	gnome2_icon_cache_update
-	update_desktop_database
 }
 
 pkg_postrm() {
 	gnome2_schemas_update
-	gnome2_icon_cache_update
 }
