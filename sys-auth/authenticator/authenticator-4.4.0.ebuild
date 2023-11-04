@@ -436,7 +436,7 @@ src_prepare() {
 	eapply "${FILESDIR}/ashpd-x11-wayland-feature.patch"
 	popd || die
 
-	plocale_get_locales > /po/LINGUAS || die
+	plocale_get_locales > po/LINGUAS || die
 }
 
 src_configure() {
