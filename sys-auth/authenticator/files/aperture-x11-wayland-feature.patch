@@ -1,0 +1,67 @@
+From 9662d7da987769e858ef30197100e07b4a9aeb1e Mon Sep 17 00:00:00 2001
+From: Amit Prakash Ambasta <amit.prakash.ambasta@gmail.com>
+Date: Fri, 3 Nov 2023 14:02:02 +0530
+Subject: [PATCH] feature patch
+
+Signed-off-by: Amit Prakash Ambasta <amit.prakash.ambasta@gmail.com>
+---
+ Cargo.toml      | 16 +++++++++++-----
+ Cargo.toml.orig |  8 +++++++-
+ 2 files changed, 18 insertions(+), 6 deletions(-)
+
+diff --git a/Cargo.toml b/Cargo.toml
+index 40210a4..e960738 100644
+--- a/Cargo.toml
++++ b/Cargo.toml
+@@ -42,11 +42,7 @@ package = "gstreamer-pbutils"
+ 
+ [dependencies.gst-plugin-gtk4]
+ version = "0.11"
+-features = [
+-    "wayland",
+-    "x11egl",
+-    "x11glx",
+-]
++default-features = false
+ 
+ [dependencies.gst-video]
+ version = "0.21"
+@@ -62,3 +58,13 @@ version = "0.4.17"
+ 
+ [dependencies.once_cell]
+ version = "1.17.1"
++
++[features]
++default = [
++    "wayland",
++    "x11egl",
++    "x11glx",
++]
++wayland = ["gst-plugin-gtk4/wayland"]
++x11egl = ["gst-plugin-gtk4/x11egl"]
++x11glx = ["gst-plugin-gtk4/x11glx"]
+diff --git a/Cargo.toml.orig b/Cargo.toml.orig
+index e10f45c..5f144d5 100644
+--- a/Cargo.toml.orig
++++ b/Cargo.toml.orig
+@@ -11,10 +11,16 @@ documentation = "https://gnome.pages.gitlab.gnome.org/snapshot/doc/aperture"
+ version = "0.3.2"
+ rust-version = "1.70"
+ 
++[features]
++default = ["wayland", "x11egl", "x11glx"]
++wayland = ["gst-plugin-gtk4/wayland"]
++x11egl = ["gst-plugin-gtk4/x11egl"]
++x11glx = ["gst-plugin-gtk4/x11glx"]
++
+ [dependencies]
+ gst = { package = "gstreamer", version = "0.21", features = ["v1_20"] }
+ gst-pbutils = { package = "gstreamer-pbutils", version = "0.21" }
+-gst-plugin-gtk4 = { version = "0.11", features = ["wayland", "x11egl", "x11glx"] }
++gst-plugin-gtk4 = { version = "0.11", default-features = false }
+ gst-video = { package = "gstreamer-video", version = "0.21" }
+ gtk = { package = "gtk4", version = "0.7", features = ["gnome_45"] }
+ log = "0.4.17"
+-- 
+2.42.0
+

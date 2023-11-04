@@ -1,0 +1,46 @@
+From 58b9f806e30f20562bbe7fc8d6930aeb85b9d02f Mon Sep 17 00:00:00 2001
+From: Amit Prakash Ambasta <amit.prakash.ambasta@gmail.com>
+Date: Fri, 3 Nov 2023 11:35:05 +0530
+Subject: [PATCH] Updated to separate gtk4 x11 and wayland
+
+Signed-off-by: Amit Prakash Ambasta <amit.prakash.ambasta@gmail.com>
+---
+ Cargo.toml | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
+
+diff --git a/Cargo.toml b/Cargo.toml
+index edf0ec3..823799d 100644
+--- a/Cargo.toml
++++ b/Cargo.toml
+@@ -37,7 +37,8 @@ repository = "https://github.com/bilelmoussaoui/ashpd"
+ 
+ [package.metadata.docs.rs]
+ features = [
+-    "gtk4",
++    "gtk4_x11",
++    "gtk4_wayland",
+     "raw_handle",
+ ]
+ rustc-args = [
+@@ -155,15 +156,14 @@ async-std = [
+     "dep:async-std",
+ ]
+ default = ["async-std"]
+-gtk4 = [
+-    "gtk4_x11",
+-    "gtk4_wayland",
+-]
++gtk4 = []
+ gtk4_wayland = [
++    "gtk4",
+     "gdk4wayland",
+     "dep:gtk4",
+ ]
+ gtk4_x11 = [
++    "gtk4",
+     "gdk4x11",
+     "dep:gtk4",
+ ]
+-- 
+2.42.0
+
