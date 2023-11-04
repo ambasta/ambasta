@@ -390,7 +390,7 @@ CRATES="
 	zvariant_utils@1.0.1
 "
 
-inherit cargo gnome2-utils meson
+inherit meson gnome2-utils cargo
 
 DESCRIPTION="Generate Two-Factor Codes"
 HOMEPAGE="https://gitlab.gnome.org/World/Authenticator"
