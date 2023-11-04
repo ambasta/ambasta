@@ -1,7 +1,10 @@
-From 1ecbdcfd60d488fccde00eae2a429158a5cea2df Mon Sep 17 00:00:00 2001
+From 5ff8220ce13a2714aec1222951eda130b7b96e7a Mon Sep 17 00:00:00 2001
 From: Amit Prakash Ambasta <amit.prakash.ambasta@gmail.com>
 Date: Sat, 4 Nov 2023 12:52:40 +0530
-Subject: [PATCH] wayland/x11 build feature
+Subject: [PATCH] Packaging Fixes
+
+wayland/x11 build feature
+Unset cargo home from project
 
 Signed-off-by: Amit Prakash Ambasta <amit.prakash.ambasta@gmail.com>
 ---
@@ -9,8 +12,8 @@ Signed-off-by: Amit Prakash Ambasta <amit.prakash.ambasta@gmail.com>
  Cargo.toml        |  13 +-
  meson.build       |   2 +
  meson_options.txt |   7 +
- src/meson.build   |  12 +
- 5 files changed, 424 insertions(+), 291 deletions(-)
+ src/meson.build   |  13 +-
+ 5 files changed, 422 insertions(+), 294 deletions(-)
 
 diff --git a/Cargo.lock b/Cargo.lock
 index e068da8..368e8a8 100644
@@ -1818,7 +1821,7 @@ index 897f54e..2e88644 100644
 +  description: 'Backends to support'
 +)
 diff --git a/src/meson.build b/src/meson.build
-index 7734654..02fb503 100644
+index 7734654..70577e0 100644
 --- a/src/meson.build
 +++ b/src/meson.build
 @@ -24,6 +24,7 @@ run_command(
@@ -1829,10 +1832,11 @@ index 7734654..02fb503 100644
  
  if get_option('profile') == 'default'
    cargo_options += [ '--release' ]
-@@ -34,6 +35,17 @@ else
+@@ -34,7 +35,15 @@ else
    message('Building in debug mode')
  endif
  
+-cargo_env = [ 'CARGO_HOME=' + meson.project_build_root() / 'cargo-home' ]
 +if backend_features.contains('x11')
 +  cargo_options += ['--features', 'x11']
 +  message('X11 support selected')
@@ -1842,11 +1846,25 @@ index 7734654..02fb503 100644
 +  cargo_options += ['--features', 'wayland']
 +  message('wayland support selected')
 +endif
-+
-+
- cargo_env = [ 'CARGO_HOME=' + meson.project_build_root() / 'cargo-home' ]
  
  cargo_build = custom_target(
+   'cargo-build',
+@@ -47,7 +56,6 @@ cargo_build = custom_target(
+   depends: resources,
+   command: [
+     'env',
+-    cargo_env,
+     cargo, 'build',
+     cargo_options,
+     '&&',
+@@ -76,7 +84,6 @@ custom_target(
+   output: 'doc',
+   console: true,
+   command: [
+-    'env', cargo_env,
+     cargo, 'doc',
+     cargo_options + doc_deps + ['--no-deps', '--document-private-items'] ,
+   ],
 -- 
 2.42.0
 

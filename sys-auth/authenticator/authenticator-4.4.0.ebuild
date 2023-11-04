@@ -455,6 +455,12 @@ src_configure() {
 	meson_src_configure
 }
 
+src_compile() {
+	tc-export CC
+
+	meson_src_compile
+}
+
 src_install() {
 	# Needed since cargo ebuild will override
 	# meson_src_install if we don't specify it explicitly
