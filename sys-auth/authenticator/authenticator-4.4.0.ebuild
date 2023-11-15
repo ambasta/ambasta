@@ -411,7 +411,8 @@ IUSE="wayland x11"
 
 REQUIRED_USE="|| ( wayland x11 )"
 
-DEPEND="media-gfx/zbar
+DEPEND="gui-libs/libadwaita
+media-gfx/zbar
 >=x11-libs/pango-1.51.0"
 RDEPEND="${DEPEND}"
 
