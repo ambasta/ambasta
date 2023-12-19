@@ -63,7 +63,6 @@ CHECKREQS_DISK_BUILD="22G"
 
 PATCHES=(
 	"${FILESDIR}/${PN}-gcc-13.patch"
-	"${FILESDIR}"/"${PN}"-20.8.1-gcc14.patch
 )
 
 pkg_pretend() {
