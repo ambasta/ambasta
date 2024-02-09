@@ -1,8 +1,8 @@
-# Copyright 1999-2022 Gentoo Authors
+# Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
-PYTHON_COMPAT=( python3_{8..11} )
+PYTHON_COMPAT=( python3_{9..12} )
 
 inherit gnome.org gnome2-utils meson python-any-r1 vala xdg
 
@@ -19,10 +19,9 @@ REQUIRED_USE="
 "
 RESTRICT="!test? ( test )"
 
-KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~ia64 ~loong ~mips ~ppc ~ppc64 ~riscv ~sparc ~x86 ~amd64-linux ~x86-linux ~sparc-solaris ~x86-solaris"
+KEYWORDS="~alpha amd64 arm arm64 ~ia64 ~loong ~mips ppc ppc64 ~riscv sparc x86 ~amd64-linux ~x86-linux"
 
 DEPEND="
-	!app-crypt/gcr:4
 	>=dev-libs/glib-2.44.0:2
 	>=dev-libs/libgcrypt-1.2.2:0=
 	>=app-crypt/p11-kit-0.19.0
@@ -48,6 +47,7 @@ BDEPEND="
 
 PATCHES=(
 	"${FILESDIR}"/3.38.0-optional-vapi.patch
+	"${FILESDIR}"/3.41.1-implicit-func-decl.patch
 )
 
 pkg_setup() {
@@ -79,6 +79,16 @@ src_test() {
 
 src_install() {
 	meson_src_install
+
+	# These files are installed by gcr:4
+	local conflicts=(
+		"${ED}"/usr/libexec/gcr-ssh-agent
+	)
+	use systemd && conflicts+=(
+		"${ED}"/usr/lib/systemd/user/gcr-ssh-agent.{service,socket}
+	)
+	einfo "${conflicts[@]}"
+	rm "${conflicts[@]}" || die
 
 	if use gtk-doc; then
 		mkdir -p "${ED}"/usr/share/gtk-doc/html/ || die
