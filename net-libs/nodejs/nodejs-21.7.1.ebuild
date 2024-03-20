@@ -24,7 +24,7 @@ else
 	S="${WORKDIR}/node-v${PV}"
 fi
 
-IUSE="corepack cpu_flags_x86_sse2 debug doc +icu inspector lto +npm pax-kernel +snapshot +ssl +system-icu +system-ssl test"
+IUSE="+corepack cpu_flags_x86_sse2 debug doc +icu inspector lto npm +snapshot +ssl +system-icu +system-ssl test"
 REQUIRED_USE="corepack? ( !npm )
 	inspector? ( icu ssl )
 	npm? ( ssl )
@@ -47,8 +47,7 @@ BDEPEND="${PYTHON_DEPS}
 	dev-build/ninja
 	sys-apps/coreutils
 	virtual/pkgconfig
-	test? ( net-misc/curl )
-	pax-kernel? ( sys-apps/elfix )"
+	test? ( net-misc/curl )"
 DEPEND="${RDEPEND}"
 
 # These are measured on a loong machine with -ggdb on, and only checked
@@ -61,9 +60,9 @@ DEPEND="${RDEPEND}"
 CHECKREQS_MEMORY="8G"
 CHECKREQS_DISK_BUILD="22G"
 
-PATCHES=(
-	"${FILESDIR}/${PN}-gcc-13.patch"
-)
+# PATCHES=(
+# 	"${FILESDIR}/${PN}-gcc-13.patch"
+# )
 
 pkg_pretend() {
 	if [[ ${MERGE_TYPE} != "binary" ]]; then
@@ -106,9 +105,6 @@ src_prepare() {
 		sed -i -e "s|out/Release/|out/Debug/|g" tools/install.py || die
 		BUILDTYPE=Debug
 	fi
-
-	# We need to disable mprotect on two files when it builds Bug 694100.
-	use pax-kernel && PATCHES+=("${FILESDIR}"/${PN}-20.6.0-paxmarking.patch)
 
 	default
 }
