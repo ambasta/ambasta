@@ -60,9 +60,9 @@ DEPEND="${RDEPEND}"
 CHECKREQS_MEMORY="8G"
 CHECKREQS_DISK_BUILD="22G"
 
-# PATCHES=(
-# 	"${FILESDIR}/${PN}-gcc-13.patch"
-# )
+PATCHES=(
+	"${FILESDIR}/${PN}-gcc-13.patch"
+)
 
 pkg_pretend() {
 	if [[ ${MERGE_TYPE} != "binary" ]]; then
@@ -128,6 +128,8 @@ src_configure() {
 		--shared-libuv
 		--shared-nghttp2
 		--shared-zlib
+		--v8-enable-maglev
+		--experimental-http-parser
 	)
 	use debug && myconf+=(--debug)
 	use lto && myconf+=(--enable-lto)
@@ -136,7 +138,7 @@ src_configure() {
 	elif use icu; then
 		myconf+=(--with-intl=full-icu)
 	else
-		myconf+=(--with-intl=none)
+		myconf+=(--without-intl)
 	fi
 	use corepack || myconf+=(--without-corepack)
 	use inspector || myconf+=(--without-inspector)
