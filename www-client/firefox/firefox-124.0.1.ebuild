@@ -587,7 +587,7 @@ src_prepare() {
 
 	eapply "${WORKDIR}/firefox-patches"
 	eapply "${FILESDIR}/0001-bmo-1882942-add-missing-header-for-size_t.patch"
-	eapply "${FIELSDIR}/0003-GtkCompositorWidget.h-add-missing-header-for-GdkIsWa.patch"
+	eapply "${FILESDIR}/0003-GtkCompositorWidget.h-add-missing-header-for-GdkIsWa.patch"
 
 	# Allow user to apply any additional patches without modifing ebuild
 	eapply_user
