@@ -73,7 +73,6 @@ IUSE+=" geckodriver +gmp-autoupdate"
 #   firefox-120.0/intl/components/src/TimeZone.cpp:345:3: error: use of undeclared identifier 'MOZ_TRY'
 REQUIRED_USE="|| ( X wayland )
 	debug? ( !system-av1 )
-	!jumbo-build? ( !system-icu )
 	pgo? ( lto )
 	wifi? ( dbus )"
 
@@ -650,7 +649,7 @@ src_prepare() {
 	# Respect choice for "jumbo-build"
 	# Changing the value for FILES_PER_UNIFIED_FILE may not work, see #905431
 	if [[ -n ${FILES_PER_UNIFIED_FILE} ]] && use jumbo-build; then
-		local my_files_per_unified_file=${FILES_PER_UNIFIED_FILE:=1}
+		local my_files_per_unified_file=${FILES_PER_UNIFIED_FILE:=16}
 		elog ""
 		elog "jumbo-build defaults modified to ${my_files_per_unified_file}."
 		elog "if you get a build failure, try undefining FILES_PER_UNIFIED_FILE,"
