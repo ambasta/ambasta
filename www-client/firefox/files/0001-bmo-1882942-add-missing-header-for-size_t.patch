@@ -1,7 +1,7 @@
 From 7d1ba8593c2a4f72b52b20035e22d56be4df7a91 Mon Sep 17 00:00:00 2001
 From: Amit Prakash Ambasta <amit.prakash.ambasta@gmail.com>
 Date: Wed, 27 Mar 2024 17:47:14 +0530
-Subject: [PATCH 1/2] bmo#1882942: add missing header for size_t
+Subject: [PATCH 1/4] bmo#1882942: add missing header for size_t
 
 Signed-off-by: Amit Prakash Ambasta <amit.prakash.ambasta@gmail.com>
 ---

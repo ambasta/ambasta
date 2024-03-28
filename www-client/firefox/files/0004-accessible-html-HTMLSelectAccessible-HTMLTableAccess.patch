@@ -1,0 +1,40 @@
+From 9ba53ddea3ebaeb335ca17aca4d33dad04526f15 Mon Sep 17 00:00:00 2001
+From: Amit Prakash Ambasta <amit.prakash.ambasta@gmail.com>
+Date: Thu, 28 Mar 2024 17:31:11 +0530
+Subject: [PATCH 4/4] 
+ accessible/html/{HTMLSelectAccessible,HTMLTableAccessible}.cpp: add missing
+ header DocAccessible-inl.h for non-unified builds
+
+Signed-off-by: Amit Prakash Ambasta <amit.prakash.ambasta@gmail.com>
+---
+ accessible/html/HTMLSelectAccessible.cpp | 1 +
+ accessible/html/HTMLTableAccessible.cpp  | 1 +
+ 2 files changed, 2 insertions(+)
+
+diff --git a/accessible/html/HTMLSelectAccessible.cpp b/accessible/html/HTMLSelectAccessible.cpp
+index f8fb4180c7..02d449df36 100644
+--- a/accessible/html/HTMLSelectAccessible.cpp
++++ b/accessible/html/HTMLSelectAccessible.cpp
+@@ -6,6 +6,7 @@
+ #include "HTMLSelectAccessible.h"
+ 
+ #include "LocalAccessible-inl.h"
++#include "DocAccessible-inl.h"
+ #include "nsAccessibilityService.h"
+ #include "nsAccUtils.h"
+ #include "DocAccessible.h"
+diff --git a/accessible/html/HTMLTableAccessible.cpp b/accessible/html/HTMLTableAccessible.cpp
+index 2c3dc6b82d..f4b8f9964a 100644
+--- a/accessible/html/HTMLTableAccessible.cpp
++++ b/accessible/html/HTMLTableAccessible.cpp
+@@ -12,6 +12,7 @@
+ #include "ARIAMap.h"
+ #include "CacheConstants.h"
+ #include "LocalAccessible-inl.h"
++#include "DocAccessible-inl.h"
+ #include "nsTextEquivUtils.h"
+ #include "Relation.h"
+ #include "mozilla/a11y/Role.h"
+-- 
+2.44.0
+
