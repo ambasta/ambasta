@@ -919,9 +919,14 @@ src_configure() {
 
 		else
 			# ThinLTO is currently broken, see bmo#1644409.
-			# mold does not support gcc+lto combination.
+			if tc-ld-is-mold; then
+				append-ldflags "-flto"
+				mozconfig_add_options_ac "using ld=mold due to system selection" --enable-linker=mold
+			else
+				mozconfig_add_options_ac "linker is set to bfd due to USE=-clang" --enable-linker=bfd
+			fi
+
 			mozconfig_add_options_ac '+lto' --enable-lto=full
-			mozconfig_add_options_ac "linker is set to bfd" --enable-linker=bfd
 		fi
 
 		if use pgo; then
