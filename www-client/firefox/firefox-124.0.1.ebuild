@@ -425,7 +425,7 @@ virtwl() {
 	local r=$?
 
 	[[ -n $VIRTWL_PID ]] || die "tinywl exited unexpectedly"
-	exec {VIRTWL[0]} {VIRTWL[1]} <&- >&-
+	exec {VIRTWL[0]}<&- {VIRTWL[1]}>&-
 	return $r
 }
 
