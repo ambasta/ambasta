@@ -20,6 +20,10 @@ RESTRICT="!test? ( test )"
 
 RDEPEND="${PYTHON_DEPS}
 	$(python_gen_cond_dep 'dev-python/pygobject:3[${PYTHON_USEDEP}]')
+	bash-completion? (
+		>=app-shells/bash-completion-2.0
+		dev-python/shtab
+	)
 	dev-libs/glib:2
 	>=dev-libs/libgudev-234
 	>=sys-auth/polkit-0.99
@@ -28,9 +32,6 @@ RDEPEND="${PYTHON_DEPS}
 "
 DEPEND="${RDEPEND}"
 BDEPEND="
-	bash-completion? (
-		dev-python/shtab
-	)
 	dev-util/glib-utils
 	gtk-doc? (
 		dev-util/gi-docgen
