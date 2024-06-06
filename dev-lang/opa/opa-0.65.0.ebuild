@@ -14,6 +14,7 @@ LICENSE="Apache-2.0"
 
 src_compile() {
 	make build
+	mv opa_linux_amd64 opa
 }
 
 src_install() {
