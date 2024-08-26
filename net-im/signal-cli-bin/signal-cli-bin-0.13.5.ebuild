@@ -25,10 +25,6 @@ BDEPEND="
 	app-text/asciidoc
 "
 
-PATCHES=(
-	"${FILESDIR}/${PN}-0.13.1-use-working-java-version.patch"
-)
-
 src_unpack() {
 	default
 	cp "${DISTDIR}/${P}.signal-cli.1.adoc" signal-cli.1.adoc || die
