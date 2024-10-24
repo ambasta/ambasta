@@ -25,7 +25,7 @@ src_configure() {
 		-DBUILD_TESTING=$(usex test)
 		-DFORTRAN=$(usex fortran)
 		-DPYTHON_BUILD_SETUP=$(usex python)
-		-DZIB=$(usex zlib)
+		-DZLIB=$(usex zlib)
 		-DEMSCRIPTEN_HTML=OFF
 		-DBUILD_SHARED_LIBS=$(usex !static-libs)
 	)
