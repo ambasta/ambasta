@@ -14,17 +14,17 @@ BDEPEND="dev-lang/go"
 REPENDS=""
 
 src_compile() {
-	local goarch
+	local target
 	if use amd64; then
-		goarch="amd64"
+		target="build-linux"
 	elif use arm64; then
-		goarch="arm64"
+		target="build-arm64"
 	else
 		die "Unsupported architecture"
 	fi
 
 	# Compile with the correct architecture
-	GOOS=linux GOARCH=${goarch} emake build-linux
+	emake ${target}
 }
 
 src_install() {
