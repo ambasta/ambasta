@@ -28,7 +28,16 @@ src_compile() {
 }
 
 src_install() {
+	local target
+	if use amd64; then
+		target="build-linux"
+	elif use arm64; then
+		target="build-arm64"
+	else
+		die "Unsupported architecture"
+	fi
+
 	keepdir /var/log/aws
-	dobin bin/linux_amd64/*
+	dobin bin/linux_${target}/*
 	systemd_dounit packaging/linux/amazon-ssm-agent.service
 }
