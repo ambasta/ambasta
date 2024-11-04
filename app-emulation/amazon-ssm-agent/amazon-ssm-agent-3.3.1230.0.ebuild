@@ -30,9 +30,9 @@ src_compile() {
 src_install() {
 	local target
 	if use amd64; then
-		target="build-linux"
+		target="amd64"
 	elif use arm64; then
-		target="build-arm64"
+		target="arm64"
 	else
 		die "Unsupported architecture"
 	fi
