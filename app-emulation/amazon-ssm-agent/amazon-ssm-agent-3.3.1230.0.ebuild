@@ -19,6 +19,6 @@ src_compile() {
 
 src_install() {
 	keepdir /var/log/aws
-	dobin bin/linux_arm64/*
-	systemd_dounit amazon-ssm-agent.service
+	dobin bin/linux_amd64/*
+	systemd_dounit packaging/linux/amazon-ssm-agent.service
 }
