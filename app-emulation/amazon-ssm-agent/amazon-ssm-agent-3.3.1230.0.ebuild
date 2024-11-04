@@ -1,6 +1,6 @@
 EAPI=8
 
-inherit autotools
+inherit autotools systemd
 
 DESCRIPTION="AWS SSM Agent"
 HOMEPAGE="https://github.com/aws/amazon-ssm-agent/"
