@@ -84,9 +84,9 @@ CRATES="
 "
 
 RUST_MAX_VER="1.82.0"
-RUST_MIN_VER="1.71.1"
+RUST_MIN_VER="1.82.0"
 
-inherit flag-o-matic cargo rust-toolchain
+inherit flag-o-matic cargo rust
 
 DESCRIPTION="wlgreet"
 HOMEPAGE="https://git.sr.ht/~kennylevinsen/wlgreet"
