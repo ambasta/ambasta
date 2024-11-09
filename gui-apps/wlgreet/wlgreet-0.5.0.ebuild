@@ -115,6 +115,10 @@ DEPEND="${BDEPEND}
 	>=dev-libs/wayland-protocols-1.20
 "
 
+pkg_setup() {
+	rust_pkg_setup
+}
+
 src_configure() {
 	if use clang && ! tc-is-clang; then
 		CC=${CHOST}-clang
