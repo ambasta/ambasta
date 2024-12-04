@@ -35,7 +35,7 @@ else
 	SRC_URI="
 		https://archive.mesa3d.org/${MY_P}.tar.xz
 	"
-	KEYWORDS="~alpha amd64 ~arm arm64 ~hppa ~loong ~mips ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~x64-solaris"
+	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~x64-solaris"
 fi
 
 # This should be {CARGO_CRATE_URIS//.crate/.tar.gz} to correspond to the wrap files,
@@ -186,10 +186,6 @@ BDEPEND="
 	)
 	wayland? ( dev-util/wayland-scanner )
 "
-
-PATCHES=(
-	"${FILESDIR}"/${PV}-dril-Fixup-order-of-pixel-formats-in-drilConfigs.patch
-)
 
 QA_WX_LOAD="
 x86? (
