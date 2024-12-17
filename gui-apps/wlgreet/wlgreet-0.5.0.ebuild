@@ -102,12 +102,12 @@ IUSE="+clang"
 
 BDEPEND="
 	clang? (
-		sys-devel/clang
+		llvm-core/clang
 		|| (
-			sys-devel/lld
+			llvm-core/lld
 			sys-devel/mold
 		)
-		sys-devel/llvm
+		llvm-core/llvm
 	)
 "
 DEPEND="${BDEPEND}
