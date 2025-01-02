@@ -7,6 +7,7 @@ HOME_PAGE="https://sr.ht/~emersion/wlr-randr/"
 
 SRC_URI="https://git.sr.ht/~emersion/${PN}/refs/download/v${PV}/${P}.tar.gz"
 
+KEYWORDS="~amd64"
 LICENSE="MIT"
 SLOT=0
 
