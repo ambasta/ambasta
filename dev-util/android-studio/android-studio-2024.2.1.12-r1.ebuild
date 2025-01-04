@@ -1,4 +1,4 @@
-# Copyright 1999-2024 Gentoo Authors
+# Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -77,7 +77,6 @@ src_prepare() {
 	rm "${S}"/plugins/android/resources/installer/{arm64-v8a,armeabi-v7a,x86}/*
 	rm "${S}"/plugins/android/resources/perfetto/{arm64-v8a,armeabi-v7a,x86}/*
 	rm "${S}"/plugins/android/resources/process-tracker-agent/native/{arm64-v8a,armeabi-v7a,x86}/*
-	rm "${S}"/plugins/android/resources/screen-sharing-agent/{arm64-v8a,armeabi-v7a,x86}/*
 	rm "${S}"/plugins/android/resources/transport/{arm64-v8a,armeabi-v7a,x86}/*
 	rm "${S}"/plugins/android/resources/transport/native/agent/{arm64-v8a,armeabi-v7a,x86}/*
 
