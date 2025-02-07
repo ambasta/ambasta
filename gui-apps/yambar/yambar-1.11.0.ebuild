@@ -85,5 +85,5 @@ src_configure() {
 
 src_install() {
 	meson_src_install
-	systemd_dounit "${FILESDIR}"/${PN}.service
+	systemd_user_dounit "${FILESDIR}"/${PN}.service
 }
