@@ -1,6 +1,6 @@
 EAPI=8
 
-inherit meson xdg
+inherit meson systemd
 
 DESCRIPTION="Modular status panel for X11 and Wayland"
 HOMEPAGE="https://codeberg.org/dnkl/yambar"
@@ -81,4 +81,9 @@ src_configure() {
 	done
 
 	meson_src_configure
+}
+
+src_install() {
+	meson_src_install
+	systemd_dounit "${FILESDIR}"/${PN}.service
 }
