@@ -29,8 +29,6 @@ RDEPEND="app-alternatives/sh
 	virtual/udev
 	wayland? (
 		dev-libs/wayland
-		dev-libs/wayland-protocols
-		dev-util/wayland-scanner
 	)
 	x11-libs/pixman
 	x11-libs/libxcb[xkb]
@@ -48,6 +46,7 @@ BDEPEND="${RDEPEND}
 	sys-devel/flex
 	virtual/pkgconfig
 	wayland? (
+		dev-libs/wayland-protocols
 		dev-util/wayland-scanner
 	)"
 
@@ -85,5 +84,14 @@ src_configure() {
 
 src_install() {
 	meson_src_install
-	systemd_douserunit "${FILESDIR}"/${PN}.service
+
+	if use !static-libs; then
+		mv "${D}"/usr/lib64/yambar/libdynlist.so "${D}"/usr/lib64/libdynlist.so || die
+	fi
+
+	rm -r "${ED}/usr/share/doc/${PN}" || die
+	local -x DOCS=( LICENSE README.md CHANGELOG.md )
+	einstalldocs
+
+	systemd_douserunit "${FILESDIR}/${PN}.service"
 }
