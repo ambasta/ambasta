@@ -149,7 +149,7 @@ winnow-0.5.35
 yaml-rust-0.4.5
 "
 
-RUST_MAX_VER="1.86.0"
+RUST_MAX_VER="1.87.0"
 RUST_MIN_VER="1.71.1"
 
 inherit cargo lua toolchain-funcs rust
