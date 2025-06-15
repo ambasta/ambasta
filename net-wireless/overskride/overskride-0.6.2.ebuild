@@ -186,6 +186,11 @@ KEYWORDS="~amd64"
 BDEPEND="dev-util/blueprint-compiler"
 RDEPEND="gui-libs/libadwaita"
 
+src_configure() {
+	cargo_src_configure
+	meson_src_configure
+}
+
 pkg_postinst() {
 	gnome2_schemas_update
 }
