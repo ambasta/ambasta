@@ -179,7 +179,7 @@ SRC_URI="https://github.com/kaii-lb/${PN}/archive/refs/tags/v${PV}.tar.gz -> ${P
 	${CARGO_CRATE_URIS}
 "
 
-LICENSE="GPL-3.0"
+LICENSE="GPL-3"
 SLOT="0"
 KEYWORDS="~amd64"
 
