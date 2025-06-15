@@ -169,7 +169,7 @@ CRATES="
 	winnow@0.5.39
 "
 
-inherit cargo gnome2-utils meson rust
+inherit cargo gnome2-utils meson
 
 RUST_MIN_VER="1.71.1"
 
@@ -185,10 +185,6 @@ KEYWORDS="~amd64"
 
 BDEPEND="dev-util/blueprint-compiler"
 RDEPEND="gui-libs/libadwaita"
-
-pkg_setup() {
-	rust_pkg_setup
-}
 
 pkg_postinst() {
 	gnome2_schemas_update
