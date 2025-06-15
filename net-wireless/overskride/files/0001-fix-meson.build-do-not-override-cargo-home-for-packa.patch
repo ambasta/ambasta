@@ -1,0 +1,33 @@
+From 8bd2f38a5f1a001160f02f9c416a1ef392a09867 Mon Sep 17 00:00:00 2001
+From: Amit Prakash Ambasta <amit.prakash.ambasta@gmail.com>
+Date: Mon, 16 Jun 2025 03:27:57 +0530
+Subject: [PATCH] fix(meson.build): do not override cargo home for packaging
+
+Signed-off-by: Amit Prakash Ambasta <amit.prakash.ambasta@gmail.com>
+---
+ src/meson.build | 2 --
+ 1 file changed, 2 deletions(-)
+
+diff --git a/src/meson.build b/src/meson.build
+index f64920f..7e49f90 100644
+--- a/src/meson.build
++++ b/src/meson.build
+@@ -49,7 +49,6 @@ run_command(
+ cargo_bin  = find_program('cargo')
+ cargo_opt  = [ '--manifest-path', meson.project_source_root() / 'Cargo.toml' ]
+ cargo_opt += [ '--target-dir', meson.project_build_root()  / 'src' ]
+-cargo_env  = [ 'CARGO_HOME=' + meson.project_build_root()  / 'cargo-home' ]
+ 
+ if get_option('buildtype') == 'release'
+   cargo_opt += [ '--release' ]
+@@ -67,7 +66,6 @@ cargo_build = custom_target(
+   install: true,
+   install_dir: get_option('bindir'),
+   command: [
+-    'env', cargo_env,
+     cargo_bin, 'build',
+     cargo_opt, '&&', 'cp', 'src' / rust_target / meson.project_name(), '@OUTPUT@',
+   ]
+-- 
+2.49.0
+
