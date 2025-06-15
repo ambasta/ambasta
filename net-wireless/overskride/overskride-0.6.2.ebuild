@@ -188,7 +188,6 @@ RDEPEND="gui-libs/libadwaita"
 
 src_prepare() {
 	cargo_update_crates
-	meson_src_prepare
 }
 
 pkg_postinst() {
