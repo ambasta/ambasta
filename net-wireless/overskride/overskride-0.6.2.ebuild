@@ -186,9 +186,9 @@ KEYWORDS="~amd64"
 BDEPEND="dev-util/blueprint-compiler"
 RDEPEND="gui-libs/libadwaita"
 
-src_configure() {
-	cargo_src_configure
-	meson_src_configure
+src_prepare() {
+	cargo_update_crates
+	meson_src_prepare
 }
 
 pkg_postinst() {
