@@ -175,9 +175,9 @@ RUST_MIN_VER="1.71.1"
 
 DESCRIPTION="A Bluetooth and Obex client that is straight to the point, DE/WM agnostic"
 HOMEPAGE="https://github.com/kaii-lb/overskride"
-SRC_URI="https://github.com/kaii-lb/${PN}/archive/refs/tags/v${PV}.tar.gz -> ${P}.tar.gz
-	${CARGO_CRATE_URIS}
-"
+SRC_URI="https://github.com/kaii-lb/${PN}/archive/refs/tags/v${PV}.tar.gz -> ${P}.tar.gz"
+SRC_URI+="
+	${CARGO_CRATE_URIS}"
 
 LICENSE="GPL-3"
 SLOT="0"
@@ -186,9 +186,7 @@ KEYWORDS="~amd64"
 BDEPEND="dev-util/blueprint-compiler"
 RDEPEND="gui-libs/libadwaita"
 
-src_prepare() {
-	cargo_update_crates
-}
+PATCHES="${FILESDIR}/0001-fix-meson.build-do-not-override-cargo-home-for-packa.patch"
 
 pkg_postinst() {
 	gnome2_schemas_update
