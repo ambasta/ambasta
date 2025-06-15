@@ -186,6 +186,10 @@ KEYWORDS="~amd64"
 BDEPEND="dev-util/blueprint-compiler"
 RDEPEND="gui-libs/libadwaita"
 
+pkg_setup() {
+	rust_pkg_setup
+}
+
 pkg_postinst() {
 	gnome2_schemas_update
 }
