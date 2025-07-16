@@ -5,7 +5,7 @@ EAPI=8
 
 DISTUTILS_EXT=1
 DISTUTILS_USE_PEP517=setuptools
-PYTHON_COMPAT=( python3_{10..12} )
+PYTHON_COMPAT=(python3_{9..14})
 
 inherit distutils-r1 pypi
 
@@ -14,6 +14,8 @@ HOMEPAGE="
 	https://github.com/awslabs/aws-crt-python
 	https://pypi.org/project/awscrt/
 "
+
+IUSE="test"
 
 LICENSE="Apache-2.0"
 SLOT="0"

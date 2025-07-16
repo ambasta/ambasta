@@ -70,7 +70,7 @@ src_configure() {
 		$(meson_feature pipewire plugin-pipewire)
 		$(meson_feature pulseaudio plugin-pulse)
 		$(meson_feature wayland plugin-river)
-		$(meson_feaature json plugin-sway-xkb)
+		$(meson_feature json plugin-sway-xkb)
 		$(meson_feature X plugin-xkb)
 		$(meson_feature X plugin-xwindow)
 	)
