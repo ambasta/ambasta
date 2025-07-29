@@ -14,7 +14,7 @@ SRC_URI="https://github.com/rockowitz/ddcutil/archive/v${PV}.tar.gz -> ${P}.tar.
 LICENSE="GPL-2+"
 SLOT="0/5"
 KEYWORDS="amd64 arm arm64 ~loong ~ppc ppc64 ~riscv ~sparc x86"
-IUSE="usb-monitor user-permissions video_cards_nvidia X"
+IUSE="usb-monitor user-permissions video_cards_nvidia"
 
 # In 2.2.0, DRM seems fairly embedded and non-optional even if the
 # build system option exists. Fails to build.
@@ -31,10 +31,6 @@ RDEPEND="
 	)
 	user-permissions? (
 		acct-group/i2c
-	)
-	X? (
-		x11-libs/libXrandr
-		x11-libs/libX11
 	)
 "
 DEPEND="${RDEPEND}"
