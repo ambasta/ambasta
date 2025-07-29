@@ -71,7 +71,7 @@ src_configure() {
 		--enable-udev
 		$(use_enable usb-monitor usb)
 		--enable-lib
-		$(use_enable X x11)
+		--disable-x11
 	)
 
 	econf "${myeconfargs[@]}"
