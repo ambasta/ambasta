@@ -770,3 +770,7 @@ PATCHES=(
 )
 
 S="${WORKDIR}/amazon-q-developer-cli-735fb774ff2f6de9fbf1ca4309f1f5a5116a1325"
+
+src_install() {
+	cargo_src_install chat_cli
+}
