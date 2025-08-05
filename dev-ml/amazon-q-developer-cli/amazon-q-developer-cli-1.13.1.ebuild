@@ -45,13 +45,13 @@ CRATES="
 	aws-smithy-eventstream@0.60.10
 	aws-smithy-http-client@1.0.6
 	aws-smithy-http@0.60.12
-	aws-smithy-http@0.62.2
+	aws-smithy-http@0.62.3
 	aws-smithy-json@0.61.4
 	aws-smithy-observability@0.1.3
 	aws-smithy-protocol-test@0.63.4
 	aws-smithy-query@0.60.7
-	aws-smithy-runtime-api@1.8.5
-	aws-smithy-runtime@1.8.5
+	aws-smithy-runtime-api@1.8.7
+	aws-smithy-runtime@1.8.6
 	aws-smithy-types@1.3.2
 	aws-smithy-xml@0.60.10
 	aws-types@1.3.8
@@ -72,7 +72,7 @@ CRATES="
 	bitflags@2.9.1
 	block-buffer@0.10.4
 	block2@0.5.1
-	bm25@2.3.0
+	bm25@2.3.1
 	borrow-or-share@0.2.2
 	bs58@0.5.1
 	bstr@1.12.0
@@ -83,8 +83,8 @@ CRATES="
 	byteorder@1.5.0
 	bytes-utils@0.1.4
 	bytes@1.10.1
-	cached@0.55.1
-	cached_proc_macro@0.24.0
+	cached@0.56.0
+	cached_proc_macro@0.25.0
 	cached_proc_macro_types@0.1.1
 	camino@1.1.10
 	candle-core@0.9.1
@@ -93,7 +93,7 @@ CRATES="
 	cast@0.3.0
 	castaway@0.2.4
 	cbor-diag@0.1.12
-	cc@1.2.30
+	cc@1.2.31
 	cexpr@0.6.0
 	cfg-if@1.0.1
 	cfg_aliases@0.2.1
@@ -103,8 +103,8 @@ CRATES="
 	ciborium-ll@0.2.2
 	ciborium@0.2.2
 	clang-sys@1.8.1
-	clap@4.5.41
-	clap_builder@4.5.41
+	clap@4.5.42
+	clap_builder@4.5.42
 	clap_complete@4.5.55
 	clap_complete_fig@4.5.2
 	clap_derive@4.5.41
@@ -304,7 +304,7 @@ CRATES="
 	libm@0.2.15
 	libmimalloc-sys@0.1.43
 	libproc@0.14.10
-	libredox@0.1.8
+	libredox@0.1.9
 	libsqlite3-sys@0.30.1
 	linked-hash-map@0.5.6
 	linux-raw-sys@0.4.15
@@ -433,7 +433,7 @@ CRATES="
 	pure-rust-locales@0.8.1
 	pwd@1.4.0
 	quick-xml@0.37.5
-	quick-xml@0.38.0
+	quick-xml@0.38.1
 	quinn-proto@0.11.12
 	quinn-udp@0.5.13
 	quinn@0.11.8
@@ -457,7 +457,7 @@ CRATES="
 	reborrow@0.5.5
 	redox_syscall@0.5.17
 	redox_users@0.4.6
-	redox_users@0.5.0
+	redox_users@0.5.2
 	ref-cast-impl@1.0.24
 	ref-cast@1.0.24
 	referencing@0.30.0
@@ -486,7 +486,7 @@ CRATES="
 	rustls-webpki@0.101.7
 	rustls-webpki@0.103.4
 	rustls@0.21.12
-	rustls@0.23.29
+	rustls@0.23.31
 	rustversion@1.0.21
 	rustyline-derive@0.11.1
 	rustyline@15.0.0
@@ -508,7 +508,7 @@ CRATES="
 	serde@1.0.219
 	serde_derive@1.0.219
 	serde_derive_internals@0.29.1
-	serde_json@1.0.141
+	serde_json@1.0.142
 	serde_plain@1.0.2
 	serde_spanned@0.6.9
 	serde_urlencoded@0.7.1
@@ -521,7 +521,7 @@ CRATES="
 	shellexpand@3.1.1
 	shlex@1.3.0
 	signal-hook-mio@0.2.4
-	signal-hook-registry@1.4.5
+	signal-hook-registry@1.4.6
 	signal-hook@0.3.18
 	similar@2.7.0
 	skim@0.16.2
@@ -582,8 +582,8 @@ CRATES="
 	tokio-rustls@0.24.1
 	tokio-rustls@0.26.2
 	tokio-tungstenite@0.26.2
-	tokio-util@0.7.15
-	tokio@1.47.0
+	tokio-util@0.7.16
+	tokio@1.47.1
 	toml@0.8.23
 	toml_datetime@0.6.11
 	toml_edit@0.22.27
@@ -650,7 +650,7 @@ CRATES="
 	wasm-streams@0.4.2
 	wayland-backend@0.3.11
 	wayland-client@0.31.11
-	wayland-protocols-wlr@0.3.8
+	wayland-protocols-wlr@0.3.9
 	wayland-protocols@0.32.9
 	wayland-scanner@0.31.7
 	wayland-sys@0.31.7
@@ -742,17 +742,20 @@ CRATES="
 	zeroize@1.8.1
 	zerotrie@0.2.2
 	zerovec-derive@0.11.1
-	zerovec@0.11.2
+	zerovec@0.11.3
 	zip@1.1.4
 "
 
 inherit cargo
 
-DESCRIPTION=""
+DESCRIPTION="Agentic chat experience in your terminal. Build applications using natural language."
 HOMEPAGE="https://aws.amazon.com/q/"
-COMMIT_SHA="735fb774ff2f6de9fbf1ca4309f1f5a5116a1325"
+
+# COMMIT_SHA="735fb774ff2f6de9fbf1ca4309f1f5a5116a1325"
+# https://github.com/aws/amazon-q-developer-cli/archive/${COMMIT_SHA}.tar.gz -> ${P}.tar.gz
+
 SRC_URI="
-	https://github.com/aws/amazon-q-developer-cli/archive/${COMMIT_SHA}.tar.gz -> ${P}.tar.gz
+	https://github.com/aws/${PN}/archive/refs/tags/v${PV}.tar.gz -> ${P}.tar.gz
 	${CARGO_CRATE_URIS}
 "
 
@@ -768,8 +771,6 @@ KEYWORDS="~amd64"
 PATCHES=(
 	"${FILESDIR}/0001-updated-lockfile.patch"
 )
-
-S="${WORKDIR}/amazon-q-developer-cli-735fb774ff2f6de9fbf1ca4309f1f5a5116a1325"
 
 src_install() {
 	cd "${S}/crates/chat-cli" || exit
