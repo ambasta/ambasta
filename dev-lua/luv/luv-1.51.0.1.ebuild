@@ -1,7 +1,7 @@
 # Copyright 2019 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
 
 inherit cmake unpacker
 
@@ -27,7 +27,7 @@ RESTRICT="!test? ( test )"
 BDEPEND="virtual/pkgconfig"
 DEPEND="
 	>=dev-libs/libuv-1.32.0:=
-	luajit? ( dev-lang/luajit:2 )
+	luajit? ( dev-lang/luajit:3 )
 	!luajit? ( dev-lang/lua )
 "
 RDEPEND="${DEPEND}"
