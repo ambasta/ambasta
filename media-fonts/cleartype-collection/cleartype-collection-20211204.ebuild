@@ -1,7 +1,7 @@
 # Copyright 2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
 inherit font
 
 DESCRIPTION="Microsoft's font family provided by font service"
@@ -23,7 +23,7 @@ S="${WORKDIR}/${PN}-${COMMIT}"
 
 FONT_SUFFIX="ttf"
 
-FONT_CONF=( "${FILESDIR}/60-cleartype-collection.conf" )
+FONT_CONF=("${FILESDIR}/60-cleartype-collection.conf")
 
 src_install() {
 	mkdir install || die
