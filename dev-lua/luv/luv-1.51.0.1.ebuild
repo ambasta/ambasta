@@ -33,6 +33,10 @@ DEPEND="${LUA_DEPS}
 	>=dev-libs/libuv-$(ver_cut 1-2):="
 RDEPEND="${DEPEND}"
 
+PATCHES=(
+	"${FILESDIR}"/${PN}-1.43.0.0-cmake_lua_version.patch
+)
+
 S="${WORKDIR}/${MY_P}"
 
 src_prepare() {
