@@ -172,19 +172,16 @@ pkg_setup() {
 	rust_pkg_setup
 }
 
-lua_src_install() {
-	local tmp_install_dir="${1}"
-	local myfeatures=("${ELUA}")
-
-	cargo_src_install --root "${tmp_install_dir}" --features "${myfeatures[@]}"
-}
+# lua_src_install() {
+# 	local myfeatures=(${ELUA})
+#
+# 	cargo_src_install --features "${myfeatures[@]}"
+# }
 
 src_install() {
-	local tmp_install_dir="$(mktemp -d)"
-
-	lua_foreach_impl lua_src_install "${tmp_install_dir}"
-
-	dobin "${tmp_install_dir}/bin/stylua"
-
-	rm -rf "${tmp_install_dir}"
+	# cargo_src_install --features lua52
+	# cargo_src_install --features lua53
+	cargo_src_install --features lua54
+	cargo_src_install --features luajit
+	# lua_foreach_impl lua_src_install
 }
