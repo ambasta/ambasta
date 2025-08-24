@@ -173,11 +173,18 @@ pkg_setup() {
 }
 
 lua_src_install() {
-	local myfeatures=(${ELUA})
+	local tmp_install_dir="${1}"
+	local myfeatures=("${ELUA}")
 
-	cargo_src_install --features "${myfeatures[@]}"
+	cargo_src_install --root "${tmp_install_dir}" --features "${myfeatures[@]}"
 }
 
 src_install() {
-	lua_foreach_impl lua_src_install
+	local tmp_install_dir="$(mktemp -d)"
+
+	lua_foreach_impl lua_src_install "${tmp_install_dir}"
+
+	dobin "${tmp_install_dir}/bin/stylua"
+
+	rm -rf "${tmp_install_dir}"
 }
