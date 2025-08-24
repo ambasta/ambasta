@@ -173,8 +173,25 @@ pkg_setup() {
 }
 
 src_configure() {
-	local myfeatures=(${ELUA})
-	# lua_foreach_impl myfeatures+="${ELUA}"
+	local myfeatures=()
+
+	# DO NOT add a lua51 feature; --no-default-features already gives lua51.
+	use lua_targets_lua5-2 && myfeatures+=(lua52)
+	use lua_targets_lua5-3 && myfeatures+=(lua53)
+	use lua_targets_lua5-4 && myfeatures+=(lua54)
+	use lua_targets_luajit && myfeatures+=(luajit)
+
+	# If nothing at all is enabled, ensure at least lua5-1 is selected,
+	# otherwise mlua would still default to 5.1 but we want USE-driven control.
+	if ! use lua_targets_lua5-1 &&
+		! use lua_targets_lua5-2 &&
+		! use lua_targets_lua5-3 &&
+		! use lua_targets_lua5-4 &&
+		! use lua_targets_luajit; then
+		die "Enable at least one LUA_TARGETS (lua5-1..5-4 or luajit)"
+	fi
+
+	export CARGO_FEATURES="${myfeatures[*]}"
 
 	cargo_src_configure --no-default-features
 }
