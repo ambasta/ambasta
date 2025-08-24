@@ -172,13 +172,6 @@ pkg_setup() {
 	rust_pkg_setup
 }
 
-src_configure() {
-	local myfeatures=(${ELUA})
-	# lua_foreach_impl myfeatures+="${ELUA}"
-
-	cargo_src_configure --no-default-features
-}
-
 lua_src_install() {
 	local myfeatures=(${ELUA})
 
