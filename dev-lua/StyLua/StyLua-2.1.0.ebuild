@@ -3,7 +3,7 @@
 
 EAPI=8
 
-LUA_COMPAT=(lua5-{1..4})
+LUA_COMPAT=(lua5-{1..4} luajit)
 
 CRATES="
 	aho-corasick@1.1.2
@@ -153,7 +153,7 @@ RUST_MIN_VER="1.78.0"
 
 inherit cargo lua toolchain-funcs rust
 
-DESCRIPTION="An opinionated code formatter for Lua 5.1, Lua 5.2 and Luau"
+DESCRIPTION=" A Lua code formatter"
 HOMEPAGE="https://github.com/JohnnyMorganz/StyLua"
 SRC_URI="https://github.com/JohnnyMorganz/${PN}/archive/refs/tags/v${PV}.tar.gz -> ${P}.tar.gz
 	$(cargo_crate_uris)"
@@ -164,9 +164,9 @@ KEYWORDS="~amd64"
 
 REQUIRED_USE="${LUA_REQUIRED_USE}"
 
-DEPEND=""
+DEPEND="${LUA_DEPS}"
 RDEPEND="${DEPEND}"
-BDEPEND=""
+BDEPEND="virtual/pkgconfig"
 
 pkg_setup() {
 	rust_pkg_setup
@@ -177,4 +177,14 @@ src_configure() {
 	# lua_foreach_impl myfeatures+="${ELUA}"
 
 	cargo_src_configure --no-default-features
+}
+
+lua_src_install() {
+	local myfeatures=(${ELUA})
+
+	cargo_src_install --features "${myfeatures[@]}"
+}
+
+src_install() {
+	lua_foreach_impl lua_src_install
 }
