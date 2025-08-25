@@ -175,14 +175,28 @@ pkg_setup() {
 src_configure() {
 	local myfeatures=()
 
-	lua_foreach_impl '
-	case ${ELUA} in
-		lua5-1) ;; # implicit with --no-default-features
-		lua5-2) features+=( lua52 ) ;;
-		lua5-3) features+=( lua53 ) ;;
-		lua5-4) features+=( lua54 ) ;;
-		luajit) features+=( luajit ) ;;
-	esac'
+	# Map enabled LUA_TARGETS -> Cargo features via a function
+	lua_add_features() {
+		case ${ELUA} in
+		lua5.1) : ;; # 5.1 is implicit with --no-default-features
+		lua5.2) myfeatures+=(lua52) ;;
+		lua5.3) myfeatures+=(lua53) ;;
+		lua5.4) myfeatures+=(lua54) ;;
+		luajit) myfeatures+=(luajit) ;;
+		*) die "Unknown ELUA=${ELUA}" ;;
+		esac
+	}
+
+	# Run once per enabled implementation (ELUA is set each time)
+	lua_foreach_impl lua_add_features
+
+	if ! use lua_targets_lua5-1 &&
+		! use lua_targets_lua5-2 &&
+		! use lua_targets_lua5-3 &&
+		! use lua_targets_lua5-4 &&
+		! use lua_targets_luajit; then
+		die "Enable at least one LUA_TARGETS (lua5-1..5-4 or luajit)"
+	fi
 
 	export CARGO_FEATURES="${myfeatures[*]}"
 
