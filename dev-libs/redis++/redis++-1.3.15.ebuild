@@ -11,7 +11,7 @@ DESCRIPTION="Redis client written in C++"
 HOMEPAGE="https://github.com/sewenew/${MY_PN}"
 SRC_URI="https://github.com/sewenew/${MY_PN}/archive/${PV}.tar.gz -> ${P}.tar.gz"
 
-LICENSE="APACHE-2.0"
+LICENSE="Apache-2.0"
 # Always check "Upgrading from ..." in README
 # e.g. https://github.com/redis/hiredis#upgrading-to-110
 SLOT="0/$(ver_cut 1-2)"
