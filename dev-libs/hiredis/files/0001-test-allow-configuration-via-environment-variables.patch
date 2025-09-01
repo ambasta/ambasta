@@ -1,0 +1,55 @@
+From 7d17b1070d7e758aed9bf71ab4af316fe54186e0 Mon Sep 17 00:00:00 2001
+From: Amit Prakash Ambasta <amit.prakash.ambasta@gmail.com>
+Date: Mon, 1 Sep 2025 13:14:58 +0530
+Subject: [PATCH] test: allow configuration via environment variables
+
+Add support for HIREDIS_TEST_* environment variables in the test
+harness. This lets ebuilds and CI inject connection details without
+passing CLI arguments. Supported vars include:
+
+- HIREDIS_TEST_HOST / HIREDIS_TEST_PORT / HIREDIS_TEST_SOCKET
+- HIREDIS_SKIP_THROUGHPUT / HIREDIS_SKIP_INHERIT_FD / HIREDIS_SKIPS_AS_FAILS
+- HIREDIS_TEST_SSL_HOST / HIREDIS_TEST_SSL_PORT / HIREDIS_TEST_SSL_CA_CERT /
+  HIREDIS_TEST_SSL_CERT / HIREDIS_TEST_SSL_KEY (when built with SSL)
+
+Signed-off-by: Amit Prakash Ambasta <amit.prakash.ambasta@gmail.com>
+---
+ test.c | 22 ++++++++++++++++++++++
+ 1 file changed, 22 insertions(+)
+
+diff --git a/test.c b/test.c
+index 62dd102..f5a5829 100644
+--- a/test.c
++++ b/test.c
+@@ -2319,6 +2319,28 @@ int main(int argc, char **argv) {
+     int skips_as_fails = 0;
+     int test_unix_socket;
+ 
++    /* --------- Environment defaults (CLI can still override) --------- */
++    {
++      const char* env;
++
++      env = getenv("HIREDIS_TEST_HOST"); if (env && *env) cfg.tcp.host = env;
++      env = getenv("HIREDIS_TEST_PORT"); if (env && *env) cfg.tcp.port = atoi(env);
++      env = getenv("HIREDIS_TEST_SOCKET"); if (env && *env) cfg.unix_sock.path = env;
++
++      /* Any non-empty, non-"0" value means true */
++      env = getenv("HIREDIS_SKIP_THROUGHPUT"); if (env && *env && strcmp(env, "0")) throughput = 0;
++      env = getenv("HIREDIS_SKIP_INHERIT_FD"); if (env && *env && strcmp(env, "0")) test_inherit_fd = 0;
++      env = getenv("HIREDIS_SKIPS_AS_FAILS"); if (env && *env && strcmp(env, "0")) skips_as_fails = 1;
++
++  #ifdef HIREDIS_TEST_SSL
++      env = getenv("HIREDIS_TEST_SSL_HOST"); if (env && *env) cfg.ssl.host = env;
++      env = getenv("HIREDIS_TEST_SSL_PORT"); if (env && *env) cfg.ssl.port = atoi(env);
++      env = getenv("HIREDIS_TEST_SSL_CA_CERT"); if (env && *env) cfg.ssl.ca_cert = env;
++      env = getenv("HIREDIS_TEST_SSL_CERT"); if (env && *env) cfg.ssl.cert = env;
++      env = getenv("HIREDIS_TEST_SSL_KEY"); if (env && *env) cfg.ssl.key = env;
++  #endif
++    }
++
+     /* Parse command line options. */
+     argv++; argc--;
+     while (argc) {
+-- 
+2.51.0
+
