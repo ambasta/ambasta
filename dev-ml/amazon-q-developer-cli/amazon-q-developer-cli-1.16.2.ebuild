@@ -15,12 +15,12 @@ CRATES="
 	android_system_properties@0.1.5
 	anes@0.1.6
 	anndists@0.1.3
-	anstream@0.6.19
+	anstream@0.6.20
 	anstyle-parse@0.2.7
-	anstyle-query@1.1.3
-	anstyle-wincon@3.0.9
+	anstyle-query@1.1.4
+	anstyle-wincon@3.0.10
 	anstyle@1.0.11
-	anyhow@1.0.98
+	anyhow@1.0.99
 	arbitrary@1.4.1
 	arboard@3.6.0
 	arrayvec@0.7.6
@@ -30,17 +30,17 @@ CRATES="
 	async-trait@0.1.88
 	atomic-waker@1.1.2
 	autocfg@1.5.0
-	aws-config@1.8.3
-	aws-credential-types@1.2.4
+	aws-config@1.8.4
+	aws-credential-types@1.2.5
 	aws-http@0.60.6
 	aws-lc-rs@1.13.3
 	aws-lc-sys@0.30.0
-	aws-runtime@1.5.9
-	aws-sdk-cognitoidentity@1.79.0
-	aws-sdk-sso@1.78.0
-	aws-sdk-ssooidc@1.79.0
-	aws-sdk-sts@1.80.0
-	aws-sigv4@1.3.3
+	aws-runtime@1.5.10
+	aws-sdk-cognitoidentity@1.80.0
+	aws-sdk-sso@1.79.0
+	aws-sdk-ssooidc@1.80.0
+	aws-sdk-sts@1.81.0
+	aws-sigv4@1.3.4
 	aws-smithy-async@1.2.5
 	aws-smithy-eventstream@0.60.10
 	aws-smithy-http-client@1.0.6
@@ -72,28 +72,28 @@ CRATES="
 	bitflags@2.9.1
 	block-buffer@0.10.4
 	block2@0.5.1
-	bm25@2.3.1
+	bm25@2.3.2
 	borrow-or-share@0.2.2
 	bs58@0.5.1
 	bstr@1.12.0
 	bumpalo@3.19.0
 	bytecount@0.6.9
-	bytemuck@1.23.1
-	bytemuck_derive@1.10.0
+	bytemuck@1.23.2
+	bytemuck_derive@1.10.1
 	byteorder@1.5.0
 	bytes-utils@0.1.4
 	bytes@1.10.1
 	cached@0.56.0
 	cached_proc_macro@0.25.0
 	cached_proc_macro_types@0.1.1
-	camino@1.1.10
+	camino@1.1.11
 	candle-core@0.9.1
 	candle-nn@0.9.1
 	candle-transformers@0.9.1
 	cast@0.3.0
 	castaway@0.2.4
 	cbor-diag@0.1.12
-	cc@1.2.31
+	cc@1.2.32
 	cexpr@0.6.0
 	cfg-if@1.0.1
 	cfg_aliases@0.2.1
@@ -103,9 +103,9 @@ CRATES="
 	ciborium-ll@0.2.2
 	ciborium@0.2.2
 	clang-sys@1.8.1
-	clap@4.5.42
-	clap_builder@4.5.42
-	clap_complete@4.5.55
+	clap@4.5.44
+	clap_builder@4.5.44
+	clap_complete@4.5.57
 	clap_complete_fig@4.5.2
 	clap_derive@4.5.41
 	clap_lex@0.7.5
@@ -143,8 +143,11 @@ CRATES="
 	crypto-common@0.1.6
 	ctrlc@3.4.7
 	darling@0.20.11
+	darling@0.21.3
 	darling_core@0.20.11
+	darling_core@0.21.3
 	darling_macro@0.20.11
+	darling_macro@0.21.3
 	dary_heap@0.3.7
 	data-encoding@2.9.0
 	defer-drop@1.3.0
@@ -234,19 +237,18 @@ CRATES="
 	getrandom@0.2.16
 	getrandom@0.3.3
 	gimli@0.31.1
-	glob@0.3.2
+	glob@0.3.3
 	globset@0.4.16
 	h2@0.3.27
-	h2@0.4.11
+	h2@0.4.12
 	half@2.6.0
 	hashbrown@0.14.5
-	hashbrown@0.15.4
+	hashbrown@0.15.5
 	hashlink@0.9.1
 	heck@0.4.1
 	heck@0.5.0
 	hermit-abi@0.5.2
 	hex@0.4.3
-	hf-hub@0.4.3
 	hmac@0.12.1
 	hnsw_rs@0.3.1
 	home@0.5.11
@@ -275,7 +277,7 @@ CRATES="
 	ident_case@1.0.1
 	idna@1.0.3
 	idna_adapter@1.2.1
-	indenter@0.3.3
+	indenter@0.3.4
 	indexmap@2.10.0
 	indicatif@0.17.11
 	indoc@2.0.6
@@ -299,13 +301,14 @@ CRATES="
 	jsonschema@0.30.0
 	lazy_static@1.5.0
 	lazycell@1.3.0
-	libc@0.2.174
+	libc@0.2.175
 	libloading@0.8.8
 	libm@0.2.15
 	libmimalloc-sys@0.1.43
 	libproc@0.14.10
 	libredox@0.1.9
 	libsqlite3-sys@0.30.1
+	libz-rs-sys@0.5.1
 	linked-hash-map@0.5.6
 	linux-raw-sys@0.4.15
 	linux-raw-sys@0.9.4
@@ -320,7 +323,7 @@ CRATES="
 	macro_rules_attribute-proc_macro@0.2.2
 	macro_rules_attribute@0.2.2
 	maplit@1.0.2
-	matchers@0.1.0
+	matchers@0.2.0
 	memchr@2.7.5
 	memmap2@0.9.7
 	memoffset@0.7.1
@@ -343,7 +346,6 @@ CRATES="
 	nom@7.1.3
 	normalize-line-endings@0.3.0
 	ntapi@0.4.1
-	nu-ansi-term@0.46.0
 	nu-ansi-term@0.50.1
 	nu-color-config@0.104.1
 	nu-derive-value@0.104.1
@@ -369,6 +371,7 @@ CRATES="
 	num_enum_derive@0.7.4
 	num_threads@0.1.7
 	number_prefix@0.4.0
+	oauth2@5.0.0
 	objc-sys@0.3.5
 	objc2-app-kit@0.2.2
 	objc2-app-kit@0.3.1
@@ -395,7 +398,6 @@ CRATES="
 	option-ext@0.2.0
 	os_pipe@1.2.2
 	outref@0.5.2
-	overload@0.1.1
 	owo-colors@4.2.2
 	parking_lot@0.12.4
 	parking_lot_core@0.9.11
@@ -422,7 +424,8 @@ CRATES="
 	proc-macro-crate@3.3.0
 	proc-macro-error-attr2@2.0.0
 	proc-macro-error2@2.0.1
-	proc-macro2@1.0.95
+	proc-macro2@1.0.97
+	process-wrap@8.2.1
 	procfs-core@0.17.0
 	procfs@0.17.0
 	psl-types@2.0.11
@@ -461,14 +464,14 @@ CRATES="
 	ref-cast-impl@1.0.24
 	ref-cast@1.0.24
 	referencing@0.30.0
-	regex-automata@0.1.10
 	regex-automata@0.4.9
 	regex-lite@0.1.6
-	regex-syntax@0.6.29
 	regex-syntax@0.8.5
 	regex@1.11.1
 	reqwest@0.12.22
 	ring@0.17.14
+	rmcp-macros@0.6.3
+	rmcp@0.6.3
 	roxmltree@0.14.1
 	rusqlite@0.32.1
 	rust-stemmers@1.2.0
@@ -487,7 +490,7 @@ CRATES="
 	rustls-webpki@0.103.4
 	rustls@0.21.12
 	rustls@0.23.31
-	rustversion@1.0.21
+	rustversion@1.0.22
 	rustyline-derive@0.11.1
 	rustyline@15.0.0
 	ryu@1.0.20
@@ -501,7 +504,7 @@ CRATES="
 	sct@0.7.1
 	security-framework-sys@2.14.0
 	security-framework@2.11.1
-	security-framework@3.2.0
+	security-framework@3.3.0
 	semver@1.0.26
 	separator@0.4.1
 	seq-macro@0.3.6
@@ -509,6 +512,7 @@ CRATES="
 	serde_derive@1.0.219
 	serde_derive_internals@0.29.1
 	serde_json@1.0.142
+	serde_path_to_error@0.1.17
 	serde_plain@1.0.2
 	serde_spanned@0.6.9
 	serde_urlencoded@0.7.1
@@ -523,18 +527,19 @@ CRATES="
 	signal-hook-mio@0.2.4
 	signal-hook-registry@1.4.6
 	signal-hook@0.3.18
+	simd-adler32@0.3.7
 	similar@2.7.0
 	skim@0.16.2
-	slab@0.4.10
+	slab@0.4.11
 	smallvec@1.15.1
 	socket2@0.5.10
 	socket2@0.6.0
-	socks@0.3.4
 	spinners@4.1.1
 	spm_precompiled@0.1.4
+	sse-stream@0.2.1
 	stable_deref_trait@1.2.0
 	static_assertions@1.1.0
-	stop-words@0.8.1
+	stop-words@0.9.0
 	strip-ansi-escapes@0.2.1
 	strsim@0.11.1
 	strum@0.24.1
@@ -556,18 +561,16 @@ CRATES="
 	sysctl@0.5.5
 	sysctl@0.6.0
 	sysinfo@0.33.1
-	system-configuration-sys@0.6.0
-	system-configuration@0.6.1
 	tempfile@3.20.0
 	term@0.7.0
 	termcolor@1.4.1
-	terminal_size@0.4.2
+	terminal_size@0.4.3
 	termtree@0.5.1
 	textwrap@0.16.2
 	thiserror-impl@1.0.69
-	thiserror-impl@2.0.12
+	thiserror-impl@2.0.14
 	thiserror@1.0.69
-	thiserror@2.0.12
+	thiserror@2.0.14
 	thread_local@1.1.9
 	time-core@0.1.4
 	time-macros@0.2.22
@@ -581,6 +584,7 @@ CRATES="
 	tokio-macros@2.5.0
 	tokio-rustls@0.24.1
 	tokio-rustls@0.26.2
+	tokio-stream@0.1.17
 	tokio-tungstenite@0.26.2
 	tokio-util@0.7.16
 	tokio@1.47.1
@@ -598,11 +602,11 @@ CRATES="
 	tracing-error@0.2.1
 	tracing-log@0.2.0
 	tracing-serde@0.2.0
-	tracing-subscriber@0.3.19
+	tracing-subscriber@0.3.20
 	tracing-test-macro@0.2.5
 	tracing-test@0.2.5
 	tracing@0.1.41
-	tree_magic_mini@3.1.6
+	tree_magic_mini@3.2.0
 	try-lock@0.2.5
 	tuikit@0.5.0
 	tungstenite@0.26.2
@@ -621,14 +625,13 @@ CRATES="
 	unicode-width@0.2.1
 	unicode_categories@0.1.1
 	untrusted@0.9.0
-	ureq@2.12.1
 	url@2.5.4
 	urlencoding@2.1.3
 	utf-8@0.7.6
 	utf8_iter@1.0.4
 	utf8parse@0.2.2
 	uuid-simd@0.8.0
-	uuid@1.17.0
+	uuid@1.18.0
 	valuable@0.1.1
 	vcpkg@0.2.15
 	version_check@0.9.5
@@ -661,7 +664,7 @@ CRATES="
 	which@4.4.2
 	which@7.0.3
 	whichlang@0.1.1
-	whoami@1.6.0
+	whoami@1.6.1
 	widestring@1.2.0
 	winapi-i686-pc-windows-gnu@0.4.0
 	winapi-util@0.1.9
@@ -680,7 +683,6 @@ CRATES="
 	windows-interface@0.59.1
 	windows-link@0.1.3
 	windows-numerics@0.2.0
-	windows-registry@0.5.3
 	windows-result@0.1.2
 	windows-result@0.3.4
 	windows-strings@0.4.2
@@ -742,8 +744,11 @@ CRATES="
 	zeroize@1.8.1
 	zerotrie@0.2.2
 	zerovec-derive@0.11.1
-	zerovec@0.11.3
+	zerovec@0.11.4
 	zip@1.1.4
+	zip@4.3.0
+	zlib-rs@0.5.1
+	zopfli@0.8.2
 "
 
 inherit cargo
@@ -767,10 +772,6 @@ LICENSE+="
 "
 SLOT="0"
 KEYWORDS="~amd64"
-
-PATCHES=(
-	"${FILESDIR}/0001-updated-lockfile.patch"
-)
 
 src_install() {
 	cd "${S}/crates/chat-cli" || exit
