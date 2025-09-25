@@ -1,0 +1,27 @@
+From a3184e0c8ef25063877f9dfa03381f4dc0445595 Mon Sep 17 00:00:00 2001
+From: Amit Prakash Ambasta <amit.prakash.ambasta@gmail.com>
+Date: Thu, 25 Sep 2025 16:21:16 +0530
+Subject: [PATCH] fix(release): remove explicit toolchain version
+
+Signed-off-by: Amit Prakash Ambasta <amit.prakash.ambasta@gmail.com>
+---
+ Makefile | 3 ---
+ 1 file changed, 3 deletions(-)
+
+diff --git a/Makefile b/Makefile
+index e8c0a05..b4f6ed1 100644
+--- a/Makefile
++++ b/Makefile
+@@ -36,9 +36,6 @@ RPM_REVISION ?= 0
+ # used by hack/jenkins/release_build_and_upload.sh and KVM_BUILD_IMAGE, see also BUILD_IMAGE below
+ # update this only by running `make update-golang-version`
+ GO_VERSION ?= 1.24.6
+-# set GOTOOLCHAIN to GO_VERSION to override any toolchain version specified in
+-# go.mod (ref: https://go.dev/doc/toolchain#GOTOOLCHAIN)
+-export GOTOOLCHAIN := go$(GO_VERSION)
+ # update this only by running `make update-golang-version`
+ GO_K8S_VERSION_PREFIX ?= v1.34.0
+ 
+-- 
+2.51.0
+

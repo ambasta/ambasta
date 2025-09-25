@@ -3,7 +3,7 @@
 
 EAPI=8
 inherit bash-completion-r1 go-module toolchain-funcs
-GIT_COMMIT=dd5d320e41b5451cdf3c01891bc4e13d189586ed
+GIT_COMMIT=65318f4cfff9c12cc87ec9eb8f4cdd57b25047f3
 GIT_COMMIT_SHORT=${GIT_COMMIT:0:9}
 
 DESCRIPTION="Local kubernetes clusters for learning and development"
@@ -23,6 +23,10 @@ RDEPEND="${COMMON_DEPEND}"
 BDEPEND="dev-go/go-bindata"
 
 RESTRICT="test"
+
+PATCHES=(
+	"$FILESDIR/0001-fix-release-remove-explicit-toolchain-version.patch"
+)
 
 src_unpack() {
 	default
