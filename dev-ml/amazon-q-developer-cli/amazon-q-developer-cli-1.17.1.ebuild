@@ -470,8 +470,8 @@ CRATES="
 	regex@1.11.1
 	reqwest@0.12.22
 	ring@0.17.14
-	rmcp-macros@0.6.3
-	rmcp@0.6.3
+	rmcp-macros@0.7.0
+	rmcp@0.7.0
 	roxmltree@0.14.1
 	rusqlite@0.32.1
 	rust-stemmers@1.2.0
