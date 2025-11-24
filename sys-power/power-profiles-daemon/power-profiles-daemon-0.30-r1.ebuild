@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
-PYTHON_COMPAT=(python3_{10..13} python3_13t)
+PYTHON_COMPAT=(python3_{10..14} python3_14t)
 
 inherit meson python-single-r1 shell-completion systemd
 
@@ -54,8 +54,8 @@ BDEPEND="
 
 python_check_deps() {
 	if use test; then
-		python_has_version "dev-python/python-dbusmock[${PYTHON_USEDEP}]" &&
-			python_has_version "dev-python/pygobject:3[${PYTHON_USEDEP}]"
+		python_has_version "dev-python/python-dbusmock[${PYTHON_USEDEP}]" \
+			&& python_has_version "dev-python/pygobject:3[${PYTHON_USEDEP}]"
 	else
 		python_has_version "dev-python/pygobject:3[${PYTHON_USEDEP}]"
 	fi
