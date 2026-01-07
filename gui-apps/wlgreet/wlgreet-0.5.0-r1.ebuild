@@ -83,7 +83,7 @@ CRATES="
 	xml-rs@0.8.20
 "
 
-RUST_MAX_VER="1.87.0"
+RUST_MAX_VER="1.92.0"
 RUST_MIN_VER="1.71.1"
 
 inherit flag-o-matic cargo rust
