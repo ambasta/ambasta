@@ -148,7 +148,7 @@ CRATES="
 	yaml-rust@0.4.5
 "
 
-RUST_MAX_VER="1.89.0"
+RUST_MAX_VER="1.92.0"
 RUST_MIN_VER="1.78.0"
 
 inherit cargo lua toolchain-funcs rust
@@ -178,23 +178,23 @@ src_configure() {
 	# Map enabled LUA_TARGETS -> Cargo features via a function
 	lua_add_features() {
 		case ${ELUA} in
-		lua5.1) : ;; # 5.1 is implicit with --no-default-features
-		lua5.2) myfeatures+=(lua52) ;;
-		lua5.3) myfeatures+=(lua53) ;;
-		lua5.4) myfeatures+=(lua54) ;;
-		luajit) myfeatures+=(luajit) ;;
-		*) die "Unknown ELUA=${ELUA}" ;;
+			lua5.1) : ;; # 5.1 is implicit with --no-default-features
+			lua5.2) myfeatures+=(lua52) ;;
+			lua5.3) myfeatures+=(lua53) ;;
+			lua5.4) myfeatures+=(lua54) ;;
+			luajit) myfeatures+=(luajit) ;;
+			*) die "Unknown ELUA=${ELUA}" ;;
 		esac
 	}
 
 	# Run once per enabled implementation (ELUA is set each time)
 	lua_foreach_impl lua_add_features
 
-	if ! use lua_targets_lua5-1 &&
-		! use lua_targets_lua5-2 &&
-		! use lua_targets_lua5-3 &&
-		! use lua_targets_lua5-4 &&
-		! use lua_targets_luajit; then
+	if ! use lua_targets_lua5-1 \
+		&& ! use lua_targets_lua5-2 \
+		&& ! use lua_targets_lua5-3 \
+		&& ! use lua_targets_lua5-4 \
+		&& ! use lua_targets_luajit; then
 		die "Enable at least one LUA_TARGETS (lua5-1..5-4 or luajit)"
 	fi
 
