@@ -39,6 +39,7 @@ src_install() {
 	dosym "../$(get_libdir)/node_modules/corepack/bin/yarnpkg.js" "/usr/bin/yarnpkg"
 
 	while read -r -d '' path; do
+		einfo "Checking permissions for: ${ED}${path}" # Add this
 		read -r shebang <"${ED}${path}" || die
 		[[ "${shebang}" == \#\!* ]] || continue
 		fperms +x "${path}"
