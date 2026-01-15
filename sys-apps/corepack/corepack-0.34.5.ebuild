@@ -41,7 +41,7 @@ src_install() {
 		[[ -s "${ED}${path}" ]] || continue
 
 		einfo "Checking permissions for: ${ED}${path}" # Add this
-		read -r shebang <"${ED}${path}" || die
+		read -r shebang <"${ED}${path}" || continue
 		[[ "${shebang}" == \#\!* ]] || continue
 		fperms +x "${path}"
 	done < <(find "${ED}" -type f -printf '/%P\0' || die)
