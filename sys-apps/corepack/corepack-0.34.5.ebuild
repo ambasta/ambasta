@@ -34,7 +34,7 @@ src_install() {
 
 	local bin
 	for bin in corepack npm npx pnpm pnpx yarn yarnpkg; do
-		dosym "../$(get_libdir)/node_modules/corepack/dist/${bin}.js" "/usr/bin/${bin}"
+		dosym "../$(get_libdir)/node_modules/corepack/bin/${bin}.js" "/usr/bin/${bin}"
 	done
 
 	while read -r -d '' path; do
