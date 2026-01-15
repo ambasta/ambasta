@@ -27,18 +27,19 @@ src_prepare() {
 }
 
 src_install() {
-	local install_dir="/usr/$(get_libdir)/node_modules/corepack" path shebang
+	local install_dir
+	install_dir="/usr/$(get_libdir)/node_modules/corepack" path shebang
 	insinto "${install_dir}"
 	doins -r .
-	dosym "../$(get_libdir)/node_modules/corepack/dist/corepack.js" "/usr/bin/corepack"
-	dosym "../$(get_libdir)/node_modules/corepack/dist/npm.js" "/usr/bin/npm"
-	dosym "../$(get_libdir)/node_modules/corepack/dist/npx.js" "/usr/bin/npx"
-	dosym "../$(get_libdir)/node_modules/corepack/dist/pnpm.js" "/usr/bin/pnpm"
-	dosym "../$(get_libdir)/node_modules/corepack/dist/pnpx.js" "/usr/bin/pnpx"
-	dosym "../$(get_libdir)/node_modules/corepack/dist/yarn.js" "/usr/bin/yarn"
-	dosym "../$(get_libdir)/node_modules/corepack/bin/yarnpkg.js" "/usr/bin/yarnpkg"
+
+	local bin
+	for bin in corepack npm npx pnpm pnpx yarn yarnpkg; do
+		dosym "../$(get_libdir)/node_modules/corepack/dist/${bin}.js" "/usr/bin/${bin}"
+	done
 
 	while read -r -d '' path; do
+		[[ -s "${ED}${path}" ]] || continue
+
 		einfo "Checking permissions for: ${ED}${path}" # Add this
 		read -r shebang <"${ED}${path}" || die
 		[[ "${shebang}" == \#\!* ]] || continue
