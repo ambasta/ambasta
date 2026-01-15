@@ -4,7 +4,7 @@
 EAPI=8
 
 CONFIG_CHECK="~ADVISE_SYSCALLS"
-PYTHON_COMPAT=( python3_{11..14} )
+PYTHON_COMPAT=(python3_{11..14})
 PYTHON_REQ_USE="threads(+)"
 
 inherit bash-completion-r1 check-reqs flag-o-matic linux-info ninja-utils pax-utils python-any-r1 toolchain-funcs xdg-utils
@@ -24,7 +24,7 @@ else
 	S="${WORKDIR}/node-v${PV}"
 fi
 
-IUSE="corepack cpu_flags_x86_sse2 debug doc +icu +inspector lto npm pax-kernel +snapshot +ssl +system-icu +system-ssl test"
+IUSE="cpu_flags_x86_sse2 debug doc +icu +inspector lto npm pax-kernel +snapshot +ssl +system-icu +system-ssl test"
 REQUIRED_USE="inspector? ( icu ssl )
 	npm? ( ssl )
 	system-icu? ( icu )
@@ -43,7 +43,6 @@ COMMON_DEPEND=">=app-arch/brotli-1.1.0:=
 	>=net-libs/nghttp2-1.66.0:=
 	>=net-libs/nghttp3-1.7.0:=
 	virtual/zlib:=
-	corepack? ( !sys-apps/yarn )
 	system-icu? ( >=dev-libs/icu-73:= )
 	system-ssl? (
 		>=net-libs/ngtcp2-1.11.0:=
@@ -75,7 +74,7 @@ CHECKREQS_DISK_BUILD="22G"
 
 pkg_pretend() {
 	if [[ ${MERGE_TYPE} != "binary" ]]; then
-		if is-flagq "-g*" && ! is-flagq "-g*0" ; then
+		if is-flagq "-g*" && ! is-flagq "-g*0"; then
 			einfo "Checking for sufficient disk space and memory to build ${PN} with debugging CFLAGS"
 			check-reqs_pkg_pretend
 		fi
@@ -113,8 +112,8 @@ src_prepare() {
 	fi
 
 	# We need to disable mprotect on two files when it builds Bug 694100.
-	use pax-kernel &&
-		PATCHES+=( "${FILESDIR}"/${PN}-24.1.0-paxmarking.patch )
+	use pax-kernel \
+		&& PATCHES+=("${FILESDIR}"/${PN}-24.1.0-paxmarking.patch)
 
 	default
 }
@@ -143,42 +142,41 @@ src_configure() {
 		--shared-sqlite
 		--shared-zlib
 	)
-	use debug && myconf+=( --debug )
-	use lto && myconf+=( --enable-lto )
+	use debug && myconf+=(--debug)
+	use lto && myconf+=(--enable-lto)
 	if use system-icu; then
-		myconf+=( --with-intl=system-icu )
+		myconf+=(--with-intl=system-icu)
 	elif use icu; then
-		myconf+=( --with-intl=full-icu )
+		myconf+=(--with-intl=full-icu)
 	else
-		myconf+=( --with-intl=none )
+		myconf+=(--with-intl=none)
 	fi
-	use corepack || myconf+=( --without-corepack )
-	use inspector || myconf+=( --without-inspector )
-	use npm || myconf+=( --without-npm )
-	use snapshot || myconf+=( --without-node-snapshot )
+	use inspector || myconf+=(--without-inspector)
+	use npm || myconf+=(--without-npm)
+	use snapshot || myconf+=(--without-node-snapshot)
 	if use ssl; then
-		use system-ssl && myconf+=( --shared-openssl --openssl-use-def-ca-store )
+		use system-ssl && myconf+=(--shared-openssl --openssl-use-def-ca-store)
 	else
-		myconf+=( --without-ssl )
+		myconf+=(--without-ssl)
 	fi
 
 	local myarch=""
 	case "${ARCH}:${ABI}" in
-		*:amd64) myarch="x64";;
-		*:arm) myarch="arm";;
-		*:arm64) myarch="arm64";;
-		loong:lp64*) myarch="loong64";;
-		riscv:lp64*) myarch="riscv64";;
-		*:ppc64) myarch="ppc64";;
-		*:x32) myarch="x32";;
-		*:x86) myarch="ia32";;
-		*) myarch="${ABI}";;
+		*:amd64) myarch="x64" ;;
+		*:arm) myarch="arm" ;;
+		*:arm64) myarch="arm64" ;;
+		loong:lp64*) myarch="loong64" ;;
+		riscv:lp64*) myarch="riscv64" ;;
+		*:ppc64) myarch="ppc64" ;;
+		*:x32) myarch="x32" ;;
+		*:x86) myarch="ia32" ;;
+		*) myarch="${ABI}" ;;
 	esac
 
 	GYP_DEFINES="linux_use_gold_flags=0
 		linux_use_bundled_binutils=0
 		linux_use_bundled_gold=0" \
-	"${EPYTHON}" configure.py \
+		"${EPYTHON}" configure.py \
 		--prefix="${EPREFIX}"/usr \
 		--dest-cpu=${myarch} \
 		"${myconf[@]}" || die
@@ -208,12 +206,12 @@ src_install() {
 
 	if use npm; then
 		keepdir /etc/npm
-		echo "NPM_CONFIG_GLOBALCONFIG=${EPREFIX}/etc/npm/npmrc" > "${T}"/50npm
+		echo "NPM_CONFIG_GLOBALCONFIG=${EPREFIX}/etc/npm/npmrc" >"${T}"/50npm
 		doenvd "${T}"/50npm
 
 		# Install bash completion for `npm`
 		local tmp_npm_completion_file="$(TMPDIR="${T}" mktemp -t npm.XXXXXXXXXX)"
-		"${ED}/usr/bin/npm" completion > "${tmp_npm_completion_file}"
+		"${ED}/usr/bin/npm" completion >"${tmp_npm_completion_file}"
 		newbashcomp "${tmp_npm_completion_file}" npm
 
 		# Move man pages
@@ -227,20 +225,17 @@ src_install() {
 		for match in "AUTHORS*" "CHANGELOG*" "CONTRIBUT*" "README*" \
 			".travis.yml" ".eslint*" ".wercker.yml" ".npmignore" \
 			"*.bat" "*.cmd"; do
-			find_name+=( ${find_exp} "${match}" )
+			find_name+=(${find_exp} "${match}")
 		done
 
 		# Remove various development and/or inappropriate files and
 		# useless docs of dependend packages.
 		find "${LIBDIR}"/node_modules \
 			\( -type d -name examples \) -or \( -type f \( \
-				-iname "LICEN?E*" \
-				"${find_name[@]}" \
+			-iname "LICEN?E*" \
+			"${find_name[@]}" \
 			\) \) -exec rm -rf "{}" \;
 	fi
-
-	use corepack &&
-		"${D}"/usr/bin/corepack enable --install-directory "${D}"/usr/bin
 
 	mv "${ED}"/usr/share/doc/node "${ED}"/usr/share/doc/${PF} || die
 }
@@ -269,12 +264,12 @@ src_test() {
 		test/sequential/test-util-debug.js
 	)
 	# https://bugs.gentoo.org/963649
-	has_version '>=dev-libs/openssl-3.6' &&
-		drop_tests+=(
+	has_version '>=dev-libs/openssl-3.6' \
+		&& drop_tests+=(
 			test/parallel/test-tls-ocsp-callback
 		)
-	use inspector ||
-		drop_tests+=(
+	use inspector \
+		|| drop_tests+=(
 			test/parallel/test-inspector-emit-protocol-event.js
 			test/parallel/test-inspector-network-arbitrary-data.js
 			test/parallel/test-inspector-network-domain.js
