@@ -27,20 +27,21 @@ src_prepare() {
 }
 
 src_install() {
+	local bin
 	local install_dir
-	install_dir="/usr/$(get_libdir)/node_modules/corepack" path shebang
+	local path
+	local shebang
+
+	install_dir="/usr/$(get_libdir)/node_modules/corepack"
 	insinto "${install_dir}"
 	doins -r .
 
-	local bin
-	for bin in corepack npm npx pnpm pnpx yarn yarnpkg; do
-		dosym "../$(get_libdir)/node_modules/corepack/bin/${bin}.js" "/usr/bin/${bin}"
+	for bin in corepack npm npx pnpm pnpx yarn; do
+		dosym "../$(get_libdir)/node_modules/corepack/dist/${bin}.js" "/usr/bin/${bin}"
 	done
 
 	while read -r -d '' path; do
 		[[ -s "${ED}${path}" ]] || continue
-
-		einfo "Checking permissions for: ${ED}${path}" # Add this
 		read -r shebang <"${ED}${path}" || continue
 		[[ "${shebang}" == \#\!* ]] || continue
 		fperms +x "${path}"
