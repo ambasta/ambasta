@@ -19,7 +19,7 @@ RDEPEND="!dev-util/cmdtest
 	!sys-apps/yarn"
 DEPEND="${RDEPEND}"
 
-# S="${WORKDIR}/${P}"
+S="${WORKDIR}/package"
 
 src_prepare() {
 	default
