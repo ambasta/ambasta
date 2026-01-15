@@ -15,7 +15,7 @@ KEYWORDS="amd64 ~arm ~arm64 ~x86"
 IUSE=""
 
 RDEPEND="!dev-util/cmdtest
-	net-libs/nodejs[-npm,-corepack]
+	!net-libs/nodejs[npm,corepack]
 	!sys-apps/yarn"
 DEPEND="${RDEPEND}"
 
