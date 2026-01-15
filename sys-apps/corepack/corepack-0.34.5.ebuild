@@ -7,7 +7,7 @@ MY_P="${PN}-v${PV}"
 
 DESCRIPTION="Fast, reliable, and secure node dependency management"
 HOMEPAGE="https://yarnpkg.com"
-SRC_URI="https://github.com/nodejs/${PN}/archive/refs/tags/v${PV}.tar.gz -> ${P}.tar.gz"
+SRC_URI="https://github.com/nodejs/${PN}/releases/download/v${PV}/${PN}.tgz -> ${P}.tgz"
 
 LICENSE="BSD-2"
 SLOT="0"
@@ -36,7 +36,7 @@ src_install() {
 	insinto "${install_dir}"
 	doins -r .
 
-	for bin in corepack npm npx pnpm pnpx yarn; do
+	for bin in corepack npm npx pnpm pnpx yarn yarnpkg; do
 		dosym "../$(get_libdir)/node_modules/corepack/dist/${bin}.js" "/usr/bin/${bin}"
 	done
 
