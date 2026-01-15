@@ -46,4 +46,6 @@ src_install() {
 		[[ "${shebang}" == \#\!* ]] || continue
 		fperms +x "${path}"
 	done < <(find "${ED}" -type f -printf '/%P\0' || die)
+
+	rm -rf "${ED}${install_dir}/"{tests,sources,.github,.vscode} || die
 }
