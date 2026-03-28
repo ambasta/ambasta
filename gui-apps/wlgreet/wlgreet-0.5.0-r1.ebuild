@@ -139,6 +139,10 @@ DEPEND="${BDEPEND}
 	>=dev-libs/wayland-protocols-1.20
 "
 
+PATCHES=(
+	"${FILESDIR}/wlgreet-refactor-migrate-to-smithay-client-toolkit-0.20-and-.patch"
+)
+
 pkg_setup() {
 	rust_pkg_setup
 }
