@@ -6,66 +6,55 @@
 EAPI=8
 
 CRATES="
-	addr2line@0.21.0
-	adler@1.0.2
-	async-trait@0.1.80
-	backtrace@0.3.71
-	bitflags@2.5.0
-	bytes@1.6.0
-	cc@1.0.95
-	cfg-if@1.0.0
+	async-trait@0.1.89
+	bitflags@2.11.0
+	bytes@1.11.1
+	cfg-if@1.0.4
+	cfg_aliases@0.2.1
 	enquote@1.1.0
-	getopts@0.2.21
-	gimli@0.28.1
-	itoa@1.0.11
-	libc@0.2.153
-	memchr@2.7.2
-	miniz_oxide@0.7.2
-	mio@0.8.11
-	nix@0.27.1
-	object@0.32.2
+	errno@0.3.14
+	getopts@0.2.24
+	itoa@1.0.18
+	libc@0.2.183
+	memchr@2.8.0
+	mio@1.2.0
+	nix@0.31.2
 	pam-sys@0.5.6
-	pin-project-lite@0.2.14
-	proc-macro2@1.0.81
-	quote@1.0.36
-	rpassword@5.0.1
-	rustc-demangle@0.1.23
-	ryu@1.0.17
-	serde@1.0.198
-	serde_derive@1.0.198
-	serde_json@1.0.116
-	signal-hook-registry@1.4.1
-	socket2@0.5.6
-	syn@2.0.60
-	thiserror-impl@1.0.58
-	thiserror@1.0.58
-	tokio-macros@2.2.0
-	tokio@1.37.0
-	unicode-ident@1.0.12
-	unicode-width@0.1.11
-	wasi@0.11.0+wasi-snapshot-preview1
-	winapi-i686-pc-windows-gnu@0.4.0
-	winapi-x86_64-pc-windows-gnu@0.4.0
-	winapi@0.3.9
-	windows-sys@0.48.0
+	pin-project-lite@0.2.17
+	proc-macro2@1.0.106
+	quote@1.0.45
+	rpassword@7.4.0
+	rtoolbox@0.0.3
+	serde@1.0.228
+	serde_core@1.0.228
+	serde_derive@1.0.228
+	serde_json@1.0.149
+	signal-hook-registry@1.4.8
+	socket2@0.6.3
+	syn@2.0.117
+	thiserror-impl@1.0.69
+	thiserror-impl@2.0.18
+	thiserror@1.0.69
+	thiserror@2.0.18
+	tokio-macros@2.6.1
+	tokio@1.50.0
+	unicode-ident@1.0.24
+	unicode-width@0.2.2
+	wasi@0.11.1+wasi-snapshot-preview1
+	windows-link@0.2.1
 	windows-sys@0.52.0
-	windows-targets@0.48.5
-	windows-targets@0.52.5
-	windows_aarch64_gnullvm@0.48.5
-	windows_aarch64_gnullvm@0.52.5
-	windows_aarch64_msvc@0.48.5
-	windows_aarch64_msvc@0.52.5
-	windows_i686_gnu@0.48.5
-	windows_i686_gnu@0.52.5
-	windows_i686_gnullvm@0.52.5
-	windows_i686_msvc@0.48.5
-	windows_i686_msvc@0.52.5
-	windows_x86_64_gnu@0.48.5
-	windows_x86_64_gnu@0.52.5
-	windows_x86_64_gnullvm@0.48.5
-	windows_x86_64_gnullvm@0.52.5
-	windows_x86_64_msvc@0.48.5
-	windows_x86_64_msvc@0.52.5
+	windows-sys@0.59.0
+	windows-sys@0.61.2
+	windows-targets@0.52.6
+	windows_aarch64_gnullvm@0.52.6
+	windows_aarch64_msvc@0.52.6
+	windows_i686_gnu@0.52.6
+	windows_i686_gnullvm@0.52.6
+	windows_i686_msvc@0.52.6
+	windows_x86_64_gnu@0.52.6
+	windows_x86_64_gnullvm@0.52.6
+	windows_x86_64_msvc@0.52.6
+	zmij@1.0.21
 "
 
 inherit cargo optfeature pam systemd
@@ -96,6 +85,7 @@ QA_FLAGS_IGNORED="usr/bin/.*greet.*"
 
 PATCHES=(
 	"${FILESDIR}/${PN}-0.6.1-correct_user_config_toml.patch"
+	"${FILESDIR}/${PN}-refactor-upgrade-dependencies-and-migrate-to-owned-f.patch"
 )
 
 src_compile() {
