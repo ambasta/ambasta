@@ -148,7 +148,7 @@ CRATES="
 	yaml-rust@0.4.5
 "
 
-RUST_MAX_VER="1.92.0"
+RUST_MAX_VER="1.94.0"
 RUST_MIN_VER="1.78.0"
 
 inherit cargo lua toolchain-funcs rust
