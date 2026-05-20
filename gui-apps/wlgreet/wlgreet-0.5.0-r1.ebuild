@@ -107,7 +107,7 @@ CRATES="
 	zmij@1.0.21
 "
 
-RUST_MAX_VER="1.94.0"
+RUST_MAX_VER="1.95.0"
 RUST_MIN_VER="1.71.1"
 
 inherit flag-o-matic cargo rust
