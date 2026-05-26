@@ -50,6 +50,10 @@ if [[ ${PV} != 9999 ]]; then
 	VERIFY_SIG_OPENPGP_KEY_PATH="/usr/share/openpgp-keys/emersion.asc"
 fi
 
+PATCHES=(
+	"${FILESDIR}/0001-fix-screencast-advertise-8-bit-SHM-fallback-formats-.patch"
+)
+
 src_configure() {
 	local emesonargs=()
 

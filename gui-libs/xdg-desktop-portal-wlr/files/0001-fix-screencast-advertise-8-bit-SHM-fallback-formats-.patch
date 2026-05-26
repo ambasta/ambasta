@@ -1,0 +1,125 @@
+From 4c180c428bb64016e242242786391976fcfe9acd Mon Sep 17 00:00:00 2001
+From: Amit Prakash Ambasta <amit.prakash.ambasta@gmail.com>
+Date: Tue, 26 May 2026 19:55:40 +0530
+Subject: [PATCH] fix(screencast): advertise 8-bit SHM fallback formats for
+ non-10-bit-aware consumers
+
+When the compositor uses a non-8-bit render format (e.g., XRGB2101010 on
+10-bit panels), PipeWire link negotiation fails because the only SHM
+format advertised is xRGB_210LE, which SHM-only consumers like Firefox
+don't support. The 8-bit formats (BGRA/BGRx) are only offered with
+mandatory DMA-BUF modifiers, making them unreachable for these consumers.
+
+Advertise ARGB8888/XRGB8888 as additional no-modifier SHM format pods
+when they appear in the DMA-BUF format list but not in the SHM list.
+Update buffer creation to compute stride for these fallback formats.
+
+Also fix a type mismatch in build_formats() that iterated the
+shm_formats array (struct xdpw_shm_format, 8 bytes) with a uint32_t
+pointer (4-byte stride).
+
+Fixes: screenshare with Firefox on 10-bit displays
+Signed-off-by: Amit Prakash Ambasta <amit.prakash.ambasta@gmail.com>
+---
+ src/screencast/pipewire_screencast.c | 37 +++++++++++++++++++++++++---
+ src/screencast/screencast_common.c   | 19 ++++++++------
+ 2 files changed, 46 insertions(+), 10 deletions(-)
+
+diff --git a/src/screencast/pipewire_screencast.c b/src/screencast/pipewire_screencast.c
+index 102a0f2..faae670 100644
+--- a/src/screencast/pipewire_screencast.c
++++ b/src/screencast/pipewire_screencast.c
+@@ -179,9 +179,40 @@ static void build_formats(struct spa_pod_builder *builder, struct xdpw_screencas
+ 		}
+ 	}
+ 
+-	uint32_t *format;
+-	wl_array_for_each(format, &cast->current_constraints.shm_formats) {
+-		enum spa_video_format pw_format = xdpw_format_pw_from_drm_fourcc(*format);
++	struct xdpw_shm_format *shm_fmt;
++	wl_array_for_each(shm_fmt, &cast->current_constraints.shm_formats) {
++		enum spa_video_format pw_format = xdpw_format_pw_from_drm_fourcc(shm_fmt->fourcc);
++		if (pw_format != SPA_VIDEO_FORMAT_UNKNOWN) {
++			add_pod(params, build_format(builder, pw_format,
++						cast->current_constraints.width, cast->current_constraints.height,
++						cast->framerate, NULL, 0));
++		}
++	}
++
++	uint32_t fallback_formats[] = { DRM_FORMAT_ARGB8888, DRM_FORMAT_XRGB8888 };
++	for (size_t i = 0; i < sizeof(fallback_formats) / sizeof(fallback_formats[0]); i++) {
++		bool already_advertised = false;
++		wl_array_for_each(shm_fmt, &cast->current_constraints.shm_formats) {
++			if (shm_fmt->fourcc == fallback_formats[i]) {
++				already_advertised = true;
++				break;
++			}
++		}
++		if (already_advertised) {
++			continue;
++		}
++		bool in_dmabuf = false;
++		struct xdpw_format_modifier_pair *fm_pair;
++		wl_array_for_each(fm_pair, &cast->current_constraints.dmabuf_format_modifier_pairs) {
++			if (fm_pair->fourcc == fallback_formats[i]) {
++				in_dmabuf = true;
++				break;
++			}
++		}
++		if (!in_dmabuf) {
++			continue;
++		}
++		enum spa_video_format pw_format = xdpw_format_pw_from_drm_fourcc(fallback_formats[i]);
+ 		if (pw_format != SPA_VIDEO_FORMAT_UNKNOWN) {
+ 			add_pod(params, build_format(builder, pw_format,
+ 						cast->current_constraints.width, cast->current_constraints.height,
+diff --git a/src/screencast/screencast_common.c b/src/screencast/screencast_common.c
+index 721da03..86f6949 100644
+--- a/src/screencast/screencast_common.c
++++ b/src/screencast/screencast_common.c
+@@ -120,22 +120,27 @@ struct xdpw_buffer *xdpw_buffer_create(struct xdpw_screencast_instance *cast,
+ 	case WL_SHM:;
+ 		struct xdpw_shm_format *fmt;
+ 		bool found = false;
++		uint32_t shm_stride;
+ 		wl_array_for_each(fmt, &cast->current_constraints.shm_formats) {
+ 			if (fmt->fourcc == format) {
+ 				found = true;
++				shm_stride = fmt->stride;
+ 				break;
+ 			}
+ 		}
+ 		if (!found) {
+-			logprint(ERROR, "xdpw: unable to find format: %d", format);
+-			xdpw_buffer_destroy(buffer);
+-			return NULL;
+-
++			int bpp = xdpw_bpp_from_drm_fourcc(format);
++			if (bpp <= 0) {
++				logprint(ERROR, "xdpw: unable to find format: %d", format);
++				xdpw_buffer_destroy(buffer);
++				return NULL;
++			}
++			shm_stride = bpp * buffer->width;
+ 		}
+ 
+ 		buffer->plane_count = 1;
+-		buffer->size[0] = fmt->stride * buffer->height;
+-		buffer->stride[0] = fmt->stride;
++		buffer->size[0] = shm_stride * buffer->height;
++		buffer->stride[0] = shm_stride;
+ 		buffer->offset[0] = 0;
+ 		buffer->fd[0] = anonymous_shm_open();
+ 		if (buffer->fd[0] == -1) {
+@@ -151,7 +156,7 @@ struct xdpw_buffer *xdpw_buffer_create(struct xdpw_screencast_instance *cast,
+ 		}
+ 
+ 		buffer->buffer = import_wl_shm_buffer(cast, buffer->fd[0], xdpw_format_wl_shm_from_drm_fourcc(format),
+-			buffer->width, buffer->height, fmt->stride);
++			buffer->width, buffer->height, shm_stride);
+ 		if (buffer->buffer == NULL) {
+ 			logprint(ERROR, "xdpw: unable to create wl_buffer");
+ 			close(buffer->fd[0]);
+-- 
+2.54.0
+
