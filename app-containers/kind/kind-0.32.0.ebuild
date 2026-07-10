@@ -3,7 +3,7 @@
 
 EAPI=8
 
-inherit bash-completion-r1 go-module toolchain-funcs
+inherit go-module shell-completion toolchain-funcs
 
 DESCRIPTION="Run local Kubernetes clusters using Docker container nodes"
 HOMEPAGE="https://kind.sigs.k8s.io https://github.com/kubernetes-sigs/kind"
@@ -19,17 +19,13 @@ RDEPEND="|| (
 	app-containers/docker
 	app-containers/podman
 )"
+BDEPEND=">=dev-lang/go-1.26.0"
 
 RESTRICT="test"
 
-src_prepare() {
-	ln -sv ../vendor ./ || die
-	default
-}
-
 src_compile() {
 	CGO_LDFLAGS="$(usex hardened '-fno-PIC ' '')" \
-		ego build -trimpath -ldflags="-buildid= -s -w" -o bin/${PN} .
+		ego build -trimpath -ldflags="-buildid=" -o bin/${PN} .
 }
 
 src_install() {
@@ -42,9 +38,7 @@ src_install() {
 		bin/${PN} completion zsh >"${T}/${PN}.zsh" || die
 
 		newbashcomp "${T}/${PN}.bash" ${PN}
-		insinto /usr/share/fish/vendor_completions.d
-		newins "${T}/${PN}.fish" ${PN}.fish
-		insinto /usr/share/zsh/site-functions
-		newins "${T}/${PN}.zsh" _${PN}
+		newfishcomp "${T}/${PN}.fish" ${PN}.fish
+		newzshcomp "${T}/${PN}.zsh" _${PN}
 	fi
 }
