@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "https://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+	<maintainer type="person">
+		<email>amit.ambasta@delhivery.com</email>
+		<name>Amit Prakash Ambasta</name>
+	</maintainer>
+	<longdescription lang="en">
+		wl-gammarelay-rs exposes a D-Bus interface for controlling display
+		temperature, brightness, gamma, and color inversion on Wayland
+		compositors supporting wlr-gamma-control-unstable-v1.
+	</longdescription>
+	<upstream>
+		<remote-id type="github">MaxVerevkin/wl-gammarelay-rs</remote-id>
+	</upstream>
+</pkgmetadata>
