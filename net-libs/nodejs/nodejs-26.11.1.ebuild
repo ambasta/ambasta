@@ -1,17 +1,20 @@
-# Copyright 1999-2025 Gentoo Authors
+# Copyright 1999-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
 
 CONFIG_CHECK="~ADVISE_SYSCALLS"
-PYTHON_COMPAT=(python3_{11..14})
+PYTHON_COMPAT=( python3_{11..14} )
 PYTHON_REQ_USE="threads(+)"
+RUST_OPTIONAL=1
+RUST_MIN_VER="1.86.0"
 
-inherit bash-completion-r1 check-reqs flag-o-matic linux-info ninja-utils pax-utils python-any-r1 toolchain-funcs xdg-utils
+inherit check-reqs flag-o-matic linux-info ninja-utils pax-utils
+inherit python-any-r1 rust shell-completion toolchain-funcs xdg-utils
 
 DESCRIPTION="A JavaScript runtime built on Chrome's V8 JavaScript engine"
 HOMEPAGE="https://nodejs.org/"
-LICENSE="Apache-1.1 Apache-2.0 BSD BSD-2 MIT npm? ( Artistic-2 )"
+LICENSE="Apache-1.1 Apache-2.0 BlueOak-1.0.0 BSD BSD-2 MIT npm? ( Artistic-2 )"
 
 if [[ ${PV} == *9999 ]]; then
 	inherit git-r3
@@ -24,41 +27,43 @@ else
 	S="${WORKDIR}/node-v${PV}"
 fi
 
-IUSE="cpu_flags_x86_sse2 debug doc +icu +inspector lto npm pax-kernel +snapshot +ssl +system-icu +system-ssl test"
+IUSE="cpu_flags_x86_sse2 debug doc +icu +inspector lto +npm pax-kernel +snapshot +ssl system-icu +system-ssl test temporal"
 REQUIRED_USE="inspector? ( icu ssl )
 	npm? ( ssl )
 	system-icu? ( icu )
 	system-ssl? ( ssl )
+	temporal? ( || ( icu !system-icu ) )
 	x86? ( cpu_flags_x86_sse2 )"
 
 RESTRICT="!test? ( test )"
 
 COMMON_DEPEND=">=app-arch/brotli-1.1.0:=
 	dev-db/sqlite:3
-	>=dev-cpp/ada-3.3.0:=
-	>=dev-cpp/simdutf-7.3.4:=
-	>=dev-libs/libuv-1.51.0:=
-	>=dev-libs/simdjson-4.0.7:=
-	>=net-dns/c-ares-1.34.5:=
-	>=net-libs/nghttp2-1.66.0:=
-	>=net-libs/nghttp3-1.7.0:=
+	>=dev-cpp/ada-4.0.0:=
+	>=dev-cpp/simdutf-9.2.1:=[atomic-base64]
+	>=dev-libs/libuv-1.52.1:=
+	>=dev-libs/simdjson-4.6.11:=
+	>=net-dns/c-ares-1.34.8:=
+	>=net-libs/nghttp2-1.70.0:=
+	>=net-libs/nghttp3-1.18.0:=
 	virtual/zlib:=
-	system-icu? ( >=dev-libs/icu-73:= )
+	system-icu? ( >=dev-libs/icu-78:= )
 	system-ssl? (
-		>=net-libs/ngtcp2-1.11.0:=
-		>=dev-libs/openssl-3.5.4:0=
+		>=net-libs/ngtcp2-1.25.0:=
+		>=dev-libs/openssl-3.5.9:0=
 	)
-	!system-ssl? ( >=net-libs/ngtcp2-1.11.0:=[-gnutls] )
+	!system-ssl? ( >=net-libs/ngtcp2-1.25.0:=[-gnutls] )
 	|| (
 		sys-devel/gcc:*
 		llvm-runtimes/libatomic-stub
 	)"
 BDEPEND="${PYTHON_DEPS}
 	app-alternatives/ninja
+	pax-kernel? ( sys-apps/elfix )
 	sys-apps/coreutils
-	virtual/pkgconfig
+	temporal? ( ${RUST_DEPEND} )
 	test? ( net-misc/curl )
-	pax-kernel? ( sys-apps/elfix )"
+	virtual/pkgconfig"
 DEPEND="${COMMON_DEPEND}"
 RDEPEND="${COMMON_DEPEND}"
 
@@ -72,9 +77,17 @@ RDEPEND="${COMMON_DEPEND}"
 CHECKREQS_MEMORY="8G"
 CHECKREQS_DISK_BUILD="22G"
 
+PATCHES=(
+	"${FILESDIR}"/${PN}-26.6.0-format-cstdlib.patch
+	"${FILESDIR}"/${PN}-26.6.0-v8-climits.patch
+	"${FILESDIR}"/${PN}-26.11.1-add-missing-funcational-inc.patch
+	"${FILESDIR}"/${PN}-26.10.0-x86-SSE2-fix.patch
+	"${FILESDIR}"/${PN}-26.10.0-simdutf-use-system-header.patch
+)
+
 pkg_pretend() {
 	if [[ ${MERGE_TYPE} != "binary" ]]; then
-		if is-flagq "-g*" && ! is-flagq "-g*0"; then
+		if is-flagq "-g*" && ! is-flagq "-g*0" ; then
 			einfo "Checking for sufficient disk space and memory to build ${PN} with debugging CFLAGS"
 			check-reqs_pkg_pretend
 		fi
@@ -84,6 +97,7 @@ pkg_pretend() {
 pkg_setup() {
 	python-any-r1_pkg_setup
 	linux-info_pkg_setup
+	use temporal && rust_pkg_setup
 }
 
 src_prepare() {
@@ -93,7 +107,7 @@ src_prepare() {
 
 	# fix compilation on Darwin
 	# https://code.google.com/p/gyp/issues/detail?id=260
-	sed -i -e "/append('-arch/d" tools/gyp/pylib/gyp/xcode_emulation.py || die
+	sed -i -e '/append("-arch")/{N;d;}' tools/gyp/pylib/gyp/xcode_emulation.py || die
 
 	# proper libdir, hat tip @ryanpcmcquen https://github.com/iojs/io.js/issues/504
 	local LIBDIR=$(get_libdir)
@@ -112,8 +126,11 @@ src_prepare() {
 	fi
 
 	# We need to disable mprotect on two files when it builds Bug 694100.
-	use pax-kernel \
-		&& PATCHES+=("${FILESDIR}"/${PN}-24.1.0-paxmarking.patch)
+	use pax-kernel &&
+		PATCHES+=( "${FILESDIR}"/${PN}-24.1.0-paxmarking.patch )
+
+	use ppc64 &&
+		PATCHES+=(	"${FILESDIR}/${PN}-24.11.1-restore-ppc64be.patch" )
 
 	default
 }
@@ -142,41 +159,45 @@ src_configure() {
 		--shared-sqlite
 		--shared-zlib
 	)
-	use debug && myconf+=(--debug)
-	use lto && myconf+=(--enable-lto)
+	use debug && myconf+=( --debug )
+	use lto && myconf+=( --enable-lto )
 	if use system-icu; then
-		myconf+=(--with-intl=system-icu)
+		# No Temporal support: https://github.com/nodejs/node/issues/62676
+		myconf+=( --with-intl=system-icu )
 	elif use icu; then
-		myconf+=(--with-intl=full-icu)
+		# Full embedded ICU (Temporal works)
+		myconf+=( --with-intl=full-icu )
 	else
-		myconf+=(--with-intl=none)
+		# Default embedded subset (Temporal works, saves space over full-icu)
+		myconf+=( --with-intl=small-icu )
 	fi
-	use inspector || myconf+=(--without-inspector)
-	use npm || myconf+=(--without-npm)
-	use snapshot || myconf+=(--without-node-snapshot)
+	use inspector || myconf+=( --without-inspector )
+	use npm || myconf+=( --without-npm )
+	use snapshot || myconf+=( --without-node-snapshot )
 	if use ssl; then
-		use system-ssl && myconf+=(--shared-openssl --openssl-use-def-ca-store)
+		use system-ssl && myconf+=( --shared-openssl --openssl-use-def-ca-store )
 	else
-		myconf+=(--without-ssl)
+		myconf+=( --without-ssl )
 	fi
+	! use temporal && myconf+=( --v8-disable-temporal-support )
 
 	local myarch=""
 	case "${ARCH}:${ABI}" in
-		*:amd64) myarch="x64" ;;
-		*:arm) myarch="arm" ;;
-		*:arm64) myarch="arm64" ;;
-		loong:lp64*) myarch="loong64" ;;
-		riscv:lp64*) myarch="riscv64" ;;
-		*:ppc64) myarch="ppc64" ;;
-		*:x32) myarch="x32" ;;
-		*:x86) myarch="ia32" ;;
-		*) myarch="${ABI}" ;;
+		*:amd64) myarch="x64";;
+		*:arm) myarch="arm";;
+		*:arm64) myarch="arm64";;
+		loong:lp64*) myarch="loong64";;
+		riscv:lp64*) myarch="riscv64";;
+		*:ppc64) myarch="ppc64";;
+		*:x32) myarch="x32";;
+		*:x86) myarch="ia32";;
+		*) myarch="${ABI}";;
 	esac
 
 	GYP_DEFINES="linux_use_gold_flags=0
 		linux_use_bundled_binutils=0
 		linux_use_bundled_gold=0" \
-		"${EPYTHON}" configure.py \
+	"${EPYTHON}" configure.py \
 		--prefix="${EPREFIX}"/usr \
 		--dest-cpu=${myarch} \
 		"${myconf[@]}" || die
@@ -184,6 +205,8 @@ src_configure() {
 
 src_compile() {
 	eninja -C out/Release
+	# There's just a plain make target for the FFI tests, and it doesn't support ninja.
+	use test && emake build-ffi-tests
 }
 
 src_install() {
@@ -192,13 +215,6 @@ src_install() {
 
 	pax-mark -m "${ED}"/usr/bin/node
 
-	# set up a symlink structure that node-gyp expects..
-	dodir /usr/include/node/deps/{v8,uv}
-	dosym . /usr/include/node/src
-	for var in deps/{uv,v8}/include; do
-		dosym ../.. /usr/include/node/${var}
-	done
-
 	if use doc; then
 		docinto html
 		dodoc -r "${S}"/doc/*
@@ -206,12 +222,12 @@ src_install() {
 
 	if use npm; then
 		keepdir /etc/npm
-		echo "NPM_CONFIG_GLOBALCONFIG=${EPREFIX}/etc/npm/npmrc" >"${T}"/50npm
+		echo "NPM_CONFIG_GLOBALCONFIG=${EPREFIX}/etc/npm/npmrc" > "${T}"/50npm
 		doenvd "${T}"/50npm
 
 		# Install bash completion for `npm`
 		local tmp_npm_completion_file="$(TMPDIR="${T}" mktemp -t npm.XXXXXXXXXX)"
-		"${ED}/usr/bin/npm" completion >"${tmp_npm_completion_file}"
+		"${ED}/usr/bin/npm" completion > "${tmp_npm_completion_file}"
 		newbashcomp "${tmp_npm_completion_file}" npm
 
 		# Move man pages
@@ -225,15 +241,17 @@ src_install() {
 		for match in "AUTHORS*" "CHANGELOG*" "CONTRIBUT*" "README*" \
 			".travis.yml" ".eslint*" ".wercker.yml" ".npmignore" \
 			"*.bat" "*.cmd"; do
-			find_name+=(${find_exp} "${match}")
+			find_name+=( ${find_exp} "${match}" )
 		done
 
 		# Remove various development and/or inappropriate files and
 		# useless docs of dependend packages.
+		# Strict match for LICENSE files to avoid purging actual logic (e.g. license.js)
+		# which breaks npm.
 		find "${LIBDIR}"/node_modules \
 			\( -type d -name examples \) -or \( -type f \( \
-			-iname "LICEN?E*" \
-			"${find_name[@]}" \
+				\( -iname "LICEN?E*" -not -name "*.js" -not -name "*.json" \) \
+				"${find_name[@]}" \
 			\) \) -exec rm -rf "{}" \;
 	fi
 
@@ -258,18 +276,27 @@ src_test() {
 		test/parallel/test-process-setgroups.js
 		test/parallel/test-process-uid-gid.js
 		test/parallel/test-release-npm.js
+		# Unreliable when using system libraries and ASLR.
+		# The variations between snapshot generation passes appear limited to memory
+		# allocation pointers leaking into the serialised V8 blob array; the actual
+		# bytecode and engine structures remain consistently... consistent.
+		test/parallel/test-snapshot-reproducible.js
 		test/parallel/test-socket-write-after-fin-error.js
 		test/parallel/test-strace-openat-openssl.js
 		test/sequential/test-tls-session-timeout.js
 		test/sequential/test-util-debug.js
 	)
-	# https://bugs.gentoo.org/963649
-	has_version '>=dev-libs/openssl-3.6' \
-		&& drop_tests+=(
-			test/parallel/test-tls-ocsp-callback
-		)
-	use inspector \
-		|| drop_tests+=(
+
+	if has_version "sys-libs/zlib-ng" ; then
+		elog "Some tests will be skipped due to being known to fail with sys-libs/zlib-ng"
+		elog
+		drop_tests+=( test/parallel/test-process-versions.js )
+		drop_tests+=( test/parallel/test-zlib-zip-interop.js )
+		elog
+	fi
+
+	use inspector ||
+		drop_tests+=(
 			test/parallel/test-inspector-emit-protocol-event.js
 			test/parallel/test-inspector-network-arbitrary-data.js
 			test/parallel/test-inspector-network-domain.js
@@ -287,5 +314,13 @@ pkg_postinst() {
 	if use npm; then
 		ewarn "remember to run: source /etc/profile if you plan to use nodejs"
 		ewarn " in your current shell"
+	fi
+
+	if use system-icu; then
+		ewarn ""
+		ewarn "Node.js was built with USE='system-icu'."
+		ewarn "The JavaScript 'Temporal' API has been disabled."
+		ewarn "If you need full ES2026+ compliance, rebuild with USE='-system-icu'."
+		ewarn ""
 	fi
 }
