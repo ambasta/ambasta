@@ -42,7 +42,7 @@ COMMON_DEPEND=">=app-arch/brotli-1.1.0:=
 	>=dev-cpp/ada-4.0.0:=
 	>=dev-cpp/simdutf-9.2.1:=[atomic-base64]
 	>=dev-libs/libuv-1.52.1:=
-	>=dev-libs/simdjson-4.6.11:=
+	>=dev-libs/simdjson-5.0.3:=
 	>=net-dns/c-ares-1.34.8:=
 	>=net-libs/nghttp2-1.70.0:=
 	>=net-libs/nghttp3-1.18.0:=
@@ -78,11 +78,11 @@ CHECKREQS_MEMORY="8G"
 CHECKREQS_DISK_BUILD="22G"
 
 PATCHES=(
-	"${FILESDIR}"/${PN}-26.6.0-format-cstdlib.patch
-	"${FILESDIR}"/${PN}-26.6.0-v8-climits.patch
+	"${FILESDIR}"/${PN}-26.12.0-v8-climits.patch
 	"${FILESDIR}"/${PN}-26.11.1-add-missing-funcational-inc.patch
 	"${FILESDIR}"/${PN}-26.10.0-x86-SSE2-fix.patch
 	"${FILESDIR}"/${PN}-26.10.0-simdutf-use-system-header.patch
+	"${FILESDIR}"/${PN}-26.11.1-include-EACCES-in-mkdir-test.patch
 )
 
 pkg_pretend() {
@@ -144,6 +144,20 @@ src_configure() {
 	append-cxxflags $(test-flags-CXX -Wno-template-id-cdtor)
 	# https://bugs.gentoo.org/931514
 	use arm64 && append-flags $(test-flags-CXX -mbranch-protection=none)
+
+	# Highway compilation error on riscv
+	# See: https://bugs.gentoo.org/983938
+	#
+	# Upstream Highway fixed the issue, but V8 has not picked up a Highway
+	# version that includes it, so Node still hits the old headers.
+	# this workaround will stop Highway from compiling RVV, and stop the host
+	# compiler from emitting RVV in non-V8 code. V8 can still emit RVV at runtime
+	# on machines that have it.
+	#
+	# Additionally, force the EMU128 (128-bit scalar emulation) for boards
+	# without RVV (VisionFive V2 / JH7110).
+	# This will ensure V8's FixedTag<..., 16> in the JSON stringifier is legal.
+	use riscv && append-cxxflags -DHWY_DISABLED_TARGETS=HWY_RVV -DHWY_BROKEN_EMU128=0
 
 	local myconf=(
 		--ninja
