@@ -1,0 +1,23 @@
+GCC does not provide std::ceil/std::find through these transitive includes.
+Include their standard headers explicitly; no test or application logic changes.
+
+--- a/tests/ui/test_dialog.cpp
++++ b/tests/ui/test_dialog.cpp
+@@ -7,6 +7,7 @@
+ #include "ui/controls.h"
+ #include "ui/datetime.h"
+ #include "base/time.h"
++#include <cmath>
+ 
+ using namespace uitest;
+ 
+--- a/tests/app/claude/test_links.cpp
++++ b/tests/app/claude/test_links.cpp
+@@ -14,6 +14,7 @@
+ #include "plat/plat.h"
+ #include "support/test.h"
+ 
++#include <algorithm>
+ #include <cstdio>
+ #include <functional>
+ #include <memory>
