@@ -1,0 +1,443 @@
+From: Gentoo Authors
+Subject: Adapt transitive dependencies to the latest stable crate APIs
+
+--- a/borsh-1.8.1/Cargo.toml
++++ b/borsh-1.8.1/Cargo.toml
+@@ -103,7 +103,7 @@
+ default-features = false
+ 
+ [dependencies.hashbrown]
+-version = ">=0.11,<0.16.0"
++version = "0.17.1"
+ optional = true
+ 
+ [dependencies.indexmap]
+--- a/criterion-0.8.2/Cargo.toml
++++ b/criterion-0.8.2/Cargo.toml
+@@ -91,7 +91,7 @@
+ harness = false
+ 
+ [dependencies.anes]
+-version = "0.1.4"
++version = "0.2.1"
+ 
+ [dependencies.cast]
+ version = "0.3"
+@@ -121,7 +121,7 @@
+ default-features = false
+ 
+ [dependencies.itertools]
+-version = "0.13"
++version = "0.15.0"
+ 
+ [dependencies.num-traits]
+ version = "0.2"
+--- a/criterion-plot-0.8.2/Cargo.toml
++++ b/criterion-plot-0.8.2/Cargo.toml
+@@ -42,7 +42,7 @@
+ version = "0.3"
+ 
+ [dependencies.itertools]
+-version = "0.13"
++version = "0.15.0"
+ 
+ [dev-dependencies.itertools-num]
+ version = "0.1"
+--- a/derive_more-impl-2.1.1/Cargo.toml
++++ b/derive_more-impl-2.1.1/Cargo.toml
+@@ -143,7 +143,7 @@
+ proc-macro = true
+ 
+ [dependencies.convert_case]
+-version = "0.10"
++version = "0.12.0"
+ optional = true
+ 
+ [dependencies.proc-macro2]
+@@ -153,7 +153,7 @@
+ version = "1.0"
+ 
+ [dependencies.syn]
+-version = "2.0.45"
++version = "3.0.9"
+ 
+ [dependencies.unicode-xid]
+ version = "0.2.2"
+--- a/derive_more-impl-2.1.1/src/fmt/mod.rs
++++ b/derive_more-impl-2.1.1/src/fmt/mod.rs
+@@ -594,7 +594,7 @@
+             return false;
+         }
+         match self {
+-            Self::Path(syn::TypePath { qself, path }) => {
++            Self::Path(syn::TypePath { qself, path, .. }) => {
+                 if let Some(qself) = qself {
+                     if qself.ty.contains_generics(type_params) {
+                         return true;
+@@ -617,7 +617,7 @@
+                 elem.contains_generics(type_params)
+             }
+ 
+-            Self::BareFn(syn::TypeBareFn { inputs, output, .. }) => {
++            Self::FnPtr(syn::TypeFnPtr { inputs, output, .. }) => {
+                 inputs
+                     .iter()
+                     .any(|arg| arg.ty.contains_generics(type_params))
+@@ -690,7 +690,7 @@
+                 syn::PathArguments::Parenthesized(
+                     syn::ParenthesizedGenericArguments { inputs, output, .. },
+                 ) => {
+-                    inputs.iter().any(|ty| ty.contains_generics(type_params))
++                    inputs.iter().any(|arg| arg.ty.contains_generics(type_params))
+                         || match output {
+                             syn::ReturnType::Default => false,
+                             syn::ReturnType::Type(_, ty) => {
+@@ -699,6 +699,29 @@
+                         }
+                 }
+             })
++    }
++}
++
++#[cfg(test)]
++mod contains_generics_spec {
++    use super::ContainsGenericsExt as _;
++
++    #[test]
++    fn finds_type_parameters_in_function_pointer_and_fn_trait_arguments() {
++        let type_param = syn::Ident::new("T", proc_macro2::Span::call_site());
++        let params = &[&type_param];
++
++        for ty in [
++            syn::parse_quote! { fn(T) },
++            syn::parse_quote! { fn(u8) -> T },
++            syn::parse_quote! { dyn Fn(T) },
++        ] {
++            let ty: syn::Type = ty;
++            assert!(ty.contains_generics(params));
++        }
++
++        let unrelated: syn::Type = syn::parse_quote! { fn(u8) -> bool };
++        assert!(!unrelated.contains_generics(params));
+     }
+ }
+ 
+--- a/derive_more-impl-2.1.1/src/utils.rs
++++ b/derive_more-impl-2.1.1/src/utils.rs
+@@ -203,11 +203,11 @@
+ ) -> Generics {
+     let generic_param: GenericParam = parse_quote! { #generic_param };
+     let lifetimes: Vec<GenericParam> =
+-        generics.lifetimes().map(|x| x.clone().into()).collect();
++        generics.lifetimes().map(|x| GenericParam::Lifetime(x.clone())).collect();
+     let type_params: Vec<GenericParam> =
+-        generics.type_params().map(|x| x.clone().into()).collect();
++        generics.type_params().map(|x| GenericParam::Type(x.clone())).collect();
+     let const_params: Vec<GenericParam> =
+-        generics.const_params().map(|x| x.clone().into()).collect();
++        generics.const_params().map(|x| GenericParam::Const(x.clone())).collect();
+     let mut generics = generics.clone();
+     generics.params = Default::default();
+     generics.params.extend(lifetimes);
+@@ -216,6 +216,25 @@
+     generics.params.extend(const_params);
+ 
+     generics
++}
++
++#[cfg(test)]
++mod add_extra_generic_type_param_spec {
++    use syn::{parse_quote, GenericParam, Generics};
++
++    use super::add_extra_generic_type_param;
++
++    #[test]
++    fn inserts_type_before_const_parameters() {
++        let generics: Generics = parse_quote! { <'a, T, const N: usize> };
++        let result = add_extra_generic_type_param(&generics, quote::quote! { U });
++        let params: Vec<_> = result.params.iter().collect();
++
++        assert!(matches!(params[0], GenericParam::Lifetime(_)));
++        assert!(matches!(params[1], GenericParam::Type(param) if param.ident == "T"));
++        assert!(matches!(params[2], GenericParam::Type(param) if param.ident == "U"));
++        assert!(matches!(params[3], GenericParam::Const(param) if param.ident == "N"));
++    }
+ }
+ 
+ pub fn add_extra_where_clauses(
+@@ -950,11 +969,11 @@
+                                             ),
+                                         ));
+                                     };
+-                                    syn::TypePath {
++                                    syn::Type::Path(syn::TypePath {
++                                        attrs: Vec::new(),
+                                         qself: None,
+                                         path: path.clone().into(),
+-                                    }
+-                                    .into()
++                                    })
+                                 }
+                                 polyfill::NestedMeta::Lit(syn::Lit::Str(s)) => s.parse()?,
+                                 polyfill::NestedMeta::Lit(lit) => return Err(Error::new(
+@@ -2923,7 +2942,7 @@
+                             syn::GenericArgument::Type(ty) if ty.contains_type_structurally(needle),
+                         )
+                     }),
+-                syn::Type::BareFn(_)
++                syn::Type::FnPtr(_)
+                 | syn::Type::ImplTrait(_)
+                 | syn::Type::Infer(_)
+                 | syn::Type::Macro(_)
+--- a/full_moon-3.0.0/Cargo.toml
++++ b/full_moon-3.0.0/Cargo.toml
+@@ -97,7 +97,7 @@
+ version = "1.0"
+ 
+ [dependencies.derive_more]
+-version = "1.0"
++version = "2.1.1"
+ features = ["display"]
+ 
+ [dependencies.full_moon_derive]
+--- a/full_moon_derive-0.11.0/Cargo.toml
++++ b/full_moon_derive-0.11.0/Cargo.toml
+@@ -22,7 +22,7 @@
+ proc-macro = true
+ 
+ [dependencies.indexmap]
+-version = "1.3"
++version = "2.14.2"
+ 
+ [dependencies.proc-macro2]
+ version = "1.0"
+@@ -31,5 +31,5 @@
+ version = "1.0"
+ 
+ [dependencies.syn]
+-version = "1.0.16"
++version = "3.0.9"
+ features = ["extra-traits"]
+--- a/full_moon_derive-0.11.0/src/derive.rs
++++ b/full_moon_derive-0.11.0/src/derive.rs
+@@ -1,5 +1,6 @@
+ use proc_macro2::TokenStream;
+ use quote::{format_ident, quote};
++use syn::punctuated::Punctuated;
+ use syn::{parse_macro_input, DeriveInput};
+ 
+ pub trait DeriveGenerator: EnumGenerator + StructGenerator {
+@@ -110,27 +111,32 @@
+     }
+ 
+     for attr in attrs {
+-        let meta = match attr.parse_meta() {
+-            Ok(meta) => meta,
+-            Err(_) => continue,
+-        };
+-
+-        if path_ident!(meta.path()) != name {
++        if path_ident!(attr.path()) != name {
+             continue;
+         };
+ 
+-        if let syn::Meta::List(list) = meta {
+-            for nested in list.nested {
++        if let syn::Meta::List(list) = &attr.meta {
++            let nested = match list
++                .parse_args_with(Punctuated::<syn::Meta, syn::Token![,]>::parse_terminated)
++            {
++                Ok(nested) => nested,
++                Err(_) => continue,
++            };
++
++            for nested in nested {
+                 match nested {
+-                    syn::NestedMeta::Meta(syn::Meta::Path(path)) => {
++                    syn::Meta::Path(path) => {
+                         return T::unit(path_ident!(path).to_string());
+                     }
+ 
+-                    syn::NestedMeta::Meta(syn::Meta::NameValue(name_value)) => {
++                    syn::Meta::NameValue(name_value) => {
+                         return T::key_value(
+                             path_ident!(name_value.path).to_string(),
+-                            match name_value.lit {
+-                                syn::Lit::Str(lit_str) => lit_str.value(),
++                            match name_value.value {
++                                syn::Expr::Lit(expr_lit) => match expr_lit.lit {
++                                    syn::Lit::Str(lit_str) => lit_str.value(),
++                                    other => unimplemented!("nested meta value: {:#?}", other),
++                                },
+ 
+                                 other => unimplemented!("nested meta value: {:#?}", other),
+                             },
+@@ -145,3 +151,52 @@
+ 
+     None
+ }
++
++#[cfg(test)]
++mod tests {
++    use super::{search_hint, Hint};
++    use syn::parse_quote;
++
++    #[derive(Debug, PartialEq)]
++    enum TestHint {
++        Unit(String),
++        KeyValue(String, String),
++    }
++
++    impl Hint for TestHint {
++        fn unit(name: String) -> Option<Self> {
++            Some(Self::Unit(name))
++        }
++
++        fn key_value(key: String, value: String) -> Option<Self> {
++            Some(Self::KeyValue(key, value))
++        }
++    }
++
++    #[test]
++    fn finds_unit_hint() {
++        let attrs = [parse_quote!(#[node(full_range)])];
++        assert_eq!(
++            search_hint("node", &attrs),
++            Some(TestHint::Unit("full_range".into()))
++        );
++    }
++
++    #[test]
++    fn finds_string_key_value_hint() {
++        let attrs = [parse_quote!(#[visit(contains = "fields")])];
++        assert_eq!(
++            search_hint("visit", &attrs),
++            Some(TestHint::KeyValue("contains".into(), "fields".into()))
++        );
++    }
++
++    #[test]
++    fn ignores_unrelated_attribute() {
++        let attrs = [parse_quote!(#[derive(Clone)]), parse_quote!(#[visit(skip)])];
++        assert_eq!(
++            search_hint("visit", &attrs),
++            Some(TestHint::Unit("skip".into()))
++        );
++    }
++}
+--- a/getrandom-0.4.3/Cargo.toml
++++ b/getrandom-0.4.3/Cargo.toml
+@@ -101,7 +101,7 @@
+ default-features = false
+ 
+ [target.'cfg(all(target_os = "uefi", getrandom_backend = "efi_rng"))'.dependencies.r-efi]
+-version = "6"
++version = "7.1.0"
+ default-features = false
+ 
+ [target.'cfg(any(target_os = "dragonfly", target_os = "freebsd", target_os = "hurd", target_os = "illumos", target_os = "cygwin", all(target_os = "horizon", target_arch = "arm")))'.dependencies.libc]
+--- a/insta-1.49.0/Cargo.toml
++++ b/insta-1.49.0/Cargo.toml
+@@ -166,7 +166,7 @@
+ optional = true
+ 
+ [dependencies.similar]
+-version = "2.1.0"
++version = "3.2.1"
+ features = ["inline"]
+ 
+ [dependencies.strip-ansi-escapes]
+--- a/lsp-types-0.97.0/Cargo.toml
++++ b/lsp-types-0.97.0/Cargo.toml
+@@ -31,10 +31,10 @@
+ repository = "https://github.com/gluon-lang/lsp-types"
+ 
+ [dependencies.bitflags]
+-version = "1.0.1"
++version = "2.13.2"
+ 
+ [dependencies.fluent-uri]
+-version = "0.1.4"
++version = "0.4.1"
+ 
+ [dependencies.serde]
+ version = "1.0.34"
+--- a/lsp-types-0.97.0/src/lib.rs
++++ b/lsp-types-0.97.0/src/lib.rs
+@@ -2386,6 +2386,7 @@
+ pub type Pattern = String;
+ 
+ bitflags! {
++#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+ pub struct WatchKind: u8 {
+     /// Interested in create events.
+     const Create = 1;
+--- a/lsp-types-0.97.0/src/uri.rs
++++ b/lsp-types-0.97.0/src/uri.rs
+@@ -21,9 +21,9 @@
+         D: serde::Deserializer<'de>,
+     {
+         let string = String::deserialize(deserializer)?;
+-        fluent_uri::Uri::<String>::parse_from(string)
++        fluent_uri::Uri::<String>::parse(string)
+             .map(Uri)
+-            .map_err(|(_, error)| Error::custom(error.to_string()))
++            .map_err(|(error, _)| Error::custom(error.to_string()))
+     }
+ }
+ 
+--- a/predicates-tree-1.0.13/Cargo.toml
++++ b/predicates-tree-1.0.13/Cargo.toml
+@@ -96,7 +96,7 @@
+ version = "1.0"
+ 
+ [dependencies.termtree]
+-version = "0.5.0"
++version = "1.0.0"
+ 
+ [dev-dependencies.predicates]
+ version = "3.1"
+--- a/similar-3.2.1/Cargo.toml
++++ b/similar-3.2.1/Cargo.toml
+@@ -77,7 +77,7 @@
+ default-features = false
+ 
+ [dependencies.hashbrown]
+-version = "0.15"
++version = "0.17.1"
+ features = ["default-hasher"]
+ optional = true
+ default-features = false
+--- a/strum_macros-0.28.0/Cargo.toml
++++ b/strum_macros-0.28.0/Cargo.toml
+@@ -53,7 +53,7 @@
+ version = "1.0"
+ 
+ [dependencies.syn]
+-version = "2.0"
++version = "3.0.9"
+ features = ["parsing"]
+ 
+ [dev-dependencies]
+--- a/windows-sys-0.61.2/Cargo.toml
++++ b/windows-sys-0.61.2/Cargo.toml
+@@ -287,7 +287,7 @@
+ doctest = false
+ 
+ [dependencies.windows-link]
+-version = "0.2.1"
++version = "0.100.0"
+ default-features = false
+ 
+ [lints.rust]
+--- a/zerocopy-derive-0.8.63/Cargo.toml
++++ b/zerocopy-derive-0.8.63/Cargo.toml
+@@ -201,7 +201,7 @@
+ version = "1.0.40"
+ 
+ [dependencies.syn]
+-version = "2.0.46"
++version = "3.0.9"
+ features = ["full"]
+ 
+ [dev-dependencies.dissimilar]
