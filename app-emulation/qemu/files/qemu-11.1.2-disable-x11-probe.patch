@@ -1,0 +1,17 @@
+With USE=-X, do not enable X11 based on the build host's installed libraries.
+The ebuild applies this patch only when X is disabled; USE=X retains upstream
+probing and the explicit libX11 dependencies for SDL/GTK.
+
+See: https://github.com/gentoo/gentoo/commit/59de979e86be868bf5985b39cd1be55b20c75f89
+
+--- a/meson.build
++++ b/meson.build
+@@ -1940,7 +1940,7 @@
+   endif
+ endif
+ 
+-x11 = dependency('x11', method: 'pkg-config', required: gtkx11.found())
++x11 = not_found
+ 
+ png = not_found
+ if get_option('png').allowed() and have_system
