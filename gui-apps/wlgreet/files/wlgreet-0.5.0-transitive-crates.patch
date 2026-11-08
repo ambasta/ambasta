@@ -1,0 +1,569 @@
+Port transitive crate requirements to the latest stable releases.
+
+quick-xml 0.42 exposes UTF-8 strings instead of byte slices.
+Use the decoded string events directly in the Wayland XML scanner.
+
+--- a/chrono-0.4.45/Cargo.toml
++++ b/chrono-0.4.45/Cargo.toml
+@@ -177,5 +177,5 @@
+ optional = true
+ 
+ [target."cfg(windows)".dependencies.windows-link]
+-version = "0.2"
++version = "0.100.0"
+ optional = true
+--- a/greetd_ipc-0.10.3/Cargo.toml
++++ b/greetd_ipc-0.10.3/Cargo.toml
+@@ -45,7 +45,7 @@
+ version = "1.0"
+ 
+ [dependencies.thiserror]
+-version = "1.0"
++version = "2.0.21"
+ optional = true
+ 
+ [dependencies.tokio]
+--- a/iana-time-zone-0.1.65/Cargo.toml
++++ b/iana-time-zone-0.1.65/Cargo.toml
+@@ -87,7 +87,7 @@
+ version = "0.1.1"
+ 
+ [target.'cfg(target_os = "windows")'.dependencies.windows-core]
+-version = ">=0.56, <=0.62"
++version = "0.100.0"
+ 
+ [target.'cfg(target_vendor = "apple")'.dependencies.core-foundation-sys]
+ version = "0.8.6"
+--- a/rusttype-0.9.3/Cargo.toml
++++ b/rusttype-0.9.3/Cargo.toml
+@@ -56,7 +56,7 @@
+ optional = true
+ 
+ [dependencies.owned_ttf_parser]
+-version = "0.15"
++version = "0.25.1"
+ default-features = false
+ 
+ [dependencies.rustc-hash]
+--- a/smithay-client-toolkit-0.21.1/Cargo.toml
++++ b/smithay-client-toolkit-0.21.1/Cargo.toml
+@@ -204,7 +204,7 @@
+ version = "0.31.0"
+ 
+ [dependencies.xkbcommon]
+-version = "0.8.0"
++version = "0.9.0"
+ features = ["wayland"]
+ optional = true
+ 
+--- a/wayland-backend-0.3.17/Cargo.toml
++++ b/wayland-backend-0.3.17/Cargo.toml
+@@ -69,7 +69,7 @@
+ path = "tests/rs_sys_impls.rs"
+ 
+ [dependencies.downcast-rs]
+-version = "1.2"
++version = "2.0.2"
+ 
+ [dependencies.log]
+ version = "0.4"
+--- a/wayland-scanner-0.31.11/Cargo.toml
++++ b/wayland-scanner-0.31.11/Cargo.toml
+@@ -51,7 +51,7 @@
+ version = "1.0.11"
+ 
+ [dependencies.quick-xml]
+-version = "0.41"
++version = "0.42.0"
+ 
+ [dependencies.quote]
+ version = "1.0"
+--- a/wayland-scanner-0.31.11/src/parse.rs
++++ b/wayland-scanner-0.31.11/src/parse.rs
+@@ -17,19 +17,12 @@
+     parse_protocol(reader)
+ }
+ 
+-fn decode_utf8_or_panic(txt: Vec<u8>) -> String {
+-    match String::from_utf8(txt) {
+-        Ok(txt) => txt,
+-        Err(e) => panic!("Invalid UTF8: '{}'", String::from_utf8_lossy(&e.into_bytes())),
+-    }
+-}
+-
+-fn parse_or_panic<T: FromStr>(txt: &[u8]) -> T {
+-    match std::str::from_utf8(txt).ok().and_then(|val| val.parse().ok()) {
++fn parse_or_panic<T: FromStr>(txt: &str) -> T {
++    match txt.parse().ok() {
+         Some(version) => version,
+         None => panic!(
+             "Invalid value '{}' for parsing type '{}'",
+-            String::from_utf8_lossy(txt),
++            txt,
+             std::any::type_name::<T>()
+         ),
+     }
+@@ -43,13 +36,16 @@
+                 continue;
+             }
+             Ok(Event::Start(bytes)) => {
+-                assert!(bytes.name().into_inner() == b"protocol", "Missing protocol toplevel tag");
++                assert!(
++                    bytes.name().into_inner() == "protocol",
++                    "Missing protocol toplevel tag"
++                );
+                 if let Some(attr) = bytes
+                     .attributes()
+                     .filter_map(|res| res.ok())
+-                    .find(|attr| attr.key.into_inner() == b"name")
++                    .find(|attr| attr.key.into_inner() == "name")
+                 {
+-                    return Protocol::new(decode_utf8_or_panic(attr.value.into_owned()));
++                    return Protocol::new(attr.value.into_owned());
+                 } else {
+                     panic!("Protocol must have a name");
+                 }
+@@ -67,26 +63,22 @@
+         match reader.read_event_into(&mut Vec::new()) {
+             Ok(Event::Start(bytes)) => {
+                 match bytes.name().into_inner() {
+-                    b"copyright" => {
++                    "copyright" => {
+                         // parse the copyright
+                         let mut copyright = String::new();
+                         loop {
+                             match reader.read_event_into(&mut Vec::new()) {
+                                 Ok(Event::Text(text)) => {
+-                                    if let Ok(text) = text.decode() {
+-                                        copyright.push_str(&text);
+-                                    }
++                                    copyright.push_str(&text);
+                                 }
+                                 Ok(Event::CData(cdata)) => {
+-                                    if let Ok(cdata) = String::from_utf8(cdata.into_inner().into())
+-                                    {
+-                                        copyright.push_str(&cdata);
+-                                    }
++                                    copyright.push_str(&cdata);
+                                 }
+                                 Ok(Event::GeneralRef(byte_ref)) => {
+                                     if let Ok(Some(c)) = byte_ref.resolve_char_ref() {
+                                         copyright.push(c);
+-                                    } else if let Ok(content) = byte_ref.xml10_content() {
++                                    } else {
++                                        let content = byte_ref.xml10_content();
+                                         if let Some(s) =
+                                             quick_xml::escape::resolve_xml_entity(&content)
+                                         {
+@@ -96,7 +88,7 @@
+                                 }
+                                 Ok(Event::End(bytes)) => {
+                                     assert!(
+-                                        bytes.name().into_inner() == "copyright".as_bytes(),
++                                        bytes.name().into_inner() == "copyright",
+                                         "Ill-formed protocol file"
+                                     );
+                                     break;
+@@ -109,27 +101,24 @@
+ 
+                         protocol.copyright = Some(copyright)
+                     }
+-                    b"interface" => {
+-                        protocol.interfaces.push(parse_interface(&mut reader, bytes.attributes()));
++                    "interface" => {
++                        protocol
++                            .interfaces
++                            .push(parse_interface(&mut reader, bytes.attributes()));
+                     }
+-                    b"description" => {
++                    "description" => {
+                         protocol.description =
+                             Some(parse_description(&mut reader, bytes.attributes()));
+                     }
+                     name => panic!(
+                         "Ill-formed protocol file: unexpected token `{}` in protocol {}",
+-                        String::from_utf8_lossy(name),
+-                        protocol.name
++                        name, protocol.name
+                     ),
+                 }
+             }
+             Ok(Event::End(bytes)) => {
+                 let name = bytes.name().into_inner();
+-                assert!(
+-                    name == b"protocol",
+-                    "Unexpected closing token `{}`",
+-                    String::from_utf8_lossy(name)
+-                );
++                assert!(name == "protocol", "Unexpected closing token `{}`", name);
+                 break;
+             }
+             // ignore comments
+@@ -145,24 +134,28 @@
+     let mut interface = Interface::new();
+     for attr in attrs.filter_map(|res| res.ok()) {
+         match attr.key.into_inner() {
+-            b"name" => interface.name = decode_utf8_or_panic(attr.value.into_owned()),
+-            b"version" => interface.version = parse_or_panic(&attr.value),
+-            _ => {}
+-        }
+-    }
+-
+-    loop {
+-        match reader.read_event_into(&mut Vec::new()) {
+-            Ok(Event::Start(bytes)) => match bytes.name().into_inner() {
+-                b"description" => {
++            "name" => interface.name = attr.value.into_owned(),
++            "version" => interface.version = parse_or_panic(&attr.value),
++            _ => {}
++        }
++    }
++
++    loop {
++        match reader.read_event_into(&mut Vec::new()) {
++            Ok(Event::Start(bytes)) => match bytes.name().into_inner() {
++                "description" => {
+                     interface.description = Some(parse_description(reader, bytes.attributes()))
+                 }
+-                b"request" => interface.requests.push(parse_request(reader, bytes.attributes())),
+-                b"event" => interface.events.push(parse_event(reader, bytes.attributes())),
+-                b"enum" => interface.enums.push(parse_enum(reader, bytes.attributes())),
+-                name => panic!("Unexpected token: `{}`", String::from_utf8_lossy(name)),
+-            },
+-            Ok(Event::End(bytes)) if bytes.name().into_inner() == b"interface" => break,
++                "request" => interface
++                    .requests
++                    .push(parse_request(reader, bytes.attributes())),
++                "event" => interface
++                    .events
++                    .push(parse_event(reader, bytes.attributes())),
++                "enum" => interface.enums.push(parse_enum(reader, bytes.attributes())),
++                name => panic!("Unexpected token: `{}`", name),
++            },
++            Ok(Event::End(bytes)) if bytes.name().into_inner() == "interface" => break,
+             _ => {}
+         }
+     }
+@@ -173,11 +166,8 @@
+ fn parse_description<R: BufRead>(reader: &mut Reader<R>, attrs: Attributes) -> (String, String) {
+     let mut summary = String::new();
+     for attr in attrs.filter_map(|res| res.ok()) {
+-        if attr.key.into_inner() == b"summary" {
+-            summary = String::from_utf8_lossy(&attr.value)
+-                .split_whitespace()
+-                .collect::<Vec<_>>()
+-                .join(" ");
++        if attr.key.into_inner() == "summary" {
++            summary = attr.value.split_whitespace().collect::<Vec<_>>().join(" ");
+         }
+     }
+ 
+@@ -190,9 +180,9 @@
+                 if !description.is_empty() {
+                     description.push_str("\n\n");
+                 }
+-                description.push_str(&bytes.decode().unwrap_or_default())
+-            }
+-            Ok(Event::End(bytes)) if bytes.name().into_inner() == b"description" => break,
++                description.push_str(&bytes)
++            }
++            Ok(Event::End(bytes)) if bytes.name().into_inner() == "description" => break,
+             Ok(Event::Comment(_)) => {}
+             e => panic!("Ill-formed protocol file: {e:?}"),
+         }
+@@ -205,23 +195,23 @@
+     let mut request = Message::new();
+     for attr in attrs.filter_map(|res| res.ok()) {
+         match attr.key.into_inner() {
+-            b"name" => request.name = decode_utf8_or_panic(attr.value.into_owned()),
+-            b"type" => request.typ = Some(parse_type(&attr.value)),
+-            b"since" => request.since = parse_or_panic(&attr.value),
+-            _ => {}
+-        }
+-    }
+-
+-    loop {
+-        match reader.read_event_into(&mut Vec::new()) {
+-            Ok(Event::Start(bytes)) => match bytes.name().into_inner() {
+-                b"description" => {
++            "name" => request.name = attr.value.into_owned(),
++            "type" => request.typ = Some(parse_type(&attr.value)),
++            "since" => request.since = parse_or_panic(&attr.value),
++            _ => {}
++        }
++    }
++
++    loop {
++        match reader.read_event_into(&mut Vec::new()) {
++            Ok(Event::Start(bytes)) => match bytes.name().into_inner() {
++                "description" => {
+                     request.description = Some(parse_description(reader, bytes.attributes()))
+                 }
+-                b"arg" => request.args.push(parse_arg(reader, bytes.attributes())),
+-                name => panic!("Unexpected token: `{}`", String::from_utf8_lossy(name)),
+-            },
+-            Ok(Event::End(bytes)) if bytes.name().into_inner() == b"request" => break,
++                "arg" => request.args.push(parse_arg(reader, bytes.attributes())),
++                name => panic!("Unexpected token: `{}`", name),
++            },
++            Ok(Event::End(bytes)) if bytes.name().into_inner() == "request" => break,
+             _ => {}
+         }
+     }
+@@ -233,10 +223,10 @@
+     let mut enu = Enum::new();
+     for attr in attrs.filter_map(|res| res.ok()) {
+         match attr.key.into_inner() {
+-            b"name" => enu.name = decode_utf8_or_panic(attr.value.into_owned()),
+-            b"since" => enu.since = parse_or_panic(&attr.value),
+-            b"bitfield" => {
+-                if &attr.value[..] == b"true" {
++            "name" => enu.name = attr.value.into_owned(),
++            "since" => enu.since = parse_or_panic(&attr.value),
++            "bitfield" => {
++                if &attr.value[..] == "true" {
+                     enu.bitfield = true
+                 }
+             }
+@@ -247,13 +237,13 @@
+     loop {
+         match reader.read_event_into(&mut Vec::new()) {
+             Ok(Event::Start(bytes)) => match bytes.name().into_inner() {
+-                b"description" => {
++                "description" => {
+                     enu.description = Some(parse_description(reader, bytes.attributes()))
+                 }
+-                b"entry" => enu.entries.push(parse_entry(reader, bytes.attributes())),
+-                name => panic!("Unexpected token: `{}`", String::from_utf8_lossy(name)),
+-            },
+-            Ok(Event::End(bytes)) if bytes.name().into_inner() == b"enum" => break,
++                "entry" => enu.entries.push(parse_entry(reader, bytes.attributes())),
++                name => panic!("Unexpected token: `{}`", name),
++            },
++            Ok(Event::End(bytes)) if bytes.name().into_inner() == "enum" => break,
+             _ => {}
+         }
+     }
+@@ -265,23 +255,23 @@
+     let mut event = Message::new();
+     for attr in attrs.filter_map(|res| res.ok()) {
+         match attr.key.into_inner() {
+-            b"name" => event.name = decode_utf8_or_panic(attr.value.into_owned()),
+-            b"type" => event.typ = Some(parse_type(&attr.value)),
+-            b"since" => event.since = parse_or_panic(&attr.value),
+-            _ => {}
+-        }
+-    }
+-
+-    loop {
+-        match reader.read_event_into(&mut Vec::new()) {
+-            Ok(Event::Start(bytes)) => match bytes.name().into_inner() {
+-                b"description" => {
++            "name" => event.name = attr.value.into_owned(),
++            "type" => event.typ = Some(parse_type(&attr.value)),
++            "since" => event.since = parse_or_panic(&attr.value),
++            _ => {}
++        }
++    }
++
++    loop {
++        match reader.read_event_into(&mut Vec::new()) {
++            Ok(Event::Start(bytes)) => match bytes.name().into_inner() {
++                "description" => {
+                     event.description = Some(parse_description(reader, bytes.attributes()))
+                 }
+-                b"arg" => event.args.push(parse_arg(reader, bytes.attributes())),
+-                name => panic!("Unexpected token: `{}`", String::from_utf8_lossy(name)),
+-            },
+-            Ok(Event::End(bytes)) if bytes.name().into_inner() == b"event" => break,
++                "arg" => event.args.push(parse_arg(reader, bytes.attributes())),
++                name => panic!("Unexpected token: `{}`", name),
++            },
++            Ok(Event::End(bytes)) if bytes.name().into_inner() == "event" => break,
+             _ => {}
+         }
+     }
+@@ -293,36 +283,31 @@
+     let mut arg = Arg::new();
+     for attr in attrs.filter_map(|res| res.ok()) {
+         match attr.key.into_inner() {
+-            b"name" => arg.name = decode_utf8_or_panic(attr.value.into_owned()),
+-            b"type" => arg.typ = parse_type(&attr.value),
+-            b"summary" => {
+-                arg.summary = Some(
+-                    String::from_utf8_lossy(&attr.value)
+-                        .split_whitespace()
+-                        .collect::<Vec<_>>()
+-                        .join(" "),
+-                )
+-            }
+-            b"interface" => arg.interface = Some(parse_or_panic(&attr.value)),
+-            b"allow-null" => {
+-                if &*attr.value == b"true" {
++            "name" => arg.name = attr.value.into_owned(),
++            "type" => arg.typ = parse_type(&attr.value),
++            "summary" => {
++                arg.summary = Some(attr.value.split_whitespace().collect::<Vec<_>>().join(" "))
++            }
++            "interface" => arg.interface = Some(parse_or_panic(&attr.value)),
++            "allow-null" => {
++                if &*attr.value == "true" {
+                     arg.allow_null = true
+                 }
+             }
+-            b"enum" => arg.enum_ = Some(decode_utf8_or_panic(attr.value.into_owned())),
+-            _ => {}
+-        }
+-    }
+-
+-    loop {
+-        match reader.read_event_into(&mut Vec::new()) {
+-            Ok(Event::Start(bytes)) => match bytes.name().into_inner() {
+-                b"description" => {
++            "enum" => arg.enum_ = Some(attr.value.into_owned()),
++            _ => {}
++        }
++    }
++
++    loop {
++        match reader.read_event_into(&mut Vec::new()) {
++            Ok(Event::Start(bytes)) => match bytes.name().into_inner() {
++                "description" => {
+                     arg.description = Some(parse_description(reader, bytes.attributes()))
+                 }
+-                name => panic!("Unexpected token: `{}`", String::from_utf8_lossy(name)),
+-            },
+-            Ok(Event::End(bytes)) if bytes.name().into_inner() == b"arg" => break,
++                name => panic!("Unexpected token: `{}`", name),
++            },
++            Ok(Event::End(bytes)) if bytes.name().into_inner() == "arg" => break,
+             _ => {}
+         }
+     }
+@@ -330,18 +315,18 @@
+     arg
+ }
+ 
+-fn parse_type(txt: &[u8]) -> Type {
++fn parse_type(txt: &str) -> Type {
+     match txt {
+-        b"int" => Type::Int,
+-        b"uint" => Type::Uint,
+-        b"fixed" => Type::Fixed,
+-        b"string" => Type::String,
+-        b"object" => Type::Object,
+-        b"new_id" => Type::NewId,
+-        b"array" => Type::Array,
+-        b"fd" => Type::Fd,
+-        b"destructor" => Type::Destructor,
+-        e => panic!("Unexpected type: {}", String::from_utf8_lossy(e)),
++        "int" => Type::Int,
++        "uint" => Type::Uint,
++        "fixed" => Type::Fixed,
++        "string" => Type::String,
++        "object" => Type::Object,
++        "new_id" => Type::NewId,
++        "array" => Type::Array,
++        "fd" => Type::Fd,
++        "destructor" => Type::Destructor,
++        e => panic!("Unexpected type: {}", e),
+     }
+ }
+ 
+@@ -349,43 +334,35 @@
+     let mut entry = Entry::new();
+     for attr in attrs.filter_map(|res| res.ok()) {
+         match attr.key.into_inner() {
+-            b"name" => entry.name = decode_utf8_or_panic(attr.value.into_owned()),
+-            b"value" => {
+-                entry.value = if attr.value.starts_with(b"0x") {
+-                    if let Some(val) = std::str::from_utf8(&attr.value[2..])
+-                        .ok()
+-                        .and_then(|s| u32::from_str_radix(s, 16).ok())
+-                    {
++            "name" => entry.name = attr.value.into_owned(),
++            "value" => {
++                entry.value = if attr.value.starts_with("0x") {
++                    if let Some(val) = u32::from_str_radix(&attr.value[2..], 16).ok() {
+                         val
+                     } else {
+-                        panic!("Invalid number: {}", String::from_utf8_lossy(&attr.value))
++                        panic!("Invalid number: {}", attr.value)
+                     }
+                 } else {
+                     parse_or_panic(&attr.value)
+                 };
+             }
+-            b"since" => entry.since = parse_or_panic(&attr.value),
+-            b"summary" => {
+-                entry.summary = Some(
+-                    String::from_utf8_lossy(&attr.value)
+-                        .split_whitespace()
+-                        .collect::<Vec<_>>()
+-                        .join(" "),
+-                )
+-            }
+-            _ => {}
+-        }
+-    }
+-
+-    loop {
+-        match reader.read_event_into(&mut Vec::new()) {
+-            Ok(Event::Start(bytes)) => match bytes.name().into_inner() {
+-                b"description" => {
++            "since" => entry.since = parse_or_panic(&attr.value),
++            "summary" => {
++                entry.summary = Some(attr.value.split_whitespace().collect::<Vec<_>>().join(" "))
++            }
++            _ => {}
++        }
++    }
++
++    loop {
++        match reader.read_event_into(&mut Vec::new()) {
++            Ok(Event::Start(bytes)) => match bytes.name().into_inner() {
++                "description" => {
+                     entry.description = Some(parse_description(reader, bytes.attributes()))
+                 }
+-                name => panic!("Unexpected token: `{}`", String::from_utf8_lossy(name)),
+-            },
+-            Ok(Event::End(bytes)) if bytes.name().into_inner() == b"entry" => break,
++                name => panic!("Unexpected token: `{}`", name),
++            },
++            Ok(Event::End(bytes)) if bytes.name().into_inner() == "entry" => break,
+             _ => {}
+         }
+     }
+--- a/windows-implement-0.100.0/Cargo.toml
++++ b/windows-implement-0.100.0/Cargo.toml
+@@ -43,7 +43,7 @@
+ default-features = false
+ 
+ [dependencies.syn]
+-version = "2.0"
++version = "3.0.9"
+ features = [
+     "parsing",
+     "proc-macro",
+--- a/windows-interface-0.100.0/Cargo.toml
++++ b/windows-interface-0.100.0/Cargo.toml
+@@ -43,7 +43,7 @@
+ default-features = false
+ 
+ [dependencies.syn]
+-version = "2.0"
++version = "3.0.9"
+ features = [
+     "parsing",
+     "proc-macro",
+--- a/windows-sys-0.61.2/Cargo.toml
++++ b/windows-sys-0.61.2/Cargo.toml
+@@ -287,7 +287,7 @@
+ doctest = false
+ 
+ [dependencies.windows-link]
+-version = "0.2.1"
++version = "0.100.0"
+ default-features = false
+ 
+ [lints.rust]
