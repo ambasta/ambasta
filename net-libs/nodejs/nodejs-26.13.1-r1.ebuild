@@ -4,7 +4,7 @@
 EAPI=8
 
 CONFIG_CHECK="~ADVISE_SYSCALLS"
-PYTHON_COMPAT=( python3_{11..14} )
+PYTHON_COMPAT=( python3_{12..14} )
 PYTHON_REQ_USE="threads(+)"
 RUST_OPTIONAL=1
 RUST_MIN_VER="1.86.0"
@@ -23,7 +23,7 @@ if [[ ${PV} == *9999 ]]; then
 else
 	SRC_URI="https://nodejs.org/dist/v${PV}/node-v${PV}.tar.xz"
 	SLOT="0/$(ver_cut 1)"
-	KEYWORDS="~amd64 ~arm ~arm64 ~loong ~ppc64 ~riscv ~x86 ~x64-macos"
+	KEYWORDS="amd64 ~arm ~arm64 ~loong ~ppc64 ~riscv ~x86 ~x64-macos"
 	S="${WORKDIR}/node-v${PV}"
 fi
 
@@ -32,7 +32,7 @@ REQUIRED_USE="inspector? ( icu ssl )
 	npm? ( ssl )
 	system-icu? ( icu )
 	system-ssl? ( ssl )
-	temporal? ( || ( icu !system-icu ) )
+	temporal? ( icu )
 	x86? ( cpu_flags_x86_sse2 )"
 
 RESTRICT="!test? ( test )"
@@ -40,19 +40,22 @@ RESTRICT="!test? ( test )"
 COMMON_DEPEND=">=app-arch/brotli-1.2.1:=
 	dev-db/sqlite:3
 	>=dev-cpp/ada-4.0.0:=
-	>=dev-cpp/simdutf-9.2.1:=
+	>=dev-cpp/simdutf-9.2.1-r1:=[atomic-base64(+)]
 	>=dev-libs/libuv-1.52.1:=
 	>=dev-libs/simdjson-5.0.3:=
-	>=net-dns/c-ares-1.34.8:=
+	>=net-dns/c-ares-1.34.9:=
 	>=net-libs/nghttp2-1.70.0:=
 	>=net-libs/nghttp3-1.18.0:=
 	virtual/zlib:=
 	system-icu? ( >=dev-libs/icu-78:= )
-	system-ssl? (
-		>=net-libs/ngtcp2-1.25.0:=
-		>=dev-libs/openssl-3.5.9:0=
+	ssl? (
+		system-ssl? (
+			>=net-libs/ngtcp2-1.25.0:=
+			>=dev-libs/openssl-3.5.9:0=
+		)
+		!system-ssl? ( >=net-libs/ngtcp2-1.25.0:=[-gnutls] )
 	)
-	!system-ssl? ( >=net-libs/ngtcp2-1.25.0:=[-gnutls] )
+	!ssl? ( >=net-libs/ngtcp2-1.25.0:= )
 	|| (
 		sys-devel/gcc:*
 		llvm-runtimes/libatomic-stub
@@ -62,7 +65,7 @@ BDEPEND="${PYTHON_DEPS}
 	pax-kernel? ( sys-apps/elfix )
 	sys-apps/coreutils
 	temporal? ( ${RUST_DEPEND} )
-	test? ( net-misc/curl )
+	test? ( net-misc/curl app-arch/unzip )
 	virtual/pkgconfig"
 DEPEND="${COMMON_DEPEND}"
 RDEPEND="${COMMON_DEPEND}"
@@ -176,7 +179,6 @@ src_configure() {
 	use debug && myconf+=( --debug )
 	use lto && myconf+=( --enable-lto )
 	if use system-icu; then
-		# No Temporal support: https://github.com/nodejs/node/issues/62676
 		myconf+=( --with-intl=system-icu )
 	elif use icu; then
 		# Full embedded ICU (Temporal works)
@@ -194,6 +196,9 @@ src_configure() {
 		myconf+=( --without-ssl )
 	fi
 	! use temporal && myconf+=( --v8-disable-temporal-support )
+
+	# https://bugs.gentoo.org/985006
+	use ppc64 && myconf+=( --without-lief )
 
 	local myarch=""
 	case "${ARCH}:${ABI}" in
@@ -274,6 +279,7 @@ src_install() {
 
 src_test() {
 	local drop_tests=(
+		test/parallel/test-blocklist.js
 		test/parallel/test-dns.js
 		test/parallel/test-dns-resolveany-bad-ancount.js
 		test/parallel/test-dns-setserver-when-querying.js
@@ -297,8 +303,12 @@ src_test() {
 		test/parallel/test-snapshot-reproducible.js
 		test/parallel/test-socket-write-after-fin-error.js
 		test/parallel/test-strace-openat-openssl.js
+		test/parallel/test-x509-escaping.js
+		test/parallel/test-util-styletext.js
+		test/parallel/test-util-styletext-hex.js
 		test/sequential/test-tls-session-timeout.js
 		test/sequential/test-util-debug.js
+		test/sequential/test-watch-mode.mjs
 	)
 
 	if has_version "sys-libs/zlib-ng" ; then
@@ -307,6 +317,13 @@ src_test() {
 		drop_tests+=( test/parallel/test-process-versions.js )
 		drop_tests+=( test/parallel/test-zlib-zip-interop.js )
 		elog
+	fi
+
+	# Skip the ZIP interop test when system unzip lacks natspec
+	# (zipinfo can't handle the Unicode filename otherwise)
+	if ! has_version "app-arch/unzip[natspec]" ; then
+		elog "Skipping test-zlib-zip-interop.js: system unzip was built without natspec"
+		drop_tests+=( test/parallel/test-zlib-zip-interop.js )
 	fi
 
 	use inspector ||
@@ -328,13 +345,5 @@ pkg_postinst() {
 	if use npm; then
 		ewarn "remember to run: source /etc/profile if you plan to use nodejs"
 		ewarn " in your current shell"
-	fi
-
-	if use system-icu; then
-		ewarn ""
-		ewarn "Node.js was built with USE='system-icu'."
-		ewarn "The JavaScript 'Temporal' API has been disabled."
-		ewarn "If you need full ES2026+ compliance, rebuild with USE='-system-icu'."
-		ewarn ""
 	fi
 }
